@@ -1,0 +1,1 @@
+web: gunicorn farmApp.wsgi --log-file -
