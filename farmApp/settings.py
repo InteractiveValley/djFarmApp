@@ -43,7 +43,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'productos'
+    'productos',
+    'usuarios',
+    'carrito'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -95,7 +97,7 @@ DATABASES['default'] =  dj_database_url.config()
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es.UTF-8'
 
 TIME_ZONE = 'UTC'
 
@@ -127,3 +129,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
+
+# config to profile user
+AUTH_PROFILE_MODULE = 'usuarios.Profile'

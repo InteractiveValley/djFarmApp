@@ -16,14 +16,20 @@ Including another URLconf
 from django.conf.urls import patterns, include, url
 
 from django.contrib import admin
+
 admin.autodiscover()
 
 from productos.viewsets import CategoryViewSet, ProductViewSet
+from usuarios.viewsets import UserViewSet, DirectionViewSet, PedidoPeriodicoViewSet, PreguntaViewSet
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'categorias', CategoryViewSet)
 router.register(r'productos', ProductViewSet)
+router.register(r'direcciones', DirectionViewSet)
+router.register(r'usuarios', UserViewSet)
+router.register(r'pedidos/periodicos', PedidoPeriodicoViewSet)
+router.register(r'preguntas', PreguntaViewSet)
 
 urlpatterns = [
 	url(r'^api/', include(router.urls)),
