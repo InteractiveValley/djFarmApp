@@ -35,9 +35,10 @@ router.register(r'preguntas', PreguntaViewSet)
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     url(r'^api/', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^api-token-auth/', obtain_auth_token, name='api-token'),
-    url(r'^api-register/', 'usuarios.views.register_user', name='registro_usuarios'),
+    #url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    #url(r'^api-token-auth/', obtain_auth_token, name='api-token'),
+    url(r'^auth/', include('djoser.urls')),
+    url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'usuarios.views.home', name='homepage'),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT,}),   
