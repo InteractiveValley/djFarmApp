@@ -1,8 +1,37 @@
 from django.contrib import admin
-from .models import Direction, Profile, PedidoPeriodico, Pregunta
-# Register your models here.
+from .models import Direction, CustomUser, PedidoPeriodico, Pregunta
+from django.contrib.auth.admin import UserAdmin
+from django.utils.translation import ugettext_lazy as _
+
+from usuarios.models import CustomUser
+from usuarios.forms import CustomUserChangeForm, CustomUserCreationForm
+
+class CustomUserAdmin(UserAdmin):
+    # The forms to add and change user instances
+
+    # The fields to be used in displaying the User model.
+    # These override the definitions on the base UserAdmin
+    # that reference the removed 'username' field
+    fieldsets = (
+        (None, {'fields': ('email', 'password')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
+                                       'groups', 'user_permissions')}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'password1', 'password2')}
+        ),
+    )
+    form = CustomUserChangeForm
+    add_form = CustomUserCreationForm
+    list_display = ('email', 'first_name', 'last_name', 'cell',  'is_staff')
+    search_fields = ('email', 'first_name', 'last_name')
+    ordering = ('email',)
 
 admin.site.register(Direction)
-admin.site.register(Profile)
+admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(PedidoPeriodico)
 admin.site.register(Pregunta)

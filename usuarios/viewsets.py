@@ -1,11 +1,10 @@
-from .models import Direction, PedidoPeriodico, Pregunta
-from django.contrib.auth.models import User
+from .models import Direction, PedidoPeriodico, Pregunta, CustomUser
 from .serializers import UserSerializer, DirectionSerializer, PedidoPeriodicoSerializer, PreguntaSerializer
 from rest_framework import viewsets
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
 
 
 class DirectionViewSet(viewsets.ModelViewSet):

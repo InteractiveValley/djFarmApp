@@ -50,7 +50,7 @@ INSTALLED_APPS = (
     'usuarios',
     'carrito',
     'corsheaders',
-    'djoser'
+    'djoser',
 
 )
 
@@ -99,8 +99,8 @@ DATABASES = {
 }
 
 
-import dj_database_url
-DATABASES['default'] =  dj_database_url.config()
+# import dj_database_url
+# DATABASES['default'] =  dj_database_url.config()
 
 
 # Internationalization
@@ -145,4 +145,4 @@ REST_FRAMEWORK = {
 }
 
 # config to profile user
-AUTH_PROFILE_MODULE = 'usuarios.Profile'
+AUTH_USER_MODEL = 'usuarios.CustomUser'

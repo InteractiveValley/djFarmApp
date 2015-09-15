@@ -1,7 +1,6 @@
 from rest_framework import serializers
 
-from .models import Direction, Profile, PedidoPeriodico, Pregunta
-from django.contrib.auth.models import User
+from .models import Direction, Profile, PedidoPeriodico, Pregunta, CustomUser
 
 
 class DirectionSerializer(serializers.ModelSerializer):
@@ -10,18 +9,10 @@ class DirectionSerializer(serializers.ModelSerializer):
 		fields = ('id','localidad','calle','num_interior','num_exterior','codigo_postal','colonia','delegacion_municipio','user')
 		read_only_fields = ('user',)
 
-
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile
-        fields = ('cell','user')
-        read_only_fields = ('user',)
-
 class UserSerializer(serializers.ModelSerializer):
-	cell = serializers.CharField(source='profile.cell',read_only=False)
 	class Meta:
 		model = User
-		fields = ('id','first_name','last_name','username','cell','direction_set','pedidoperiodico_set')
+		fields = ('id','first_name','last_name','email','cell','direction_set','pedidoperiodico_set')
 		read_only_fields = ('direction_set','pedidoperiodico_set',)
 		write_only_fields = ('password',)
 		depth = 1

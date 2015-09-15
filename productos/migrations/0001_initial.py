@@ -11,21 +11,30 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Categoria',
+            name='Category',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=140)),
-                ('image_require', models.ImageField(upload_to=b'categorias/images/')),
-                ('image_no_require', models.ImageField(upload_to=b'categorias/images/')),
+                ('name', models.CharField(max_length=140, verbose_name=b'categoria')),
+                ('image_require', models.ImageField(upload_to=b'categorias/require/', verbose_name=b'imagen require')),
+                ('image_no_require', models.ImageField(upload_to=b'categorias/norequire/', verbose_name=b'imagen no require')),
             ],
+            options={
+                'verbose_name': 'categoria',
+            },
         ),
         migrations.CreateModel(
-            name='Producto',
+            name='Product',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=140)),
-                ('description', models.TextField()),
-                ('precio', models.DecimalField(max_digits=10, decimal_places=2)),
+                ('name', models.CharField(max_length=140, verbose_name=b'producto')),
+                ('description', models.TextField(verbose_name=b'descripcion')),
+                ('price', models.DecimalField(verbose_name=b'precio', max_digits=10, decimal_places=2)),
+                ('require_prescription', models.BooleanField(verbose_name=b'require receta')),
+                ('active', models.BooleanField(verbose_name=b'es activo')),
+                ('category', models.ForeignKey(verbose_name=b'categoria', to='productos.Category')),
             ],
+            options={
+                'verbose_name': 'producto',
+            },
         ),
     ]

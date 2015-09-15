@@ -7,10 +7,9 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    cell = serializers.CharField(source = 'profile.cell')
     class Meta:
         model = User
-        fields = tuple(User.REQUIRED_FIELDS) + (
+        fields = (
             User._meta.pk.name,
             User.USERNAME_FIELD,
             'first_name',
@@ -26,7 +25,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     cell = serializers.CharField(source = 'profile.cell')
     class Meta:
         model = User
-        fields = tuple(User.REQUIRED_FIELDS) + (
+        fields = (
             User.USERNAME_FIELD,
             User._meta.pk.name,
             'password',

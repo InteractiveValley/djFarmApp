@@ -1,12 +1,11 @@
 from django.db import models
 from productos.models import Product
-from usuarios.models import Direction
-from django.contrib.auth.models import User
+from usuarios.models import Direction, CustomUser
 
 # Create your models here.
 
 class Venta(models.Model):
-	user = models.ForeignKey(User)
+	user = models.ForeignKey(CustomUser)
 	enviar = models.ForeignKey(Direction, blank=True, null=True, on_delete=models.SET_NULL)
 	created_at = models.DateTimeField()
 	updated_at = models.DateTimeField()

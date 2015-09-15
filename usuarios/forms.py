@@ -1,35 +1,34 @@
 # -*- coding: utf-8 -*-
-from django import forms
-from django.forms import ModelForm
-from models import *
-from django.forms.extras.widgets import *
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+# usuarios/forms.py
 
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
-class UserCreateForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+from usuarios.models import CustomUser
+
+class CustomUserCreationForm(UserCreationForm):
+    """
+    A form that creates a user, with no privileges, from the given email and
+    password.
+    """
+
+    def __init__(self, *args, **kargs):
+        super(CustomUserCreationForm, self).__init__(*args, **kargs)
+        del self.fields['username']
 
     class Meta:
-        model = User
-        fields = ( "username", "email" )
+        model = CustomUser
+        fields = ("email",)
 
-	def clean_email(self):
-		email = self.cleaned_data['email']
-		if User.objects.filter(email=email).exists():
-			raise ValidationError("Email already exists")
-		return email
+class CustomUserChangeForm(UserChangeForm):
+    """A form for updating users. Includes all the fields on
+    the user, but replaces the password field with admin's
+    password hash display field.
+    """
 
-	def clean(self):
-		form_data = self.cleaned_data
-		if form_data['password'] != form_data['password']:
-			self._errors["password"] = "Password do not match"
-			del form_data['password']
-		return form_data
+    def __init__(self, *args, **kargs):
+        super(CustomUserChangeForm, self).__init__(*args, **kargs)
+        del self.fields['username']
 
-    def __init__(self, *args, **kwargs):
-		super(UserCreateForm, self).__init__(*args, **kwargs)
-		self.fields['username'].widget.attrs.update({'class' : 'form-control', 'required': 'required'})
-		self.fields['email'].widget.attrs.update({'class' : 'form-control', 'required': 'required'})
-		self.fields['password1'].widget.attrs.update({'class' : 'form-control', 'required': 'required'})
-		self.fields['password2'].widget.attrs.update({'class' : 'form-control', 'required': 'required'})
+    class Meta:
+        model = CustomUser
+        fields = ("email",)
