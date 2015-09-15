@@ -13,6 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
         fields = tuple(User.REQUIRED_FIELDS) + (
             User._meta.pk.name,
             User.USERNAME_FIELD,
+            'first_name',
+            'last_name',
         )
         read_only_fields = (
             User.USERNAME_FIELD,
@@ -27,6 +29,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             User.USERNAME_FIELD,
             User._meta.pk.name,
             'password',
+            'first_name',
+            'last_name',
+
         )
         write_only_fields = (
             'password',
