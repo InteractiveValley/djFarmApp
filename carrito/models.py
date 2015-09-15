@@ -17,5 +17,3 @@ class DetalleVenta(models.Model):
 	price = models.DecimalField(max_digits = 10, decimal_places = 2)
 	cantidad = models.IntegerField()
 	img_receta = models.ImageField(upload_to = 'detalleventa/recetas/')
-
-

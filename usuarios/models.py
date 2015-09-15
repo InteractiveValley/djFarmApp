@@ -29,6 +29,7 @@ class PedidoPeriodico(models.Model):
 	user = models.ForeignKey(User)
 	cantidad = models.IntegerField()
 	periodo = models.CharField(max_length = 100) # diario, semanal, mensual
+	veces = models.IntegerField(default=1)
 	lunes = models.BooleanField()
 	martes = models.BooleanField()
 	miercoles = models.BooleanField()

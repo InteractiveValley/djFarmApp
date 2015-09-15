@@ -7,7 +7,7 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-
+    cell = serializers.CharField(source = 'profile.cell')
     class Meta:
         model = User
         fields = tuple(User.REQUIRED_FIELDS) + (
@@ -15,6 +15,7 @@ class UserSerializer(serializers.ModelSerializer):
             User.USERNAME_FIELD,
             'first_name',
             'last_name',
+            'cell',
         )
         read_only_fields = (
             User.USERNAME_FIELD,
@@ -22,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-
+    cell = serializers.CharField(source = 'profile.cell')
     class Meta:
         model = User
         fields = tuple(User.REQUIRED_FIELDS) + (
@@ -31,6 +32,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'password',
             'first_name',
             'last_name',
+            'cell',
 
         )
         write_only_fields = (

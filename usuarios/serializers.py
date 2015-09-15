@@ -18,12 +18,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = ('user',)
 
 class UserSerializer(serializers.ModelSerializer):
-
 	cell = serializers.CharField(source='profile.cell',read_only=False)
-
 	class Meta:
 		model = User
 		fields = ('id','first_name','last_name','username','cell','direction_set','pedidoperiodico_set')
+		read_only_fields = ('direction_set','pedidoperiodico_set',)
 		write_only_fields = ('password',)
 		depth = 1
 
