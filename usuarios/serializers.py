@@ -1,6 +1,5 @@
 from rest_framework import serializers
-
-from .models import Direction, Profile, PedidoPeriodico, Pregunta, CustomUser
+from .models import Direction, PedidoPeriodico, Pregunta, CustomUser
 
 
 class DirectionSerializer(serializers.ModelSerializer):
@@ -11,7 +10,7 @@ class DirectionSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = User
+		model = CustomUser
 		fields = ('id','first_name','last_name','email','cell','direction_set','pedidoperiodico_set')
 		read_only_fields = ('direction_set','pedidoperiodico_set',)
 		write_only_fields = ('password',)
