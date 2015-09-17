@@ -98,12 +98,14 @@ DATABASES = {
         'NAME': DB_NAME,
         'USER': DB_USER,
         'PASSWORD': DB_PASSWORD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
     }
 }
 
-if DEBUG == False:
-    import dj_database_url
-    DATABASES['default'] =  dj_database_url.config()
+#if DEBUG == False:
+#    import dj_database_url
+#    DATABASES['default'] =  dj_database_url.config()
 
 
 # Internationalization
