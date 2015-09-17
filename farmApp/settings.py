@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from secret import *
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,13 +24,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '&cq4r=vi%_u#x&w^#=i$$3m)m75_m=_9!9jalj#)kor82hc+jd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = APP_DEBUG
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Allow all host headers
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = APP_ALLOWED_HOST
 
 # grappelli
 GRAPPELLI_ADMIN_TITLE = "FarmaApp"
@@ -93,8 +94,10 @@ WSGI_APPLICATION = 'farmApp.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': DB_ENGINE,
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASSWORD,
     }
 }
 
@@ -108,7 +111,7 @@ if DEBUG == False:
 
 LANGUAGE_CODE = 'es.UTF-8'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE =  APP_TIME_ZONE
 
 USE_I18N = True
 
@@ -120,7 +123,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-STATIC_ROOT = 'staticfiles'
+STATIC_ROOT = APP_STATIC_ROOT
+
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (

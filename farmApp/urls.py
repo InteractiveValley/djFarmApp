@@ -16,21 +16,26 @@ Including another URLconf
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.contrib import admin
-from rest_framework.authtoken.views import obtain_auth_token
+#from rest_framework.authtoken.views import obtain_auth_token
 
 admin.autodiscover()
 
-from productos.viewsets import CategoryViewSet, ProductViewSet
-from usuarios.viewsets import UserViewSet, DirectionViewSet, PedidoPeriodicoViewSet, PreguntaViewSet
+from productos.viewsets import CategoryViewSet, ProductViewSet, DiscountViewSet
+from usuarios.viewsets import UserViewSet, DirectionViewSet, ScheduledOrderViewSet, QuestionViewSet
+from carrito.viewsets import  SaleViewSet, DetailSaleViewSet
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'categorias', CategoryViewSet)
 router.register(r'productos', ProductViewSet)
+router.register(r'descuentos', DiscountViewSet)
 router.register(r'direcciones', DirectionViewSet)
 router.register(r'usuarios', UserViewSet)
-router.register(r'pedidos/periodicos', PedidoPeriodicoViewSet)
-router.register(r'preguntas', PreguntaViewSet)
+router.register(r'pedidos/periodicos', ScheduledOrderViewSet)
+router.register(r'preguntas', QuestionViewSet)
+router.register(r'ventas', SaleViewSet)
+router.register(r'detalle/ventas', DetailSaleViewSet)
+
 
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS

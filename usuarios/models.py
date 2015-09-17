@@ -5,10 +5,8 @@ from django.utils.http import urlquote
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
-from django.conf import settings
-
-# Create your models here.
 from django.contrib.auth.models import BaseUserManager
+
 
 class CustomUserManager(BaseUserManager):
 
@@ -36,7 +34,6 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password, **extra_fields):
         return self._create_user(email, password, True, True,
                                  **extra_fields)
-
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
@@ -87,38 +84,96 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         """
         send_mail(subject, message, from_email, [self.email])
 
+
 class Direction(models.Model):
-	localidad = models.CharField(max_length = 140)
-	calle = models.CharField(max_length = 140)
-	num_interior = models.CharField(max_length = 50)
-	num_exterior = models.CharField(max_length = 50)
-	codigo_postal = models.CharField(max_length = 10)
-	colonia = models.CharField(max_length = 150)
-	delegacion_municipio = models.CharField(max_length = 150)
-	user = models.ForeignKey(CustomUser)
+    location = models.CharField("localidad", max_length = 140)
+    street = models.CharField("calle", max_length = 140)
+    interior_number = models.CharField("numero interior", max_length = 50, null = True, blank = True)
+    exterior_number = models.CharField("numero exterior", max_length = 50, null = True, blank = True)
+    postal_code = models.CharField("codigo postal",max_length = 10)
+    colony = models.CharField("colonia", max_length = 150)
+    delegation_municipaly = models.CharField("delegacion o municipio",max_length = 150)
+    user = models.ForeignKey(CustomUser, related_name="directions")
+    created = models.DateTimeField("creado", null= True, blank= True)
+    modified = models.DateTimeField("actualizado", null= True, blank= True)
 
-	def __str__(self):
-		return "%s %s %s" % (self.calle,self.num_interior, self.num_exterior)
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        self.modified = timezone.now()
+        return super(Direction, self).save(*args, **kwargs)
 
-class PedidoPeriodico(models.Model):
-	producto = models.ForeignKey(Product)
-	user = models.ForeignKey(CustomUser)
-	cantidad = models.IntegerField()
-	periodo = models.CharField(max_length = 100) # diario, semanal, mensual
-	veces = models.IntegerField(default=1)
-	lunes = models.BooleanField()
-	martes = models.BooleanField()
-	miercoles = models.BooleanField()
-	jueves = models.BooleanField()
-	viernes = models.BooleanField()
-	sabado = models.BooleanField()
-	domingo = models.BooleanField()
-	proxima_entrega = models.DateTimeField()
-	created_at = models.DateTimeField()
-	updated_at = models.DateTimeField()
+    def __str__(self):
+        return "%s %s %s" % (self.street, self.interior_number, self.exterior_number)
+
+    def direction(self):
+        return "%s %s %s, col: %s, cp: %s, Del/Mun: %s, %s" % \
+               (self.street,self.interior_number, self.exterior_number,
+                self.colony, self.postal_code, self.delegation_municipaly, self.location)
+
+    direction.short_description = "direccion"
+
+    class Meta:
+        verbose_name = "direccion"
+        verbose_name_plural = "direcciones"
+
+
+DAILY ='por dia'; WEEKLY = 'semanal'; MONTHLY = 'mensual';
+
+PERIODS = (
+    (DAILY, 'Por dia',),
+    (WEEKLY, 'Semanal',),
+    (MONTHLY, 'Mensual'),
+)
+
+
+class ScheduledOrder(models.Model):
+    product = models.ForeignKey(Product)
+    user = models.ForeignKey(CustomUser, related_name='schedules_orders')
+    quantity = models.IntegerField("cantidad")
+    period = models.CharField("periodo", choices=PERIODS, max_length = 100) # por dia, semanal, mensual
+    days = models.PositiveIntegerField("dias")
+    times = models.IntegerField("veces", default= 0)
+    date_next = models.DateField("proxima entrega", null= True, blank= True)
+    date_ends = models.DateField("finaliza", null= True, blank= True)
+    created = models.DateTimeField("creado", null= True, blank= True)
+    modified = models.DateTimeField("actualizado", null= True, blank= True)
+    canceled_for_user = models.BooleanField("cancelado por usuario", default= False)
+    canceled_for_system = models.BooleanField("finalizacion", default= False)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        self.modified = timezone.now()
+        self.calculate_date_next()
+        return super(ScheduledOrder, self).save(*args, **kwargs)
+
+    def calculate_date_next(self):
+        if self.period == WEEKLY:
+            self.days = 7
+        elif self.period == MONTHLY:
+            self.days = 30
+        now = self.modified;
+        self.date_next = now.date() + timezone.timedelta(days = self.days)
+        self.date_ends = now.date() + timezone.timedelta(days = self.days * self.times)
+
+    class Meta:
+        verbose_name = "pedido programado"
+        verbose_name_plural = "pedidos programados"
+
 
 # esta clase no tiene gran uso
-class Pregunta(models.Model):
-	pregunta = models.CharField(max_length = 140)
-	respuesta = models.TextField()
-	orden = models.IntegerField()
+class Question(models.Model):
+    question = models.CharField("pregunta", max_length = 140)
+    ask = models.TextField("respuesta")
+    order = models.IntegerField("orden")
+
+    class Meta:
+        verbose_name = "pregunta"
+        verbose_name_plural = "preguntas"

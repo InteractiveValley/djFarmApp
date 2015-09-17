@@ -22,7 +22,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
-    cell = serializers.CharField(source = 'profile.cell')
     class Meta:
         model = User
         fields = (
@@ -32,7 +31,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'cell',
-
         )
         write_only_fields = (
             'password',
