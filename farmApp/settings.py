@@ -65,7 +65,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-
 )
 
 ROOT_URLCONF = 'farmApp.urls'
@@ -113,7 +112,7 @@ DATABASES = {
 
 LANGUAGE_CODE = 'es.UTF-8'
 
-TIME_ZONE =  APP_TIME_ZONE
+TIME_ZONE = APP_TIME_ZONE
 
 USE_I18N = True
 
@@ -149,6 +148,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ),
 }
+
+CORS_ORIGIN_WHITELIST = (
+    'google.com',
+    'localhost:8100'
+)
 
 # config to profile user
 AUTH_USER_MODEL = 'usuarios.CustomUser'
