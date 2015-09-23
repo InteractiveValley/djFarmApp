@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 # Create your models here.
 
 class Category(models.Model):
@@ -28,6 +29,43 @@ class Category(models.Model):
         verbose_name = 'categoria'
 
 
+PRICE = 'precio';
+PERCENTAGE = 'porcentaje';
+QUANTITY = 'cantidad';
+
+TYPE_DISCOUNTS = (
+    (PRICE, 'Por precio',),
+    (PERCENTAGE, 'Por porcentaje',),
+    (QUANTITY, 'Por cantidad'),
+)
+
+
+class Discount(models.Model):
+    name = models.CharField('promocion', max_length=140, default='Promocion', null=True, blank=True,)
+    short_name = models.CharField('etiqueta', max_length=20, default='-10%', null=True, blank=True,)
+    type = models.CharField('tipo', max_length=100, choices=TYPE_DISCOUNTS)
+    price = models.DecimalField('precio', max_digits=10, decimal_places=2, default=0)
+    percentage = models.PositiveSmallIntegerField('porcentaje', default=0)
+    quantity = models.PositiveSmallIntegerField('cantidad', default=1)
+    date_begins = models.DateField('inicia', null=True, blank=True)
+    date_ends = models.DateField('finaliza', null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update date_begins
+        """
+        if not self.id and self.date_begins is None:
+            self.date_begins = timezone.now().date()
+        return super(Discount, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "descuento"
+        verbose_name_plural = "descuentos"
+
+
 class Product(models.Model):
     name = models.CharField(max_length=140, verbose_name="producto")
     description = models.TextField(verbose_name="descripcion")
@@ -35,8 +73,9 @@ class Product(models.Model):
     require_prescription = models.BooleanField(verbose_name="require receta")  # requiere receta
     active = models.BooleanField(verbose_name="es activo")  # esta disponible
     category = models.ForeignKey(Category, verbose_name="categoria")
-    created = models.DateTimeField("creado", null= True, blank= True)
-    modified = models.DateTimeField("actualizado", null= True, blank= True)
+    discount = models.ForeignKey(Discount, verbose_name="descuento", null=True, blank=True)
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -67,34 +106,3 @@ class Product(models.Model):
 
     class Meta:
         verbose_name = 'producto'
-
-
-PRICE= 'precio'; PERCENTAGE= 'porcentaje'; QUANTITY= 'cantidad';
-
-TYPE_DISCOUNTS = (
-    (PRICE, 'Por precio',),
-    (PERCENTAGE, 'Por porcentaje',),
-    (QUANTITY, 'Por cantidad'),
-)
-
-
-class Discount(models.Model):
-    type = models.CharField('tipo', max_length= 100, choices= TYPE_DISCOUNTS)
-    price = models.DecimalField('precio', max_digits=10, decimal_places=2, default= 0)
-    percentage = models.PositiveSmallIntegerField('porcentaje', default= 0)
-    quantity = models.PositiveSmallIntegerField('cantidad', default= 1)
-    date_begins = models.DateField('inicia', null= True, blank= True)
-    date_ends = models.DateField('finaliza', null= True, blank= True)
-    products = models.ManyToManyField(Product, related_name= 'discounts')
-
-    def save(self, *args, **kwargs):
-        """
-        On save, update date_begins
-        """
-        if not self.id and self.date_begins is None:
-            self.date_begins = timezone.now().date()
-        return super(Discount, self).save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = "descuento"
-        verbose_name_plural = "descuentos"

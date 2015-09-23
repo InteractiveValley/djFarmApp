@@ -74,40 +74,32 @@ class DetailSale(models.Model):
         return super(DetailSale, self).save(*args, **kwargs)
 
     def calculate_discount(self):
-        descuentos = self.product.discounts.all()
+        descuento = self.product.discount
         now = timezone.now().date()
-        descuento = None
-
-        # busca el primer descuento para aplicarlo
-        for desc in descuentos:
-            if desc.date_begins <= now:
-                if desc.date_ends is None or desc.date_ends >= now:
-                    descuento = desc
-                    break
-
-        if descuento is not None:
+        if descuento is not None and descuento.date_ends > now:
             if descuento.type == PRICE:
                 price = descuento.price
-                subtotal = self.quantity * price
-                self.discount = (self.price * self.quantity) - subtotal
+                subtotal = float(self.quantity * price)
+                self.discount = float(self.price * self.quantity) - subtotal
             elif descuento.type == PERCENTAGE:
-                price = (self.price * ((100 - descuento.percentage) / 100))
-                subtotal = self.quantity * price
-                self.discount = (self.price * self.quantity) - subtotal
+                price = (float(self.price) * (1.00 - (float(descuento.percentage) / 100.00)))
+                subtotal = float(self.quantity * price)
+                self.discount = float(self.price * self.quantity) - subtotal
+                #  import ipdb; ipdb.set_trace();
             elif descuento.type == QUANTITY:
                 enteros = int(self.quantity / descuento.quantity)
                 fracciones = self.quantity - enteros
                 if descuento.price > 0:
-                    conDescuento = enteros * descuento.price
-                    sinDescuento = fracciones * self.price
+                    conDescuento = float(enteros * descuento.price)
+                    sinDescuento = float(fracciones * self.price)
                     subtotal = conDescuento + sinDescuento
-                    self.discount = (self.price * self.quantity) - subtotal
+                    self.discount = float(self.price * self.quantity) - subtotal
                 else:
-                    price = (self.price * ((100 - descuento.percentage) / 100))
-                    conDescuento = enteros * price
-                    sinDescuento = fracciones * self.price
+                    price = (self.price * (1.00 - (float(descuento.percentage) / 100.00)))
+                    conDescuento = float(enteros * price)
+                    sinDescuento = float(fracciones * self.price)
                     subtotal = conDescuento + sinDescuento
-                    self.discount = (self.price * self.quantity) - subtotal
+                    self.discount = float(self.price * self.quantity) - subtotal
 
     def total(self):
-        return float(self.subtotal - self.discount)
+        return float(self.subtotal) - float(self.discount)

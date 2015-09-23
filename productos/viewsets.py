@@ -12,8 +12,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
-    filter_backends = ( filters.DjangoFilterBackend, )
-    filter_fields = ('category', 'name', )
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,)
+    filter_fields = ('category', 'name',)
+    search_fields = ('name', 'description', 'category__name',)
 
 
 class DiscountViewSet(viewsets.ModelViewSet):

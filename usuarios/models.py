@@ -9,7 +9,6 @@ from django.contrib.auth.models import BaseUserManager
 
 
 class CustomUserManager(BaseUserManager):
-
     def _create_user(self, email, password,
                      is_staff, is_superuser, **extra_fields):
         """
@@ -46,13 +45,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('email address'), max_length=254, unique=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
-    cell = models.CharField(max_length = 50)
+    cell = models.CharField(max_length=50)
     is_staff = models.BooleanField(_('staff status'), default=False,
-        help_text=_('Designates whether the user can log into this admin '
-                    'site.'))
+                                   help_text=_('Designates whether the user can log into this admin '
+                                               'site.'))
     is_active = models.BooleanField(_('active'), default=True,
-        help_text=_('Designates whether this user should be treated as '
-                    'active. Unselect this instead of deleting accounts.'))
+                                    help_text=_('Designates whether this user should be treated as '
+                                                'active. Unselect this instead of deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
     objects = CustomUserManager()
@@ -85,17 +84,37 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         send_mail(subject, message, from_email, [self.email])
 
 
+class ConektaUser(models.Model):
+    user = models.ForeignKey(CustomUser, related_name='conektas', verbose_name='user')
+    conekta_user = models.CharField(max_length=140, verbose_name='conekta')
+    is_active = models.BooleanField("es_activo", default=True)
+    is_default = models.BooleanField("es_default", default=False)
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        self.modified = timezone.now()
+        return super(ConektaUser, self).save(*args, **kwargs)
+
+
 class Direction(models.Model):
-    location = models.CharField("localidad", max_length = 140)
-    street = models.CharField("calle", max_length = 140)
-    interior_number = models.CharField("numero interior", max_length = 50, null = True, blank = True)
-    exterior_number = models.CharField("numero exterior", max_length = 50, null = True, blank = True)
-    postal_code = models.CharField("codigo postal",max_length = 10)
-    colony = models.CharField("colonia", max_length = 150)
-    delegation_municipaly = models.CharField("delegacion o municipio",max_length = 150)
+    location = models.CharField("localidad", max_length=140)
+    street = models.CharField("calle", max_length=140)
+    interior_number = models.CharField("numero interior", max_length=50, null=True, blank=True)
+    exterior_number = models.CharField("numero exterior", max_length=50, null=True, blank=True)
+    postal_code = models.CharField("codigo postal", max_length=10)
+    colony = models.CharField("colonia", max_length=150)
+    delegation_municipaly = models.CharField("delegacion o municipio", max_length=150)
     user = models.ForeignKey(CustomUser, related_name="directions")
-    created = models.DateTimeField("creado", null= True, blank= True)
-    modified = models.DateTimeField("actualizado", null= True, blank= True)
+    lat = models.CharField("latitude", max_length=100, null=True, blank=True)
+    lng = models.CharField("longitude", max_length=100, null=True, blank=True)
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         """
@@ -111,7 +130,7 @@ class Direction(models.Model):
 
     def direction(self):
         return "%s %s %s, col: %s, cp: %s, Del/Mun: %s, %s" % \
-               (self.street,self.interior_number, self.exterior_number,
+               (self.street, self.interior_number, self.exterior_number,
                 self.colony, self.postal_code, self.delegation_municipaly, self.location)
 
     direction.short_description = "direccion"
@@ -121,7 +140,9 @@ class Direction(models.Model):
         verbose_name_plural = "direcciones"
 
 
-DAILY ='por dia'; WEEKLY = 'semanal'; MONTHLY = 'mensual';
+DAILY = 'por dia';
+WEEKLY = 'semanal';
+MONTHLY = 'mensual';
 
 PERIODS = (
     (DAILY, 'Por dia',),
@@ -134,15 +155,15 @@ class ScheduledOrder(models.Model):
     product = models.ForeignKey(Product)
     user = models.ForeignKey(CustomUser, related_name='schedules_orders')
     quantity = models.IntegerField("cantidad")
-    period = models.CharField("periodo", choices=PERIODS, max_length = 100) # por dia, semanal, mensual
+    period = models.CharField("periodo", choices=PERIODS, max_length=100)  # por dia, semanal, mensual
     days = models.PositiveIntegerField("dias")
-    times = models.IntegerField("veces", default= 0)
-    date_next = models.DateField("proxima entrega", null= True, blank= True)
-    date_ends = models.DateField("finaliza", null= True, blank= True)
-    created = models.DateTimeField("creado", null= True, blank= True)
-    modified = models.DateTimeField("actualizado", null= True, blank= True)
-    canceled_for_user = models.BooleanField("cancelado por usuario", default= False)
-    canceled_for_system = models.BooleanField("finalizacion", default= False)
+    times = models.IntegerField("veces", default=0)
+    date_next = models.DateField("proxima entrega", null=True, blank=True)
+    date_ends = models.DateField("finaliza", null=True, blank=True)
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
+    canceled_for_user = models.BooleanField("cancelado por usuario", default=False)
+    canceled_for_system = models.BooleanField("finalizacion", default=False)
 
     def save(self, *args, **kwargs):
         """
@@ -160,8 +181,8 @@ class ScheduledOrder(models.Model):
         elif self.period == MONTHLY:
             self.days = 30
         now = self.modified;
-        self.date_next = now.date() + timezone.timedelta(days = self.days)
-        self.date_ends = now.date() + timezone.timedelta(days = self.days * self.times)
+        self.date_next = now.date() + timezone.timedelta(days=self.days)
+        self.date_ends = now.date() + timezone.timedelta(days=self.days * self.times)
 
     class Meta:
         verbose_name = "pedido programado"
@@ -170,7 +191,7 @@ class ScheduledOrder(models.Model):
 
 # esta clase no tiene gran uso
 class Question(models.Model):
-    question = models.CharField("pregunta", max_length = 140)
+    question = models.CharField("pregunta", max_length=140)
     ask = models.TextField("respuesta")
     order = models.IntegerField("orden")
 
