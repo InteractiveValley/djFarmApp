@@ -29,9 +29,9 @@ class Category(models.Model):
         verbose_name = 'categoria'
 
 
-PRICE = 'precio';
-PERCENTAGE = 'porcentaje';
-QUANTITY = 'cantidad';
+PRICE = 'precio'
+PERCENTAGE = 'porcentaje'
+QUANTITY = 'cantidad'
 
 TYPE_DISCOUNTS = (
     (PRICE, 'Por precio',),
@@ -66,11 +66,23 @@ class Discount(models.Model):
         verbose_name_plural = "descuentos"
 
 
+NORMAL = 1
+HAVE_RECIPE = 2
+STAY_RECIPE = 3
+
+REQUIRE_PRESCRIPTION = (
+    (NORMAL, 'No require receta'),
+    (HAVE_RECIPE, 'El repartidor te pedira que le muestres la receta'),
+    (STAY_RECIPE, 'El repartidor te pedira y se quedara con la receta'),
+)
+
+
 class Product(models.Model):
     name = models.CharField(max_length=140, verbose_name="producto")
     description = models.TextField(verbose_name="descripcion")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="precio")
     require_prescription = models.BooleanField(verbose_name="require receta")  # requiere receta
+    recipe = models.IntegerField("receta", default=NORMAL, choices=REQUIRE_PRESCRIPTION)
     active = models.BooleanField(verbose_name="es activo")  # esta disponible
     category = models.ForeignKey(Category, verbose_name="categoria")
     discount = models.ForeignKey(Discount, verbose_name="descuento", null=True, blank=True)

@@ -16,13 +16,13 @@ Including another URLconf
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.contrib import admin
-#from rest_framework.authtoken.views import obtain_auth_token
+# from rest_framework.authtoken.views import obtain_auth_token
 
 admin.autodiscover()
 
 from productos.viewsets import CategoryViewSet, ProductViewSet, DiscountViewSet
 from usuarios.viewsets import UserViewSet, DirectionViewSet, ScheduledOrderViewSet, QuestionViewSet
-from carrito.viewsets import  SaleViewSet, DetailSaleViewSet
+from carrito.viewsets import SaleViewSet, DetailSaleViewSet, ImageSaleViewSet
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -35,10 +35,10 @@ router.register(r'pedidos/periodicos', ScheduledOrderViewSet)
 router.register(r'preguntas', QuestionViewSet)
 router.register(r'ventas', SaleViewSet)
 router.register(r'detalle/ventas', DetailSaleViewSet)
-
+router.register(r'images/ventas', ImageSaleViewSet)
 
 urlpatterns = [
-    url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
+    url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'^auth/register/user/conekta/', 'usuarios.views.userConekta', name='userConekta'),
@@ -46,5 +46,5 @@ urlpatterns = [
     url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'usuarios.views.home', name='homepage'),
-    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT,}),   
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, }),
 ]

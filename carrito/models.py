@@ -4,11 +4,25 @@ from usuarios.models import Direction, CustomUser
 from django.utils import timezone
 from productos.models import PRICE, PERCENTAGE, QUANTITY
 
+INCOMPLETE = 0
+COMPLETE = 1
+APPROVED = 2
+REJECTED = 3
+DELIVERED = 4
+
+STATUS_SALE = {
+    (INCOMPLETE, "Incompleto"),
+    (COMPLETE, "Completo"),
+    (APPROVED, "Aprobado"),
+    (REJECTED, "Rechazado"),
+    (DELIVERED, "Entregado"),
+}
+
 
 class Sale(models.Model):
     user = models.ForeignKey(CustomUser)
     direction = models.ForeignKey(Direction, blank=True, null=True, on_delete=models.SET_NULL)
-    approved = models.BooleanField("aprovado", default=False)
+    status = models.IntegerField("Estatus", default=0, choices=STATUS_SALE)
     scheduled_order = models.BooleanField("pedido programado", default=False)
     delivered = models.BooleanField("entregado", default=False)
     created = models.DateTimeField("creado", null=True, blank=True)
@@ -47,6 +61,11 @@ class Sale(models.Model):
             dTotal += detalle.total()
         return dTotal
 
+    class Meta:
+        verbose_name = "venta"
+        verbose_name_plural = "ventas"
+
+
 class DetailSale(models.Model):
     sale = models.ForeignKey(Sale, related_name="detail_sales")
     product = models.ForeignKey(Product)
@@ -54,8 +73,6 @@ class DetailSale(models.Model):
     quantity = models.IntegerField("cantidad")
     subtotal = models.DecimalField("subtotal", max_digits=10, decimal_places=2, default=0)
     discount = models.DecimalField("descuento", max_digits=10, decimal_places=2, default=0)
-    image_recipe = models.ImageField("receta", upload_to='detalleventa/recetas/', null= True, blank= True)
-    validate = models.BooleanField("validado", default=False)
 
     def need_validation(self):
         return self.product.require_prescription
@@ -103,3 +120,16 @@ class DetailSale(models.Model):
 
     def total(self):
         return float(self.subtotal) - float(self.discount)
+
+    class Meta:
+        verbose_name = "detalle de venta"
+        verbose_name_plural = "detalles de venta"
+
+
+class ImageSale(models.Model):
+    sale = models.ForeignKey(Sale, related_name="images")
+    image_recipe = models.ImageField("receta", upload_to='recetas/', null=True, blank=True)
+
+    class Meta:
+        verbose_name = "receta"
+        verbose_name_plural = "recetas"

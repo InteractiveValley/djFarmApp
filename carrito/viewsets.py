@@ -1,5 +1,5 @@
-from .models import Sale, DetailSale
-from .serializers import SaleSerializer, DetailSaleSerializer
+from .models import Sale, DetailSale, ImageSale
+from .serializers import SaleSerializer, DetailSaleSerializer, ImageSaleSerializer
 from rest_framework import viewsets
 from rest_framework import filters
 
@@ -25,5 +25,12 @@ class SaleViewSet(viewsets.ModelViewSet):
 class DetailSaleViewSet(viewsets.ModelViewSet):
     serializer_class = DetailSaleSerializer
     queryset = DetailSale.objects.all()
+    filter_backends = ( filters.DjangoFilterBackend, )
+    filter_fields = ('sale', )
+
+
+class ImageSaleViewSet(viewsets.ModelViewSet):
+    serializer_class = ImageSaleSerializer
+    queryset = ImageSale.objects.all()
     filter_backends = ( filters.DjangoFilterBackend, )
     filter_fields = ('sale', )
