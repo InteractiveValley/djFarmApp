@@ -4,3 +4,4 @@
 staticfiles
 .idea
 farmApp/secret.py
+media/
