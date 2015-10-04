@@ -18,3 +18,4 @@ def userConekta(request):
     })
     ConektaUser.objects.create(user=user, conekta_user=customer.id)
     return render(request, 'creado.html')
+

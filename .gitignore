@@ -5,3 +5,4 @@ staticfiles
 .idea
 farmApp/secret.py
 media/
+db.sqlite3
