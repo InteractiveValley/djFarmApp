@@ -5,9 +5,10 @@ from .models import Category, Product, Discount
 class CategoryAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['name']}),
-        ('Thumbnails', {'fields': ['image_require', 'image_no_require'], 'classes': ['collapse']}),
+        ('Thumbnails', {'fields': ['image_no_require', 'image_require_show', 'image_require'],
+                        'classes': ['collapse']}),
     ]
-    list_display = ('name', 'require', 'no_require',)
+    list_display = ('name', 'no_require', 'show_recipe', 'with_recipe')
     search_fields = ('name',)
 
 
@@ -21,7 +22,7 @@ class ProductAdmin(admin.ModelAdmin):
         ('Descuento', {'fields': ['discount', ]}),
     ]
     list_display = ('name', 'category', 'price', 'active', 'require_prescription', 'thumbnail',)
-    search_fields = ('name','category__name',)
+    search_fields = ('name', 'category__name',)
 
 
 admin.site.register(Product, ProductAdmin)
@@ -29,11 +30,11 @@ admin.site.register(Product, ProductAdmin)
 
 class DiscountAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('General', {'fields': ['name','short_name', 'type', 'price', 'percentage','quantity', ]}),
+        ('General', {'fields': ['name', 'short_name', 'type', 'price', 'percentage', 'quantity', ]}),
         ('Vigencias', {'fields': ['date_begins', 'date_ends', ]}),
     ]
     list_display = ('name', 'type', 'price', 'percentage', 'quantity', 'date_begins', 'date_ends')
-    search_fields = ('name', 'type', 'date_begins', 'date_ends', )
+    search_fields = ('name', 'type', 'date_begins', 'date_ends',)
 
 
 admin.site.register(Discount, DiscountAdmin)

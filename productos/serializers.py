@@ -6,8 +6,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'image_require', 'image_no_require', )
-        write_only_fields = ('image_require', 'image_no_require', )
+        fields = ('id', 'name', )
 
 
 class DiscountSerializer(serializers.ModelSerializer):
@@ -26,3 +25,13 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = ('id', 'name', 'description', 'price', 'require_prescription', 'recipe', 'active', 'category',
                   'image', 'discount',)
+
+
+class ProductWithoutDiscountSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(source='product_image', read_only=True)
+    category = CategorySerializer()
+
+    class Meta:
+        model = Product
+        fields = ('id', 'name', 'description', 'price', 'require_prescription', 'recipe', 'active', 'category',
+                  'image',)

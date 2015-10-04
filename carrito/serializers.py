@@ -1,23 +1,33 @@
 from rest_framework import serializers
 from .models import Sale, DetailSale, ImageSale
+from productos.serializers import ProductWithoutDiscountSerializer
 
 
 class DetailSaleListSerializer(serializers.ListSerializer):
     def create(self, validated_data):
         detalles = [DetailSale(**item) for item in validated_data]
+        import pdb; pdb.set_trace();
         return DetailSale.objects.bulk_create(detalles)
 
 
 class DetailSaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetailSale
-        list_serializer_class = DetailSaleListSerializer
+        fields = ('id', 'sale', 'product', 'price', 'quantity', 'subtotal', 'discount', 'total',)
+        read_only_fields = ('price', 'subtotal', 'discount', 'total',)
+
+
+class DetailSaleWithProductSerializer(serializers.ModelSerializer):
+    product = ProductWithoutDiscountSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = DetailSale
         fields = ('id', 'sale', 'product', 'price', 'quantity', 'subtotal', 'discount', 'total',)
         read_only_fields = ('price', 'subtotal', 'discount', 'total',)
 
 
 class SaleSerializer(serializers.ModelSerializer):
-    detail_sales = DetailSaleSerializer(many=True, read_only=True, )
+    detail_sales = DetailSaleWithProductSerializer(many=True, read_only=True, )
 
     class Meta:
         model = Sale

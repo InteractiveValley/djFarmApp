@@ -6,23 +6,48 @@ from django.utils import timezone
 
 class Category(models.Model):
     name = models.CharField(max_length=140, verbose_name="categoria")
-    image_require = models.ImageField(upload_to='categorias/require/', verbose_name="imagen require")
-    image_no_require = models.ImageField(upload_to='categorias/norequire/', verbose_name="imagen no require")
-
-    def require(self):
-        return """
-		<img src="%s" style="max-width: 60px; max-height: 60px;"/> 
-		""" % self.image_require.url
+    image_require = models.ImageField(upload_to='categorias/require/', verbose_name="Quedarse receta", null=True,
+                                      blank=True)
+    image_require_show = models.ImageField(upload_to='categorias/require/', verbose_name="Mostrar receta", null=True,
+                                           blank=True)
+    image_no_require = models.ImageField(upload_to='categorias/norequire/', verbose_name="Sin receta", null=True,
+                                         blank=True)
 
     def no_require(self):
-        return """
-		<img src="%s" style="max-width: 60px; max-height: 60px;"/> 
-		""" % self.image_no_require.url
+        if self.image_no_require != None:
+            return """
+            <img src="%s" style="max-width: 60px; max-height: 60px;"/>
+            """ % self.image_no_require.url
+        else:
+            return """
+            <img src="http://placehold.it/60x60" style="max-width: 60px; max-height: 60px;"/>
+            """
+
+    def show_recipe(self):
+        if self.image_require_show != None:
+            return """
+            <img src="%s" style="max-width: 60px; max-height: 60px;"/>
+            """ % self.image_require_show.url
+        else:
+            return """
+            <img src="http://placehold.it/60x60" style="max-width: 60px; max-height: 60px;"/>
+            """
+
+    def with_recipe(self):
+        if self.image_require != None:
+            return """
+            <img src="%s" style="max-width: 60px; max-height: 60px;"/>
+            """ % self.image_require.url
+        else:
+            return """
+            <img src="http://placehold.it/60x60" style="max-width: 60px; max-height: 60px;"/>
+            """
 
     def __str__(self):
         return self.name
 
-    require.allow_tags = True
+    with_recipe.allow_tags = True
+    show_recipe.allow_tags = True
     no_require.allow_tags = True
 
     class Meta:
@@ -41,8 +66,8 @@ TYPE_DISCOUNTS = (
 
 
 class Discount(models.Model):
-    name = models.CharField('promocion', max_length=140, default='Promocion', null=True, blank=True,)
-    short_name = models.CharField('etiqueta', max_length=20, default='-10%', null=True, blank=True,)
+    name = models.CharField('promocion', max_length=140, default='Promocion', null=True, blank=True, )
+    short_name = models.CharField('etiqueta', max_length=20, default='-10%', null=True, blank=True, )
     type = models.CharField('tipo', max_length=100, choices=TYPE_DISCOUNTS)
     price = models.DecimalField('precio', max_digits=10, decimal_places=2, default=0)
     percentage = models.PositiveSmallIntegerField('porcentaje', default=0)
@@ -93,10 +118,12 @@ class Product(models.Model):
         return self.name
 
     def thumbnail(self):
-        if self.require_prescription:
-            return self.category.require()
-        else:
+        if self.recipe == NORMAL:
             return self.category.no_require()
+        elif self.recipe == HAVE_RECIPE:
+            return self.category.show_recipe()
+        else:
+            return self.category.with_recipe()
 
     thumbnail.allow_tags = True
     thumbnail.short_description = 'Imagen'

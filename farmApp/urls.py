@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.contrib import admin
-# from rest_framework.authtoken.views import obtain_auth_token
+from django.core.urlresolvers import reverse_lazy
 
 admin.autodiscover()
 
@@ -46,5 +46,10 @@ urlpatterns = [
     url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'usuarios.views.home', name='homepage'),
+    url(r'^pedidos/$', 'carrito.views.pedidos', name='pedidos'),
+    url(r'^login/$', 'django.contrib.auth.views.login', {'template_name': 'login_frontend.html'},
+        name='login_frontend'),
+    url(r'^logout/$', 'django.contrib.auth.views.logout',
+        {'next_page': reverse_lazy('home')}, name='logout_frontend'),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, }),
 ]
