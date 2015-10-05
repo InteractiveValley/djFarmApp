@@ -9,6 +9,8 @@ COMPLETE = 1
 APPROVED = 2
 REJECTED = 3
 DELIVERED = 4
+PAID = 5
+NO_PAID = 6
 
 STATUS_SALE = {
     (INCOMPLETE, "Incompleto"),
@@ -16,6 +18,8 @@ STATUS_SALE = {
     (APPROVED, "Aprobado"),
     (REJECTED, "Rechazado"),
     (DELIVERED, "Entregado"),
+    (PAID, "Pagado"),
+    (NO_PAID, "No pagado"),
 }
 
 
@@ -25,6 +29,7 @@ class Sale(models.Model):
     status = models.IntegerField("Estatus", default=0, choices=STATUS_SALE)
     scheduled_order = models.BooleanField("pedido programado", default=False)
     delivered = models.BooleanField("entregado", default=False)
+    charge_conekta = models.CharField("Cargo Id Conekta", max_length=140, default="", null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 
@@ -60,6 +65,20 @@ class Sale(models.Model):
         for detalle in detalle_ventas:
             dTotal += detalle.total()
         return dTotal
+
+    def show_status(self):
+        if self.status == INCOMPLETE:
+            return "Capturando"
+        elif self.status == COMPLETE:
+            return "Pedido"
+        elif self.status == APPROVED:
+            return "Aprobado"
+        elif self.status == REJECTED:
+            return "Rechazado"
+        elif self.status == DELIVERED:
+            return "Entregado"
+
+    show_status.allow_tags = True
 
     class Meta:
         verbose_name = "venta"

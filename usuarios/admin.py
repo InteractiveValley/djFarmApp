@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Direction, CustomUser, ScheduledOrder, Question
+from .models import Direction, CustomUser, ScheduledOrder, Question, ConektaUser
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 from usuarios.forms import CustomUserChangeForm, CustomUserCreationForm
@@ -56,3 +56,9 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ('order', 'question', 'ask',)
 
 admin.site.register(Question, QuestionAdmin)
+
+
+class ConektaUserAdmin(admin.ModelAdmin):
+    list_display = ('user', 'conekta_user',)
+
+admin.site.register(ConektaUser, ConektaUserAdmin)

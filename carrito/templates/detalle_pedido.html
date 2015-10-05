@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9 col-md-10 main">
+        <br/>
+          <h1 class="page-header">Pedido #{{ pedido.id }}, Total: {{ pedido.total }}</h1>
+          <h2 class="page-subheader">Usuario: {{ pedido.user.get_full_name }}, Status: {{ pedido.show_status }}</h2>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Subtotal</th>
+                  <th>Descuento</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for detalle in detalles %}
+                <tr>
+                  <td>{{ detalle.product.name }}</td>
+                  <td>{{ detalle.quantity }}</td>
+                  <td>{{ detalle.price }}</td>
+                  <td>{{ detalle.subtotal }}</td>
+                  <td>{{ detalle.discount }}</td>
+                  <td>{{ detalle.total }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="row text-center">
+            <ul class="list-inline">
+                <li>
+                    <a href="/pedidos/{{ pedido.id }}/approved/" class="btn btn-primary">Aprobado</a>
+                </li>
+                <li>
+                    <a href="/pedidos/{{ pedido.id }}/reject/" class="btn btn-danger">Rechazar</a>
+                </li>
+                <li>
+                    <a href="/pedidos/{{ pedido.id }}/delivered/" class="btn btn-success">Entregado</a>
+                </li>
+            </ul>
+        </div>
+{% endblock %}

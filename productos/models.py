@@ -106,9 +106,10 @@ class Product(models.Model):
     name = models.CharField(max_length=140, verbose_name="producto")
     description = models.TextField(verbose_name="descripcion")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="precio")
-    require_prescription = models.BooleanField(verbose_name="require receta")  # requiere receta
+    require_prescription = models.BooleanField(verbose_name="require receta", default=False)  # descontinuada
     recipe = models.IntegerField("receta", default=NORMAL, choices=REQUIRE_PRESCRIPTION)
     active = models.BooleanField(verbose_name="es activo")  # esta disponible
+    inventory = models.IntegerField("inventario",default=0)
     category = models.ForeignKey(Category, verbose_name="categoria")
     discount = models.ForeignKey(Discount, verbose_name="descuento", null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
@@ -129,10 +130,29 @@ class Product(models.Model):
     thumbnail.short_description = 'Imagen'
 
     def product_image(self):
-        if self.require_prescription:
-            return self.category.image_require
-        else:
+        if self.recipe == NORMAL:
             return self.category.image_no_require
+        elif self.recipe == HAVE_RECIPE:
+            return self.category.image_require_show
+        else:
+            return self.category.image_require
+
+    def status_inventory(self):
+        if self.inventory > 5:
+            return """
+            <span style="padding: 5px 20px; background-color: transparent;">%i</span>
+            """ % self.inventory
+        elif self.inventory > 0:
+            return """
+            <span style="padding: 5px 20px; background-color: yellow; color: black;">%i</span>
+            """ % self.inventory
+        else:
+            return """
+            <span style="padding: 5px 20px; background-color: red; color: white;">%i</span>
+            """ % self.inventory
+
+    status_inventory.allow_tags = True
+    status_inventory.short_description = 'inventario'
 
     def save(self, *args, **kwargs):
         """
