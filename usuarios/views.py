@@ -2,6 +2,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from usuarios.models import ConektaUser
 from django.contrib.auth import authenticate, login
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 
 # Create your views here.
@@ -9,7 +11,8 @@ def home(request):
     return render(request, 'homepage.html')
 
 
-def userConekta(request):
+@api_view(['POST'])
+def user_conekta_create(request):
     import conekta
     conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     user = request.user
@@ -17,15 +20,16 @@ def userConekta(request):
       "name": user.get_full_name(),
       "email": user.email,
       "phone": user.cell,
-      "cards": request.POST["conektaTokenId"]
+      "cards": request.POST.get('conektaTokenId', None)
     })
-    user_conekta = ConektaUser.objects.get(user=user)
-    if user_conekta is None:
+    user_conektas = ConektaUser.objects.filter(user=user.id)
+    if len(user_conektas) == 0:
         ConektaUser.objects.create(user=user, conekta_user=customer.id)
     else:
+        user_conekta = user_conektas[0]
         user_conekta.conekta_user = customer.id
         user_conekta.save()
-    return render(request, 'creado.html')
+    return Response({"message": "Usuario creado"})
 
 
 def login_frontend(request):

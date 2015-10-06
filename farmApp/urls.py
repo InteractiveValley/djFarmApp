@@ -41,7 +41,7 @@ urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^auth/register/user/conekta/', 'usuarios.views.userConekta', name='userConekta'),
+    url(r'^usuarios/register/user/conekta/', 'usuarios.views.user_conekta_create', name='user_conekta_create'),
     url(r'^auth/', include('djoser.urls')),
     url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^admin/', include(admin.site.urls)),
