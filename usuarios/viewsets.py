@@ -1,5 +1,6 @@
-from .models import Direction, ScheduledOrder, CustomUser, Question
-from .serializers import DirectionSerializer, ScheduledOrderSerializer, UserSerializer, QuestionSerializer
+from .models import Direction, ScheduledOrder, CustomUser, Question, Rating
+from .serializers import DirectionSerializer, ScheduledOrderSerializer, UserSerializer, \
+    QuestionSerializer, RatingSerializer
 from rest_framework import viewsets
 
 
@@ -50,3 +51,8 @@ class ScheduledOrderViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionSerializer
     queryset = Question.objects.all()
+
+
+class RatingViewSet(viewsets.ModelViewSet):
+    serializer_class = RatingSerializer
+    queryset = Rating.objects.all()

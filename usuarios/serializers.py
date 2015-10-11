@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Direction, ScheduledOrder, Question
+from .models import CustomUser, Direction, ScheduledOrder, Question, Rating
 from productos.serializers import ProductSerializer
 
 
@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'first_name', 'last_name', 'email', 'cell', 'directions', 'schedules_orders')
+        fields = ('id', 'first_name', 'last_name', 'email', 'cell', 'directions', 'schedules_orders','inapam')
         write_only_fields = ('password',)
         depth = 1
 
@@ -44,4 +44,8 @@ class QuestionSerializer(serializers.ModelSerializer):
         fields = ('id', 'question', 'ask', 'order')
 
 
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = ('id', 'user', 'rating')
 
