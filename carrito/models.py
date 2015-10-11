@@ -2,7 +2,7 @@ from django.db import models
 from productos.models import Product
 from usuarios.models import Direction, CustomUser
 from django.utils import timezone
-from productos.models import PRICE, PERCENTAGE, QUANTITY
+from productos.models import Discount
 
 INCOMPLETE = 0
 COMPLETE = 1
@@ -113,16 +113,16 @@ class DetailSale(models.Model):
         descuento = self.product.discount
         now = timezone.now().date()
         if descuento is not None and descuento.date_ends > now:
-            if descuento.type == PRICE:
+            if descuento.type == Discount.PRICE:
                 price = descuento.price
                 subtotal = float(self.quantity * price)
                 self.discount = float(self.price * self.quantity) - subtotal
-            elif descuento.type == PERCENTAGE:
+            elif descuento.type == Discount.PERCENTAGE:
                 price = (float(self.price) * (1.00 - (float(descuento.percentage) / 100.00)))
                 subtotal = float(self.quantity * price)
                 self.discount = float(self.price * self.quantity) - subtotal
                 #  import ipdb; ipdb.set_trace();
-            elif descuento.type == QUANTITY:
+            elif descuento.type == Discount.QUANTITY:
                 enteros = int(self.quantity / descuento.quantity)
                 fracciones = self.quantity - enteros
                 if descuento.price > 0:

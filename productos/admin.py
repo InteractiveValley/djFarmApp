@@ -17,12 +17,12 @@ admin.site.register(Category, CategoryAdmin)
 
 class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('General', {'fields': ['name', 'description', 'category', ]}),
+        ('General', {'fields': ['name', 'substances',  'category', 'description', ]}),
         ('Detalle', {'fields': ['price', 'inventory', 'active', 'recipe', ]}),
         ('Descuento', {'fields': ['discount', ]}),
     ]
-    list_display = ('name', 'category', 'price', 'status_inventory', 'active', 'thumbnail',)
-    search_fields = ('name', 'category__name',)
+    list_display = ('name','substances', 'category', 'price', 'status_inventory', 'active', 'thumbnail',)
+    search_fields = ('name', 'category__name','substances',)
 
 
 admin.site.register(Product, ProductAdmin)

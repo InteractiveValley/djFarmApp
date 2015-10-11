@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Direction, CustomUser, ScheduledOrder, Question, ConektaUser
+from .models import Direction, CustomUser, ScheduledOrder, Question, ConektaUser, Rating
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 from usuarios.forms import CustomUserChangeForm, CustomUserCreationForm
@@ -13,7 +13,7 @@ class CustomUserAdmin(UserAdmin):
     # that reference the removed 'username' field
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name','cell')}),
+        (_('Personal info'), {'fields': ('first_name', 'last_name','cell', 'inapam',)}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
@@ -62,3 +62,9 @@ class ConektaUserAdmin(admin.ModelAdmin):
     list_display = ('user', 'conekta_user',)
 
 admin.site.register(ConektaUser, ConektaUserAdmin)
+
+
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ('user', 'rating', 'created')
+
+admin.site.register(Rating, RatingAdmin)
