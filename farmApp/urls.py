@@ -21,7 +21,7 @@ from django.core.urlresolvers import reverse_lazy
 admin.autodiscover()
 
 from productos.viewsets import CategoryViewSet, ProductViewSet, DiscountViewSet
-from usuarios.viewsets import UserViewSet, DirectionViewSet, ScheduledOrderViewSet, QuestionViewSet
+from usuarios.viewsets import UserViewSet, DirectionViewSet, ScheduledOrderViewSet, QuestionViewSet, RatingViewSet
 from carrito.viewsets import SaleViewSet, DetailSaleViewSet, ImageSaleViewSet
 from rest_framework.routers import DefaultRouter
 
@@ -36,6 +36,8 @@ router.register(r'preguntas', QuestionViewSet)
 router.register(r'ventas', SaleViewSet)
 router.register(r'detalle/ventas', DetailSaleViewSet)
 router.register(r'images/ventas', ImageSaleViewSet)
+router.register(r'ratings', RatingViewSet)
+
 
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS

@@ -54,18 +54,17 @@ class Category(models.Model):
         verbose_name = 'categoria'
 
 
-PRICE = 'precio'
-PERCENTAGE = 'porcentaje'
-QUANTITY = 'cantidad'
-
-TYPE_DISCOUNTS = (
-    (PRICE, 'Por precio',),
-    (PERCENTAGE, 'Por porcentaje',),
-    (QUANTITY, 'Por cantidad'),
-)
-
-
 class Discount(models.Model):
+    PRICE = 'precio'
+    PERCENTAGE = 'porcentaje'
+    QUANTITY = 'cantidad'
+
+    TYPE_DISCOUNTS = (
+        (PRICE, 'Por precio',),
+        (PERCENTAGE, 'Por porcentaje',),
+        (QUANTITY, 'Por cantidad'),
+    )
+
     name = models.CharField('promocion', max_length=140, default='Promocion', null=True, blank=True, )
     short_name = models.CharField('etiqueta', max_length=20, default='-10%', null=True, blank=True, )
     type = models.CharField('tipo', max_length=100, choices=TYPE_DISCOUNTS)
@@ -91,25 +90,25 @@ class Discount(models.Model):
         verbose_name_plural = "descuentos"
 
 
-NORMAL = 1
-HAVE_RECIPE = 2
-STAY_RECIPE = 3
-
-REQUIRE_PRESCRIPTION = (
-    (NORMAL, 'No require receta'),
-    (HAVE_RECIPE, 'El repartidor te pedira que le muestres la receta'),
-    (STAY_RECIPE, 'El repartidor te pedira y se quedara con la receta'),
-)
-
-
 class Product(models.Model):
+    NORMAL = 1
+    HAVE_RECIPE = 2
+    STAY_RECIPE = 3
+
+    REQUIRE_PRESCRIPTION = (
+        (NORMAL, 'No require receta'),
+        (HAVE_RECIPE, 'El repartidor te pedira que le muestres la receta'),
+        (STAY_RECIPE, 'El repartidor te pedira y se quedara con la receta'),
+    )
+
     name = models.CharField(max_length=140, verbose_name="producto")
     description = models.TextField(verbose_name="descripcion")
+    substances = models.CharField("sustancia activa", max_length=140, default="")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="precio")
     require_prescription = models.BooleanField(verbose_name="require receta", default=False)  # descontinuada
     recipe = models.IntegerField("receta", default=NORMAL, choices=REQUIRE_PRESCRIPTION)
     active = models.BooleanField(verbose_name="es activo")  # esta disponible
-    inventory = models.IntegerField("inventario",default=0)
+    inventory = models.IntegerField("inventario", default=0)
     category = models.ForeignKey(Category, verbose_name="categoria")
     discount = models.ForeignKey(Discount, verbose_name="descuento", null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
@@ -119,20 +118,20 @@ class Product(models.Model):
         return self.name
 
     def thumbnail(self):
-        if self.recipe == NORMAL:
+        if self.recipe == self.NORMAL:
             return self.category.no_require()
-        elif self.recipe == HAVE_RECIPE:
+        elif self.recipe == self.HAVE_RECIPE:
             return self.category.show_recipe()
         else:
             return self.category.with_recipe()
 
     thumbnail.allow_tags = True
-    thumbnail.short_description = 'Imagen'
+    thumbnail.short_description = 'imagen'
 
     def product_image(self):
-        if self.recipe == NORMAL:
+        if self.recipe == self.NORMAL:
             return self.category.image_no_require
-        elif self.recipe == HAVE_RECIPE:
+        elif self.recipe == self.HAVE_RECIPE:
             return self.category.image_require_show
         else:
             return self.category.image_require

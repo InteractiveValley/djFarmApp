@@ -1,7 +1,6 @@
 from .models import Category, Product, Discount
 from .serializers import CategorySerializer, ProductSerializer, DiscountSerializer
-from rest_framework import viewsets
-from rest_framework import filters
+from rest_framework import viewsets, filters
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -14,7 +13,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,)
     filter_fields = ('category', 'name',)
-    search_fields = ('name', 'description', 'category__name',)
+    search_fields = ('name', 'description', 'category__name','substances',)
 
 
 class DiscountViewSet(viewsets.ModelViewSet):

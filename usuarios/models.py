@@ -46,6 +46,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     cell = models.CharField(max_length=50)
+    inapam = models.BooleanField("INAPAM", default=False)
     is_staff = models.BooleanField(_('staff status'), default=False,
                                    help_text=_('Designates whether the user can log into this admin '
                                                'site.'))
@@ -140,23 +141,22 @@ class Direction(models.Model):
         verbose_name_plural = "direcciones"
 
 
-DAILY = 'por dia';
-WEEKLY = 'semanal';
-MONTHLY = 'mensual';
-
-PERIODS = (
-    (DAILY, 'Por dia',),
-    (WEEKLY, 'Semanal',),
-    (MONTHLY, 'Mensual'),
-)
-
-
 class ScheduledOrder(models.Model):
-    product = models.ForeignKey(Product)
+    DAILY = 'por dia'
+    WEEKLY = 'semanal'
+    MONTHLY = 'mensual'
+
+    PERIODS = (
+        (DAILY, 'Por dia',),
+        (WEEKLY, 'Semanal',),
+        (MONTHLY, 'Mensual'),
+    )
+
+    product = models.ForeignKey(Product, verbose_name="producto")
     user = models.ForeignKey(CustomUser, related_name='schedules_orders')
-    quantity = models.IntegerField("cantidad")
+    quantity = models.IntegerField("cantidad", default=1)
     period = models.CharField("periodo", choices=PERIODS, max_length=100)  # por dia, semanal, mensual
-    days = models.PositiveIntegerField("dias")
+    days = models.PositiveIntegerField("dias", default=1)
     times = models.IntegerField("veces", default=0)
     date_next = models.DateField("proxima entrega", null=True, blank=True)
     date_ends = models.DateField("finaliza", null=True, blank=True)
@@ -176,11 +176,11 @@ class ScheduledOrder(models.Model):
         return super(ScheduledOrder, self).save(*args, **kwargs)
 
     def calculate_date_next(self):
-        if self.period == WEEKLY:
+        if self.period == self.WEEKLY:
             self.days = 7
-        elif self.period == MONTHLY:
+        elif self.period == self.MONTHLY:
             self.days = 30
-        now = self.modified;
+        now = self.modified
         self.date_next = now.date() + timezone.timedelta(days=self.days)
         self.date_ends = now.date() + timezone.timedelta(days=self.days * self.times)
 
@@ -198,3 +198,17 @@ class Question(models.Model):
     class Meta:
         verbose_name = "pregunta"
         verbose_name_plural = "preguntas"
+
+
+class Rating(models.Model):
+    user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="ratings", related_query_name="rating")
+    rating = models.IntegerField("calificacion", default=0)
+    created = models.DateTimeField("creado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        return super(Rating, self).save(*args, **kwargs)
