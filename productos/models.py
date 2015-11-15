@@ -182,7 +182,7 @@ class Receipt(models.Model):
         self.modified = timezone.now()
         if not self.status:
             product = self.product
-            product.quantity = product.quantity + self.quantity
+            product.inventory = product.inventory + self.quantity
             product.save()
             self.status = True
         return super(Receipt, self).save(*args, **kwargs)
