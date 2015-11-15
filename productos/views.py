@@ -30,6 +30,7 @@ def post_recibos(request):
             form = ReceiptForm(request.POST)
             if form.is_valid():
                 recibo = form.save(commit=False)
+                recibo.save()
                 return redirect('productos.views.recibos')
         else:
             form = ReceiptForm()
