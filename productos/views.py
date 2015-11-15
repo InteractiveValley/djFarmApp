@@ -33,6 +33,6 @@ def post_recibos(request):
                 return redirect('productos.views.recibos')
         else:
             form = ReceiptForm()
-        return render(request, 'post_recibos.html', {'form': form})
+        return render(request, 'crear_recibo.html', {'form': form})
     else:
         return HttpResponseRedirect("/login/")
