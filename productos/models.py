@@ -164,3 +164,28 @@ class Product(models.Model):
 
     class Meta:
         verbose_name = 'producto'
+
+
+class Receipt(models.Model):
+    product = models.ForeignKey(Product, verbose_name="producto")
+    quantity = models.IntegerField("recibido", default=0)
+    status = models.BooleanField("procesado", default=False)
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        self.modified = timezone.now()
+        if not self.status:
+            product = self.product
+            product.quantity = product.quantity + self.quantity
+            product.save()
+            self.status = True
+        return super(Receipt, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'recibo'

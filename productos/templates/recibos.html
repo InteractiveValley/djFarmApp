@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9 col-md-10 main">
+        <br/>
+          <h1 class="page-header">Recibos</h1>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Producto</th>
+                  <th>Categoria</th>
+                  <th>Inventario</th>
+                  <th>Recibido</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for recibo in receipts %}
+                <tr>
+                  <td>{{ recibo.id }}</td>
+                  <td>{{ recibo.product.name }}</td>
+                  <td>{{ recibo.product.category.name }}</td>
+                  <td>{{ recibo.quantity }}</td>
+                  <td>{{ recibo.created }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="5">
+                      <a href="/crear/recibo/">
+                        Crear recibo
+                      </a>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="row text-center">
+            <ul class="pagination">
+                <li>
+                  {% if products.has_previous %}
+                      <a href="?page={{ products.previous_page_number }}">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                  {% endif %}
+                </li>
+                <li>
+                    <span class="current">
+                        Pagina {{ products.number }} de {{ products.paginator.num_pages }}.
+                    </span>
+                </li>
+                <li>
+                  {% if products.has_next %}
+                      <a href="?page={{ products.next_page_number }}">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+{% endblock %}

@@ -55,6 +55,8 @@ urlpatterns = [
     url(r'^pedidos/(?P<sale_id>\d+)/approved/$', 'carrito.views.detalle_aprobar', name='pedido_aprovado'),
     url(r'^pedidos/(?P<sale_id>\d+)/reject/$', 'carrito.views.detalle_rechazar', name='pedido_rechazado'),
     url(r'^pedidos/(?P<sale_id>\d+)/delivered/$', 'carrito.views.detalle_entregar', name='pedido_entregado'),
+    url(r'^recibos/$', 'productos.views.recibos', name='recibos'),
+    url(r'^crear/recibo/$', 'productos.views.post_recibos', name='crear_recibo'),
     url(r'^login/$', 'usuarios.views.login_frontend', name='login_frontend'),
     url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/login/'}),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, }),

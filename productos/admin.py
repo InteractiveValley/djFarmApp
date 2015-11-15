@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Discount
+from .models import Category, Product, Discount, Receipt
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -17,12 +17,12 @@ admin.site.register(Category, CategoryAdmin)
 
 class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('General', {'fields': ['name', 'substances',  'category', 'description', ]}),
+        ('General', {'fields': ['name', 'substances', 'category', 'description', ]}),
         ('Detalle', {'fields': ['price', 'inventory', 'active', 'recipe', ]}),
         ('Descuento', {'fields': ['discount', ]}),
     ]
-    list_display = ('name','substances', 'category', 'price', 'status_inventory', 'active', 'thumbnail',)
-    search_fields = ('name', 'category__name','substances',)
+    list_display = ('name', 'substances', 'category', 'price', 'status_inventory', 'active', 'thumbnail',)
+    search_fields = ('name', 'category__name', 'substances',)
 
 
 admin.site.register(Product, ProductAdmin)
@@ -38,3 +38,14 @@ class DiscountAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Discount, DiscountAdmin)
+
+
+class ReceiptAdmin(admin.ModelAdmin):
+    fieldsets = [
+        ('General', {'fields': ['product', 'quantity', 'status']}),
+    ]
+    list_display = ('product', 'quantity','status', 'created',)
+    search_fields = ('product__name', 'product__category__name',)
+
+
+admin.site.register(Receipt, ReceiptAdmin)

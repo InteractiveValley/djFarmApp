@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9 col-md-10 main">
+        <br/>
+          <h1 class="page-header">Crear recibo</h1>
+          <div class="table-responsive">
+            <form method="POST" class="post-form">{% raw %}{% csrf_token %}{% endraw %}
+                {{ form.as_p }}
+                <button type="submit" class="save btn btn-default">Guardar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="row text-center">
+            <ul class="list-inline">
+                <li>
+                    <a href="/recibos/" class="btn btn-primary">Regresar</a>
+                </li>
+            </ul>
+        </div>
+{% endblock %}
