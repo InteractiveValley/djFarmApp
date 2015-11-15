@@ -6,7 +6,8 @@
         <br/>
           <h1 class="page-header">Crear recibo</h1>
           <div class="table-responsive">
-            <form method="POST" class="post-form">{% raw %}{% csrf_token %}{% endraw %}
+            <form method="POST" class="post-form">
+                {% csrf_token %}
                 {{ form.as_p }}
                 <button type="submit" class="save btn btn-default">Guardar</button>
             </form>
