@@ -1,6 +1,6 @@
-from .models import Direction, ScheduledOrder, CustomUser, Question, Rating
+from .models import Direction, ScheduledOrder, CustomUser, Question, Rating, Inapam
 from .serializers import DirectionSerializer, ScheduledOrderSerializer, UserSerializer, \
-    QuestionSerializer, RatingSerializer
+    QuestionSerializer, RatingSerializer, InapamSerializer
 from rest_framework import viewsets
 
 
@@ -56,3 +56,19 @@ class QuestionViewSet(viewsets.ModelViewSet):
 class RatingViewSet(viewsets.ModelViewSet):
     serializer_class = RatingSerializer
     queryset = Rating.objects.all()
+
+
+class InapamViewSet(viewsets.ModelViewSet):
+    serializer_class = InapamSerializer
+    queryset = Inapam.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the directions
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return Inapam.objects.filter(user=user)

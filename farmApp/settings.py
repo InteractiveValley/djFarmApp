@@ -102,9 +102,9 @@ DATABASES = {
     }
 }
 
-#if DEBUG == False:
-#    import dj_database_url
-#    DATABASES['default'] =  dj_database_url.config()
+if DEBUG == False:
+    import dj_database_url
+    DATABASES['default'] =  dj_database_url.config()
 
 
 # Internationalization
