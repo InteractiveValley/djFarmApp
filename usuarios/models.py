@@ -116,6 +116,7 @@ class Direction(models.Model):
     lng = models.CharField("longitude", max_length=100, null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
+    active = models.BooleanField(verbose_name="activa", default=True)
 
     def save(self, *args, **kwargs):
         """
@@ -212,3 +213,10 @@ class Rating(models.Model):
         if not self.id:
             self.created = timezone.now()
         return super(Rating, self).save(*args, **kwargs)
+
+
+class Inapam(models.Model):
+    user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="images_inapam",
+                             related_query_name="images_inapam")
+    inapam = models.ImageField(upload_to="/inapam")
+    active = models.BooleanField(verbose_name="Autorizado", default=False)
