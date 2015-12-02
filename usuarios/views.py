@@ -17,10 +17,10 @@ def user_conekta_create(request):
     conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     user = request.user
     customer = conekta.Customer.create({
-      "name": user.get_full_name(),
-      "email": user.email,
-      "phone": user.cell,
-      "cards": request.POST.get('conektaTokenId', None)
+        "name": user.get_full_name(),
+        "email": user.email,
+        "phone": user.cell,
+        "cards": request.POST.get('conektaTokenId', None)
     })
     user_conektas = ConektaUser.objects.filter(user=user.id)
     if len(user_conektas) == 0:
@@ -50,3 +50,4 @@ def login_frontend(request):
             return HttpResponseRedirect("/login/")
     else:
         return render(request, 'login_frontend.html')
+

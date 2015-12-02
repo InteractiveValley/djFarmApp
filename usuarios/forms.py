@@ -5,7 +5,6 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
 from usuarios.models import CustomUser
 
-
 class CustomUserCreationForm(UserCreationForm):
     """
     A form that creates a user, with no privileges, from the given email and
