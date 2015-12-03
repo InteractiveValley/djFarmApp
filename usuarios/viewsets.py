@@ -62,10 +62,9 @@ class RatingViewSet(viewsets.ModelViewSet):
 class InapamViewSet(viewsets.ModelViewSet):
     serializer_class = InapamSerializer
     queryset = Inapam.objects.all()
-    parser_classes = (MultiPartParser, FormParser,)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user, inapam=self.resquest.data.get('inapam'))
+        serializer.save(user=self.request.user, inapam=self.request.data.get('inapam'))
 
     def get_queryset(self):
         """
