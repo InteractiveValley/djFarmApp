@@ -1,9 +1,11 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from usuarios.models import ConektaUser
+from usuarios.models import ConektaUser, CustomUser
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from usuarios.enviarEmail import EmailUserCreated, EmailSolicitudRecoverPassword,  \
+    EmailRecoverPassword, EmailContacto
 
 
 # Create your views here.
@@ -51,3 +53,41 @@ def login_frontend(request):
     else:
         return render(request, 'login_frontend.html')
 
+
+def user_created(request):
+    email = request.POST.get('email')
+    password = request.POST.get('pass')
+    user = CustomUser.objects.get(email=email)
+    if user is not None:
+        enviar_mensaje = EmailUserCreated(user, password)
+        enviar_mensaje.enviarMensaje()
+    return HttpResponse("Email enviado")
+
+
+def solicitud_recover_password(request):
+    email = request.POST.get('email')
+    user = CustomUser.objects.get(email=email)
+    if user is not None:
+        enviar_mensaje = EmailSolicitudRecoverPassword(user)
+        enviar_mensaje.enviarMensaje()
+    return HttpResponse("Email enviado")
+
+
+def recover_password(request):
+    email = request.POST.get('email')
+    user = CustomUser.objects.get(email=email)
+    if user is not None:
+        enviar_mensaje = EmailRecoverPassword(user)
+        enviar_mensaje.enviarMensaje()
+    return HttpResponse("Email enviado")
+
+
+def contacto(request):
+    name = request.POST.get('name')
+    email = request.POST.get('email')
+    phone = request.POST.get('phone')
+    subject = request.POST.get('subject')
+    message = request.POST.get('message')
+    enviar_mensaje = EmailContacto(name, email, phone, subject, message)
+    enviar_mensaje.enviarMensaje()
+    return HttpResponse("Email enviado")

@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    </head>
+    <body>
+        <div marginwidth="0" marginheight="0">
+            <center>
+                <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
+                    <tr>
+                        <td align="center" valign="top">
+                            <table border="0" cellpadding="0" cellspacing="0" width="600">
+                                <tr>
+                                    <td align="center" valign="top">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="600">
+                                            <tr>
+                                                <td valign="top" style="padding-top:9px">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td valign="top">
+
+                                                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="366">
+                                                                        <tbody><tr>
+
+                                                                                <td valign="top" style="padding-top:9px;padding-left:18px;padding-bottom:9px;padding-right:0">
+                                                                                    Notificación
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody></table>
+
+                                                                    <table align="right" border="0" cellpadding="0" cellspacing="0" width="197">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td valign="top" style="padding-top:9px;padding-right:18px;padding-bottom:9px;padding-left:0">
+                                                                                    <div style="text-align:right"><a href="{% url 'homepage' %}" target="_blank">FarmaApp.mx</a></div>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" valign="top">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="600">
+                                            <tr>
+                                                <td valign="top">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td valign="top" style="padding:9px">
+                                                                    <table align="left" width="100%" border="0" cellpadding="0" cellspacing="0">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td valign="top" style="padding-right:9px;padding-left:9px;padding-top:0;padding-bottom:0;text-align:center">
+                                                                                    <img align="center" alt="" src="http://farmaapp.mx/static/logo.png" width="509" style="max-width:509px;padding-bottom:0;display:inline!important;vertical-align:bottom">
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" valign="top">
+                                        <table border="0" cellpadding="0" cellspacing="0" width="600">
+                                            <tr>
+                                                <td valign="top">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="padding:0px 18px">
+                                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top-width:1px;border-top-style:solid;border-top-color:#d9d9d9">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td>
+                                                                                    <span>{% now "d/m/Y H:i a" %}</span>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td valign="top">
+                                                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="600">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td valign="top" style="padding-top:9px;padding-right:18px;padding-bottom:9px;padding-left:18px">
+                                                                                    {% if sPassword|length == 0 %}
+                                                                                        <h3>Recuperar contraseña</h3>
+                                                                                        <p>Se le ha solicitado recuperar su contraseña, favor de dar click en el siguiente link para enviarle una nueva contraseña.</p>
+                                                                                    {% else %}
+                                                                                        <h3>Restablecio contraseña</h3>
+                                                                                        <p>Se ha generado una nueva contraseña para accesar al sistema, si necesita modificarla, vaya a su perfil desde su app movil.</p>
+                                                                                    {% endif %}
+                                                                                    <p>
+                                                                                        Nombre: {{user.first_name}} {{user.last_name}}<br/>
+                                                                                        Email: {{user.email}}<br/>
+                                                                                        {% if sPassword|length == 0 %}
+                                                                                            Recuperar contraseña: <a href="{% url 'recuperar_password' %}?email={{user.email}}" target="_blank">aqui</a>
+                                                                                        {% else %}
+                                                                                            Nuevo password: {{sPassword}}<br/>
+                                                                                        {% endif %}
+                                                                                    </p>
+
+                                                                                    <p>&nbsp;</p>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table><table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="padding-top:0;padding-right:18px;padding-bottom:18px;padding-left:18px" valign="top" align="center">
+                                                                    <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate!important;border:2px solid #dfdfdf;border-radius:5px;background-color:#ee2a5a">
+                                                                        <tbody>
+                                                                            <tr>
+                                                                                <td align="center" valign="middle" style="font-family:Arial;font-size:16px;padding:16px">
+                                                                                    <a title="Login" href="{% url 'homepage' %}" style="font-weight:bold;letter-spacing:normal;line-height:100%;text-align:center;text-decoration:none;color:#ffffff" target="_blank">Ir a la pagina</a>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table><table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td style="padding:0px 18px">
+                                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top-width:1px;border-top-style:solid;border-top-color:#d9d9d9">
+                                                                        <tbody><tr>
+                                                                                <td>
+                                                                                    <span></span>
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+																		</table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table></td>
+                                            </tr>
+                                        </table>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center" valign="top">
+
+                                        <table border="0" cellpadding="0" cellspacing="0" width="600">
+                                            <tr>
+                                                <td valign="top" style="padding-bottom:9px"><table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                        <tbody>
+                                                            <tr>
+                                                                <td valign="top">
+
+                                                                    <table align="left" border="0" cellpadding="0" cellspacing="0" width="600">
+                                                                        <tbody><tr>
+
+                                                                                <td valign="top" style="padding-top:9px;padding-right:18px;padding-bottom:9px;padding-left:18px">
+
+                                                                                    <div style="text-align:center"><a href="{% url 'homepage' %}" target="_blank">www.farmaapp.mx</a><br>
+                                                                                    <span style="color:#a9a9a9">Por favor no responda a este correo.</span></div>
+
+                                                                                </td>
+                                                                            </tr>
+                                                                        </tbody>
+																	</table>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+                </table>
+            </center>
+        </div>
+
+    </body>
+</html>

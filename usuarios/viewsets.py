@@ -2,7 +2,6 @@ from .models import Direction, ScheduledOrder, CustomUser, Question, Rating, Ina
 from .serializers import DirectionSerializer, ScheduledOrderSerializer, UserSerializer, \
     QuestionSerializer, RatingSerializer, InapamSerializer
 from rest_framework import viewsets
-from rest_framework.parsers import FormParser, MultiPartParser
 
 
 class UserViewSet(viewsets.ModelViewSet):
