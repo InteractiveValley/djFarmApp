@@ -3,10 +3,11 @@ from .models import Category, Product, Discount
 
 
 class CategorySerializer(serializers.ModelSerializer):
+    image = serializers.ImageField(source='image_category', read_only=True)
 
     class Meta:
         model = Category
-        fields = ('id', 'name', )
+        fields = ('id', 'name', 'image',)
 
 
 class DiscountSerializer(serializers.ModelSerializer):
@@ -24,7 +25,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('id', 'name', 'substances', 'description', 'price', 'recipe', 'active', 'category', 'image',
-                  'discount','inventory')
+                  'discount','inventory',)
 
 
 class ProductWithoutDiscountSerializer(serializers.ModelSerializer):
@@ -34,4 +35,4 @@ class ProductWithoutDiscountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ('id', 'name', 'substances', 'description', 'price', 'recipe', 'active', 'category', 'image',
-                  'inventory')
+                  'inventory',)

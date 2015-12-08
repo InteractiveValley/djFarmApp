@@ -56,4 +56,4 @@ class QuestionSerializer(serializers.ModelSerializer):
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
-        fields = ('id', 'user', 'rating')
+        fields = ('id', 'user', 'comment',  'rating',)

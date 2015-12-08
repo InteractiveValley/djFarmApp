@@ -203,6 +203,7 @@ class Question(models.Model):
 
 class Rating(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="ratings", related_query_name="rating")
+    comment = models.TextField("comentario", blank=True, null=True)
     rating = models.IntegerField("calificacion", default=0)
     created = models.DateTimeField("creado", null=True, blank=True)
 

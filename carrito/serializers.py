@@ -32,7 +32,7 @@ class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = ('id', 'user', 'direction', 'status', 'scheduled_order', 'delivered', 'created', 'modified',
-                  'detail_sales', 'subtotal', 'discount', 'total',)
+                  'detail_sales', 'subtotal', 'discount', 'total', 'notes',)
         read_only_fields = ('user', 'created', 'modified', 'total',)
 
 

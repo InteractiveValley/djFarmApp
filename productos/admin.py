@@ -5,10 +5,9 @@ from .models import Category, Product, Discount, Receipt
 class CategoryAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['name']}),
-        ('Thumbnails', {'fields': ['image_no_require', 'image_require_show', 'image_require'],
-                        'classes': ['collapse']}),
+        ('Thumbnails', {'fields': ['image_category'], 'classes': ['collapse']}),
     ]
-    list_display = ('name', 'no_require', 'show_recipe', 'with_recipe')
+    list_display = ('name', 'thumbnail',)
     search_fields = ('name',)
 
 
@@ -18,6 +17,8 @@ admin.site.register(Category, CategoryAdmin)
 class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
         ('General', {'fields': ['name', 'substances', 'category', 'description', ]}),
+        ('Thumbnails', {'fields': ['image_no_require', 'image_require_show', 'image_require'],
+                        'classes': ['collapse']}),
         ('Detalle', {'fields': ['price', 'inventory', 'active', 'recipe', ]}),
         ('Descuento', {'fields': ['discount', ]}),
     ]

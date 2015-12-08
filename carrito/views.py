@@ -57,7 +57,7 @@ def detalle_entregar(request, sale_id):
     card = customer_conekta.default_card
     charge = conekta.Charge.create({
         "currency": "MXN",
-        "amount": int(pedido.total * 100),
+        "amount": int(float(pedido.total * 100)),
         "description": "Pedido FarmaApp",
         "card": card,
         "details": {
@@ -72,6 +72,8 @@ def detalle_entregar(request, sale_id):
         pedido.status = NO_PAID
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
+    enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
+    enviar_mensaje.enviarMensaje()
     return render(request, 'detalle_pedido.html', {"pedido": pedido, 'detalles': detalles})
 
 

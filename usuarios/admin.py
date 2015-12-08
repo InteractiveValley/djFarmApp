@@ -69,7 +69,7 @@ admin.site.register(ConektaUser, ConektaUserAdmin)
 
 
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'rating', 'created')
+    list_display = ('user', 'rating', 'comment', 'created',)
 
 
 admin.site.register(Rating, RatingAdmin)

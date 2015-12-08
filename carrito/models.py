@@ -30,6 +30,7 @@ class Sale(models.Model):
     scheduled_order = models.BooleanField("pedido programado", default=False)
     delivered = models.BooleanField("entregado", default=False)
     charge_conekta = models.CharField("Cargo Id Conekta", max_length=140, default="", null=True, blank=True)
+    notes = models.TextField("Notas/Comentarios", blank=True, null=True)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 
