@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_carrito.html' %}
 
 {% block body %}
     <div class="row">
@@ -37,14 +37,21 @@
       <div class="row text-center">
             <ul class="list-inline">
                 <li>
-                    <a href="/pedidos/{{ pedido.id }}/approved/" class="btn btn-primary">Aprobado</a>
+                    <a href="/pedidos/" class="btn btn-primary">Listado</a>
+                </li>
+                {% if pedido.status == 1 %}
+                <li>
+                    <a href="/pedidos/{{ pedido.id }}/approved/" class="btn btn-primary">Enviado</a>
                 </li>
                 <li>
-                    <a href="/pedidos/{{ pedido.id }}/reject/" class="btn btn-danger">Rechazar</a>
+                    <a href="/pedidos/{{ pedido.id }}/reject/" class="btn btn-danger">Cancelar</a>
                 </li>
+                {% endif %}
+                {% if pedido.status == 2 %}
                 <li>
                     <a href="/pedidos/{{ pedido.id }}/delivered/" class="btn btn-success">Entregado</a>
                 </li>
+                {% endif %}
             </ul>
         </div>
 {% endblock %}

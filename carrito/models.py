@@ -67,17 +67,27 @@ class Sale(models.Model):
             dTotal += detalle.total()
         return dTotal
 
+    def discount_inventory(self):
+        detalle_ventas = self.detail_sales.all()
+        for detalle in detalle_ventas:
+            product = detalle.product
+            detalle.product.inventory = detalle.product.inventory - detalle.quantity
+            product.save()
+        return True
+
     def show_status(self):
         if self.status == INCOMPLETE:
             return "Capturando"
         elif self.status == COMPLETE:
             return "Pedido"
         elif self.status == APPROVED:
-            return "Aprobado"
+            return "Enviado"
         elif self.status == REJECTED:
-            return "Rechazado"
+            return "Cancelado"
         elif self.status == DELIVERED:
             return "Entregado"
+        elif self.status == PAID:
+            return "Pagado"
 
     show_status.allow_tags = True
 

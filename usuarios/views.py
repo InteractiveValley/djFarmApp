@@ -1,11 +1,14 @@
+import json
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from usuarios.models import ConektaUser, CustomUser
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from usuarios.enviarEmail import EmailUserCreated, EmailSolicitudRecoverPassword,  \
+from usuarios.enviarEmail import EmailUserCreated, EmailSolicitudRecoverPassword, \
     EmailRecoverPassword, EmailContacto
+from django.views.decorators.csrf import csrf_exempt
+import conekta
 
 
 # Create your views here.
@@ -15,23 +18,33 @@ def home(request):
 
 @api_view(['POST'])
 def user_conekta_create(request):
-    import conekta
     conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
+    user_conekta = None
     user = request.user
-    customer = conekta.Customer.create({
-        "name": user.get_full_name(),
-        "email": user.email,
-        "phone": user.cell,
-        "cards": request.POST.get('conektaTokenId', None)
-    })
-    user_conektas = ConektaUser.objects.filter(user=user.id)
-    if len(user_conektas) == 0:
-        ConektaUser.objects.create(user=user, conekta_user=customer.id)
+    try:
+        user_conekta = ConektaUser.objects.get(user=user)
+    except user_conekta.DoesNotExist:
+        user_conekta = None
+
+    data = json.loads(request.body)
+    # import pdb; pdb.set_trace()
+    if user_conekta is not None:
+        customer = conekta.Customer.find(user_conekta.conekta_user)
+        card = customer.update({
+            "cards":[ data['conektaTokenId'] ]
+        })
+        message = "Usuario actualizado"
     else:
-        user_conekta = user_conektas[0]
-        user_conekta.conekta_user = customer.id
-        user_conekta.save()
-    return Response({"message": "Usuario creado"})
+        customer = conekta.Customer.create({
+            "name": user.get_full_name(),
+            "email": user.email,
+            "phone": user.cell,
+            "cards": [data['conektaTokenId'],]
+        })
+        ConektaUser.objects.create(user=user, conekta_user=customer.id)
+        message = "Usuario creado"
+
+    return Response({"message": message})
 
 
 def login_frontend(request):
@@ -54,9 +67,11 @@ def login_frontend(request):
         return render(request, 'login_frontend.html')
 
 
+@csrf_exempt
 def user_created(request):
-    email = request.POST.get('email')
-    password = request.POST.get('pass')
+    data = json.loads(request.body)
+    email = data['email']
+    password = data['pass']
     user = CustomUser.objects.get(email=email)
     if user is not None:
         enviar_mensaje = EmailUserCreated(user, password)
@@ -64,30 +79,44 @@ def user_created(request):
     return HttpResponse("Email enviado")
 
 
+@csrf_exempt
 def solicitud_recover_password(request):
-    email = request.POST.get('email')
+    #  import pdb; pdb.set_trace()
+    data = json.loads(request.body)
+    email = data['email']
     user = CustomUser.objects.get(email=email)
     if user is not None:
         enviar_mensaje = EmailSolicitudRecoverPassword(user)
         enviar_mensaje.enviarMensaje()
-    return HttpResponse("Email enviado")
+        data = {'status': 'ok', 'message': 'Email enviado'}
+        return HttpResponse(json.dumps(data), content_type='application/json')
+    else:
+        return HttpResponse("Email enviado")
 
 
+@csrf_exempt
 def recover_password(request):
-    email = request.POST.get('email')
+    data = json.loads(request.body)
+    email = data['email']
     user = CustomUser.objects.get(email=email)
     if user is not None:
         enviar_mensaje = EmailRecoverPassword(user)
         enviar_mensaje.enviarMensaje()
-    return HttpResponse("Email enviado")
+        data = {'status': 'ok', 'message': 'Email enviado'}
+        return HttpResponse(json.dumps(data), content_type='application/json')
+    else:
+        return HttpResponse("Email enviado")
 
 
+@csrf_exempt
 def contacto(request):
-    name = request.POST.get('name')
-    email = request.POST.get('email')
-    phone = request.POST.get('phone')
-    subject = request.POST.get('subject')
-    message = request.POST.get('message')
+    data = json.loads(request.body)
+    name = data['name']
+    email = data['email']
+    phone = data['phone']
+    subject = data['subject']
+    message = data['message']
     enviar_mensaje = EmailContacto(name, email, phone, subject, message)
     enviar_mensaje.enviarMensaje()
-    return HttpResponse("Email enviado")
+    data = {'status': 'ok', 'message': 'Email enviado'}
+    return HttpResponse(json.dumps(data), content_type='application/json')

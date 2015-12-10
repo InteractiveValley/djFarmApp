@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_carrito.html' %}
 
 {% block body %}
     <div class="row">
@@ -6,36 +6,44 @@
         <br/>
           <h1 class="page-header">Pedidos</h1>
           <div class="table-responsive">
+            {% for pedido in pedidos %}
+            <div class="pedido">
+             <h3>ORDEN: # {{pedido.id}} | Fecha: {{pedido.created | date:"d/m/Y H:ia" }}</h3>
+             <h3>{{pedido.user.get_full_name}} | {{pedido.user.email}} | {{pedido.user.cell}}</h3>
+             <h3>{{pedido.direction}}</h3>
             <table class="table table-striped">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Cliente</th>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
                   <th>Subtotal</th>
-                  <th>Descuento</th>
-                  <th>Total</th>
-                  <th>Acciones</th>
+                  <th>Status</th>
+                  <th>Accion</th>
                 </tr>
               </thead>
               <tbody>
-                {% for pedido in pedidos %}
+                {% for detalle in pedido.detail_sales.all %}
                 <tr>
-                  <td>{{ pedido.id }}</td>
-                  <td>{{ pedido.user.get_full_name }}</td>
-                  <td>{{ pedido.subtotal }}</td>
-                  <td>{{ pedido.discount }}</td>
-                  <td>{{ pedido.total }}</td>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ detalle.product.name }}</td>
+                  <td>{{ detalle.quantity }}</td>
+                  <td>{{ detalle.price }}</td>
+                  <td>{{ detalle.subtotal }}</td>
                   <td>
                       {% if pedido.status = 0 %}
                         <span class="label label-default">Capturando</span>
                       {% elif pedido.status = 1 %}
                         <span class="label label-primary">Pedido</span>
                       {% elif pedido.status == 2 %}
-                         <span class="label label-success">Aprobado</span>
+                         <span class="label label-success">Enviado</span>
                       {% elif pedido.status == 3 %}
-                         <span class="label label-warning">Rechazado</span>
+                         <span class="label label-warning">Cancelado</span>
                       {% elif pedido.status == 4 %}
                          <span class="label label-info">Entregado</span>
+                      {% elif pedido.status == 5 %}
+                         <span class="label label-success">Pagado</span>
                       {% endif %}
                   </td>
                   <td>
@@ -47,6 +55,9 @@
                 {% endfor %}
               </tbody>
             </table>
+            </div>
+            <br/>
+            {% endfor %}
           </div>
         </div>
       </div>
