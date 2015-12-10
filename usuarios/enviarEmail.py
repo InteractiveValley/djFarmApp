@@ -35,16 +35,16 @@ class EmailUserCreated():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Registro de usuario en FarmaApp.mx'
-        msg['From'] = 'richpolis@gmail.com'
+        msg['From'] = 'noreply@farmaapp.mx'
         msg['To'] = self.user.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.gmail.com:587')
+        server = smtplib.SMTP('smtp.webfaction.com')
         server.starttls()
-        server.login("richpolis@gmail.com", "sf2R0xC@s")
+        server.login("noreply@farmaapp.mx", "D3m3s1s1")
 
-        respuesta = server.sendmail('richpolis@gmail.com', self.user.email, msg.as_string())
+        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -64,16 +64,16 @@ class EmailSolicitudRecoverPassword():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Solicitud para reestablecer contraseña de FarmaApp.mx'
-        msg['From'] = 'richpolis@gmail.com'
+        msg['From'] = 'noreply@farmaapp.mx'
         msg['To'] = self.user.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.gmail.com:587')
+        server = smtplib.SMTP('smtp.webfaction.com')
         server.starttls()
-        server.login("richpolis@gmail.com", "sf2R0xC@s")
+        server.login("noreply@farmaapp.mx", "D3m3s1s1")
 
-        respuesta = server.sendmail('richpolis@gmail.com', self.user.email, msg.as_string())
+        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -96,16 +96,16 @@ class EmailRecoverPassword():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Restablecio contraseña de FarmaApp.mx'
-        msg['From'] = 'richpolis@gmail.com'
+        msg['From'] = 'noreply@farmaapp.mx'
         msg['To'] = self.user.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.gmail.com:587')
+        server = smtplib.SMTP('smtp.webfaction.com')
         server.starttls()
-        server.login("richpolis@gmail.com", "sf2R0xC@s")
+        server.login("noreply@farmaapp.mx", "D3m3s1s1")
 
-        respuesta = server.sendmail('richpolis@gmail.com', self.user.email, msg.as_string())
+        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -128,16 +128,16 @@ class EmailSendSale():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Compra realizada en FarmaApp.mx'
-        msg['From'] = 'richpolis@gmail.com'
+        msg['From'] = 'noreply@farmaapp.mx'
         msg['To'] = self.user.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.gmail.com:587')
+        server = smtplib.SMTP('smtp.webfaction.com')
         server.starttls()
-        server.login("richpolis@gmail.com", "sf2R0xC@s")
+        server.login("noreply@farmaapp.mx", "D3m3s1s1")
 
-        respuesta = server.sendmail('richpolis@gmail.com', self.user.email, msg.as_string())
+        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -164,15 +164,15 @@ class EmailContacto():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Compra realizada en FarmaApp.mx'
-        msg['From'] = 'richpolis@gmail.com'
+        msg['From'] = 'noreply@farmaapp.mx'
         msg['To'] = self.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.gmail.com:587')
+        server = smtplib.SMTP('smtp.webfaction.com')
         server.starttls()
-        server.login("richpolis@gmail.com", "sf2R0xC@s")
+        server.login("noreply@farmaapp.mx", "D3m3s1s1")
 
-        respuesta = server.sendmail(self.email, 'richpolis@gmail.com', msg.as_string())
+        respuesta = server.sendmail(self.email, 'noreply@farmaapp.mx', msg.as_string())
         server.quit()
         return respuesta
