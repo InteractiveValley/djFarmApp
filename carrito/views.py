@@ -6,6 +6,7 @@ from usuarios.models import ConektaUser
 from usuarios.enviarEmail import EmailSendSale
 import conekta
 
+
 def pedidos(request):
     if request.user.is_authenticated():
         sale_list = Sale.objects.order_by('-created').all()

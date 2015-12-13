@@ -7,10 +7,10 @@ from django.utils import timezone
 class Category(models.Model):
     name = models.CharField(max_length=140, verbose_name="categoria")
     image_category = models.ImageField(upload_to='categorias/', verbose_name="Imagen", null=True,
-                                      blank=True)
+                                       blank=True)
 
     def thumbnail(self):
-        if self.image_category != None:
+        if self.image_category is not None and len(self.image_category) > 0:
             return """
             <img src="%s" style="max-width: 60px; max-height: 60px;"/>
             """ % self.image_category.url
@@ -95,7 +95,8 @@ class Product(models.Model):
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 
     def no_require(self):
-        if self.image_no_require != None:
+        import pdb; pdb.set_trace()
+        if self.image_no_require is not None and len(self.image_no_require) > 0:
             return """
             <img src="%s" style="max-width: 60px; max-height: 60px;"/>
             """ % self.image_no_require.url
@@ -105,7 +106,8 @@ class Product(models.Model):
             """
 
     def show_recipe(self):
-        if self.image_require_show != None:
+        import pdb; pdb.set_trace()
+        if self.image_require_show is not None and len(self.image_require_show) > 0:
             return """
             <img src="%s" style="max-width: 60px; max-height: 60px;"/>
             """ % self.image_require_show.url
@@ -115,7 +117,8 @@ class Product(models.Model):
             """
 
     def with_recipe(self):
-        if self.image_require != None:
+        import pdb; pdb.set_trace()
+        if self.image_require is not None and len(self.image_require) > 0:
             return """
             <img src="%s" style="max-width: 60px; max-height: 60px;"/>
             """ % self.image_require.url
