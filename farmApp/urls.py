@@ -59,6 +59,7 @@ urlpatterns = [
     url(r'^recibos/$', 'productos.views.recibos', name='recibos'),
     url(r'^crear/recibo/$', 'productos.views.post_recibos', name='crear_recibo'),
     url(r'^contacto/$', 'usuarios.views.contacto', name='contacto'),
+    url(r'^images/inapam/$', 'usuarios.views.upload_images_inapam', name='upload_images_inapam'),
     url(r'^usuario/creado/$', 'usuarios.views.user_created', name='usuario_creado'),
     url(r'^solicitud/recuperar/password/$', 'usuarios.views.solicitud_recover_password', name='solicitud_recuperar_password'),
     url(r'^recuperar/password/$', 'usuarios.views.recover_password', name='recuperar_password'),

@@ -1,7 +1,7 @@
 import json
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from usuarios.models import ConektaUser, CustomUser
+from usuarios.models import ConektaUser, CustomUser, Inapam
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -120,3 +120,23 @@ def contacto(request):
     enviar_mensaje.enviarMensaje()
     data = {'status': 'ok', 'message': 'Email enviado'}
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@csrf_exempt
+def upload_images_inapam(request):
+    if request.method == 'POST':
+        if request.is_ajax() is False:
+            import pdb; pdb.set_trace()
+            data = json.loads(request.body)
+            inapam = Inapam()
+            inapam.active = False
+            inapam.inapam = request.FILES.get('inapam')
+            inapam.user = request.user
+            inapam.save()
+            data = {'status': 'ok', 'message': 'Carga exitosa'}
+        else:
+            data = {'status': 'bat', 'message': 'No esta permitido este metodo por post normal'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
