@@ -31,7 +31,7 @@ def user_conekta_create(request):
     if user_conekta is not None:
         customer = conekta.Customer.find(user_conekta.conekta_user)
         card = customer.update({
-            "cards":[ data['conektaTokenId'] ]
+            "cards": [data['conektaTokenId']]
         })
         message = "Usuario actualizado"
     else:
@@ -39,7 +39,7 @@ def user_conekta_create(request):
             "name": user.get_full_name(),
             "email": user.email,
             "phone": user.cell,
-            "cards": [data['conektaTokenId'],]
+            "cards": [data['conektaTokenId'], ]
         })
         ConektaUser.objects.create(user=user, conekta_user=customer.id)
         message = "Usuario creado"
@@ -126,12 +126,12 @@ def contacto(request):
 def upload_images_inapam(request):
     if request.method == 'POST':
         if request.is_ajax() is False:
-            import pdb; pdb.set_trace()
-            data = json.loads(request.body)
-            inapam = Inapam()
-            inapam.active = False
-            inapam.inapam = request.FILES.get('inapam')
-            inapam.user = request.user
+            active = request.POST['active']
+            idUser = request.POST['usuario']
+            imagen = request.FILES['inapam']
+            user = CustomUser.objects.get(pk=idUser)
+            #  import pdb; pdb.set_trace()
+            inapam = Inapam(active=active, user=user, inapam=imagen)
             inapam.save()
             data = {'status': 'ok', 'message': 'Carga exitosa'}
         else:
@@ -139,4 +139,3 @@ def upload_images_inapam(request):
     else:
         data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
     return HttpResponse(json.dumps(data), content_type='application/json')
-
