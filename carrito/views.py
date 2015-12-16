@@ -1,9 +1,11 @@
+import json
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
-from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale
+from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale
 from usuarios.models import ConektaUser
 from usuarios.enviarEmail import EmailSendSale
+from django.views.decorators.csrf import csrf_exempt
 import conekta
 
 
@@ -105,4 +107,21 @@ def send_sale_for_email(request, sale_id):
     enviar_mensaje.enviarMensaje()
     return HttpResponse("Email enviado")
 
+
+@csrf_exempt
+def upload_images_ventas(request):
+    if request.method == 'POST':
+        if request.is_ajax() is False:
+            sale_id = request.POST['venta']
+            image = request.FILES['receta']
+            #  import pdb; pdb.set_trace()
+            sale = Sale.objects.get(pk=sale_id)
+            image_sale = ImageSale(sale=sale, image_recipe=image)
+            image_sale.save()
+            data = {'status': 'ok', 'message': 'Carga exitosa'}
+        else:
+            data = {'status': 'bat', 'message': 'No esta permitido este metodo por post normal'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
