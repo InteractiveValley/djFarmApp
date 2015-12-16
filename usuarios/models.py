@@ -219,5 +219,5 @@ class Rating(models.Model):
 class Inapam(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="images_inapam",
                              related_query_name="images_inapam")
-    inapam = models.ImageField(upload_to="/inapam")
+    inapam = models.ImageField(upload_to="inapam/")
     active = models.BooleanField(verbose_name="Autorizado", default=False)
