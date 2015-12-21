@@ -39,7 +39,7 @@ router.register(r'detalle/ventas', DetailSaleViewSet)
 router.register(r'images/ventas', ImageSaleViewSet)
 router.register(r'images/inapam', InapamViewSet)
 router.register(r'ratings', RatingViewSet)
-router.register(r'tokens/phone/', TokenPhoneViewSet)
+router.register(r'tokens/phone', TokenPhoneViewSet)
 
 
 urlpatterns = [
