@@ -221,3 +221,18 @@ class Inapam(models.Model):
                              related_query_name="images_inapam")
     inapam = models.ImageField(upload_to="inapam/")
     active = models.BooleanField(verbose_name="Autorizado", default=False)
+
+
+class TokenPhone(models.Model):
+    user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="tokenphones",
+                             related_query_name="tokenphones")
+    token = models.CharField("token",max_length=140, blank=True, null=True)
+    created = models.DateTimeField("creado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        return super(TokenPhone, self).save(*args, **kwargs)

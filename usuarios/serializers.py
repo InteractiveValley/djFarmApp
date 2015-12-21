@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Direction, ScheduledOrder, Question, Rating, Inapam
+from .models import CustomUser, Direction, ScheduledOrder, Question, Rating, Inapam, TokenPhone
 from productos.serializers import ProductSerializer
 
 
@@ -57,3 +57,10 @@ class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = ('id', 'user', 'comment',  'rating',)
+
+
+class TokenPhoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TokenPhone
+        fields = ('user','token','created',)
+        read_only_fields = ('user','created',)

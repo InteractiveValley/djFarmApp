@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Direction, CustomUser, ScheduledOrder, Question, ConektaUser, Rating, Inapam
+from .models import Direction, CustomUser, ScheduledOrder, Question, ConektaUser, Rating, Inapam, TokenPhone
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 from usuarios.forms import CustomUserChangeForm, CustomUserCreationForm
@@ -80,3 +80,9 @@ class InapamAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Inapam, InapamAdmin)
+
+
+class TokenPhoneAdmin(admin.ModelAdmin):
+    list_display = ('user','token','created')
+
+admin.site.register(TokenPhone, TokenPhoneAdmin)

@@ -22,7 +22,7 @@ admin.autodiscover()
 
 from productos.viewsets import CategoryViewSet, ProductViewSet, DiscountViewSet
 from usuarios.viewsets import UserViewSet, DirectionViewSet, ScheduledOrderViewSet, \
-    QuestionViewSet, RatingViewSet, InapamViewSet
+    QuestionViewSet, RatingViewSet, InapamViewSet, TokenPhoneViewSet
 from carrito.viewsets import SaleViewSet, DetailSaleViewSet, ImageSaleViewSet
 from rest_framework.routers import DefaultRouter
 
@@ -39,6 +39,7 @@ router.register(r'detalle/ventas', DetailSaleViewSet)
 router.register(r'images/ventas', ImageSaleViewSet)
 router.register(r'images/inapam', InapamViewSet)
 router.register(r'ratings', RatingViewSet)
+router.register(r'tokens/phone/', TokenPhoneViewSet)
 
 
 urlpatterns = [
