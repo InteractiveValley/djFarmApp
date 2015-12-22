@@ -43,8 +43,8 @@ def detalle_aprobar(request, sale_id):
     pedido.status = APPROVED
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
-    message = "Tu orden #" + pedido.id + " esta en camino"
-    createNotification(pedido.user,"FarmaApp", message)
+    message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
+    create_notification(pedido.user,"FarmaApp", message)
     return render(request, 'detalle_pedido.html', {"pedido": pedido, 'detalles': detalles})
 
 
@@ -53,8 +53,8 @@ def detalle_rechazar(request, sale_id):
     pedido.status = REJECTED
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
-    message = "Tu orden #" + pedido.id + " no ha podido ser procesado."
-    createNotification(pedido.user,"FarmaApp", message)
+    message = "Tu orden #" + str(pedido.id).zfill(6) + " no ha podido ser procesado, favor de capturar de nuevo."
+    create_notification(pedido.user,"FarmaApp", message)
     return render(request, 'detalle_pedido.html', {"pedido": pedido, 'detalles': detalles})
 
 
@@ -99,8 +99,10 @@ def detalle_entregar(request, sale_id):
         pedido.discount_inventory()
         enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
         enviar_mensaje.enviarMensaje()
-        message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(pedido.id,pedido.total())
-        createNotification(pedido.user,"FarmaApp", message)
+        str_pedido = str(pedido.id).zfill(6)
+        str_total = '{:20,.2f}'.format(pedido.total())
+        message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
+        create_notification(pedido.user,"FarmaApp", message)
     else:
         pedido.status = NO_PAID
         pedido.save()
@@ -136,9 +138,11 @@ def upload_images_ventas(request):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
-def createNotification(user, title, message):
+def create_notification(user, title, message):
+    tokens = [user.token_phone.all()[0].token]
     post_data = {
-        "tokens": user.token_phone.all()[0],
+        "tokens": tokens,
+        "production": "true",
         "notification": {
             "title": title,
             "alert": message
@@ -147,7 +151,7 @@ def createNotification(user, title, message):
     app_id = PUSH_APP_ID
     private_key = PUSH_SECRET_API_KEY
     url = "https://push.ionic.io/api/v1/push"
-    req = urllib2.Request(url, data=post_data)
+    req = urllib2.Request(url, data=json.dumps(post_data))
     req.add_header("Content-Type", "application/json")
     req.add_header("X-Ionic-Application-Id", app_id)
     b64 = base64.encodestring('%s:' % private_key).replace('\n', '')
