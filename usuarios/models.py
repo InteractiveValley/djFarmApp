@@ -225,7 +225,7 @@ class Inapam(models.Model):
 
 class TokenPhone(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="token_phone")
-    token = models.CharField("token", max_length=140, blank=True, null=True)
+    token = models.CharField("token", max_length=250, blank=True, null=True)
     created = models.DateTimeField("creado", null=True, blank=True)
 
     def save(self, *args, **kwargs):
