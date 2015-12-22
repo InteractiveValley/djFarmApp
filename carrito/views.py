@@ -97,8 +97,8 @@ def detalle_entregar(request, sale_id):
         pedido.status = PAID
         pedido.save()
         pedido.discount_inventory()
-        //enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
-        //enviar_mensaje.enviarMensaje()
+        ## enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
+        ## enviar_mensaje.enviarMensaje()
         str_pedido = str(pedido.id).zfill(6)
         str_total = '{:20,.2f}'.format(pedido.total())
         message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
