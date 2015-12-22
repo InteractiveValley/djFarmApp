@@ -1,4 +1,7 @@
+import base64
 import json
+import urllib2
+
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
@@ -7,6 +10,7 @@ from usuarios.models import ConektaUser
 from usuarios.enviarEmail import EmailSendSale
 from django.views.decorators.csrf import csrf_exempt
 import conekta
+from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
 
 
 def pedidos(request):
@@ -39,6 +43,8 @@ def detalle_aprobar(request, sale_id):
     pedido.status = APPROVED
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
+    message = "Tu orden #" + pedido.id + " esta en camino"
+    createNotification(pedido.user,"FarmaApp", message)
     return render(request, 'detalle_pedido.html', {"pedido": pedido, 'detalles': detalles})
 
 
@@ -47,6 +53,8 @@ def detalle_rechazar(request, sale_id):
     pedido.status = REJECTED
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
+    message = "Tu orden #" + pedido.id + " no ha podido ser procesado."
+    createNotification(pedido.user,"FarmaApp", message)
     return render(request, 'detalle_pedido.html', {"pedido": pedido, 'detalles': detalles})
 
 
@@ -91,6 +99,8 @@ def detalle_entregar(request, sale_id):
         pedido.discount_inventory()
         enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
         enviar_mensaje.enviarMensaje()
+        message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(pedido.id,pedido.total())
+        createNotification(pedido.user,"FarmaApp", message)
     else:
         pedido.status = NO_PAID
         pedido.save()
@@ -125,3 +135,21 @@ def upload_images_ventas(request):
         data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
+
+def createNotification(user, title, message):
+    post_data = {
+        "tokens": user.token_phone.all()[0],
+        "notification": {
+            "title": title,
+            "alert": message
+        }
+    }
+    app_id = PUSH_APP_ID
+    private_key = PUSH_SECRET_API_KEY
+    url = "https://push.ionic.io/api/v1/push"
+    req = urllib2.Request(url, data=post_data)
+    req.add_header("Content-Type", "application/json")
+    req.add_header("X-Ionic-Application-Id", app_id)
+    b64 = base64.encodestring('%s:' % private_key).replace('\n', '')
+    req.add_header("Authorization", "Basic %s" % b64)
+    resp = urllib2.urlopen(req)
