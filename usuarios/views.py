@@ -127,11 +127,11 @@ def upload_images_inapam(request):
     if request.method == 'POST':
         if request.is_ajax() is False:
             active = request.POST['active']
-            idUser = request.POST['usuario']
-            imagen = request.FILES['inapam']
-            user = CustomUser.objects.get(pk=idUser)
+            iduser = request.POST['usuario']
+            image = request.FILES['inapam']
+            user = CustomUser.objects.get(pk=iduser)
             #  import pdb; pdb.set_trace()
-            inapam = Inapam(active=active, user=user, inapam=imagen)
+            inapam = Inapam(active=active, user=user, inapam=image)
             inapam.save()
             data = {'status': 'ok', 'message': 'Carga exitosa'}
         else:
