@@ -6,7 +6,8 @@ from email.mime.text import MIMEText
 from django.template import loader, Context
 import string
 import random
-
+from farmApp.secret import APP_EMAIL_HOST, APP_EMAIL_HOST_PASSWORD, APP_EMAIL_HOST_USER,\
+    APP_EMAIL_PORT, APP_EMAIL_USE_TLS,APP_EMAIL_HOST_EMAIL
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     """
@@ -40,11 +41,11 @@ class EmailUserCreated():
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
 
-        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -69,11 +70,11 @@ class EmailSolicitudRecoverPassword():
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
 
-        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -101,11 +102,11 @@ class EmailRecoverPassword():
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
 
-        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -133,11 +134,11 @@ class EmailSendSale():
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
 
-        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -169,10 +170,10 @@ class EmailContacto():
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
 
-        respuesta = server.sendmail(self.email, 'noreply@farmaapp.mx', msg.as_string())
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta
