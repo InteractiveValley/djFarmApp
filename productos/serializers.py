@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, Product, Discount
+from .models import Category, Product, Discount, Laboratory
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -10,8 +10,13 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image',)
 
 
-class DiscountSerializer(serializers.ModelSerializer):
+class LaboratorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Laboratory
+        fields = ('id', 'name',)
 
+
+class DiscountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Discount
         fields = ('id', 'name', 'short_name', 'type', 'price', 'percentage', 'quantity', 'date_begins', 'date_ends',)
@@ -21,11 +26,13 @@ class ProductSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(source='product_image', read_only=True)
     discount = DiscountSerializer()
     category = CategorySerializer()
+    laboratory = LaboratorySerializer()
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'substances', 'description', 'price', 'recipe', 'active', 'category', 'image',
-                  'discount','inventory',)
+        fields = (
+        'id', 'name', 'substances', 'description', 'price', 'with_tax', 'recipe', 'active', 'category', 'laboratory',
+        'image', 'discount', 'inventory',)
 
 
 class ProductWithoutDiscountSerializer(serializers.ModelSerializer):

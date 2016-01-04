@@ -1,7 +1,9 @@
 import json
+import datetime
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from usuarios.models import ConektaUser, CustomUser, Inapam
+from usuarios.models import ConektaUser, CustomUser, Inapam, Rating
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -56,7 +58,7 @@ def login_frontend(request):
             if user.is_active:
                 login(request, user)
                 # Redirect to a success page.
-                return HttpResponseRedirect("/pedidos/")
+                return HttpResponseRedirect("/backend/pedidos/")
             else:
                 # Return a 'disabled account' error message
                 return HttpResponseRedirect("/login/")
@@ -139,3 +141,40 @@ def upload_images_inapam(request):
     else:
         data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def calificaciones(request):
+    if request.user.is_authenticated():
+        ahora = datetime.datetime.now()
+        filtro = request.GET.get('filter', 'todos')
+        print filtro
+        year = request.GET.get('year', ahora.year)
+        month = request.GET.get('month', ahora.month)
+
+        buenos = Rating.objects.filter(created__year=year).filter(created__month=month).filter(rating__gte=4).count()
+        malos = Rating.objects.filter(created__year=year).filter(created__month=month).filter(rating__lte=3).count()
+
+        #  import pdb; pdb.set_trace()
+
+        if filtro == 'todos':
+            rating_list = Rating.objects.filter(rating__gte=1).order_by('-created')
+        elif filtro == 'malos':
+            rating_list = Rating.objects.filter(rating__lte=3).order_by('-created')
+        else:
+            rating_list = Rating.objects.filter(rating__gte=4).order_by('-created')
+
+        paginator = Paginator(rating_list, 10)
+        page = request.GET.get('page')
+
+        try:
+            ratings = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            ratings = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            ratings = paginator.page(paginator.num_pages)
+
+        return render(request, 'ratings.html', {"ratings": ratings, 'buenos': buenos, 'malos': malos, 'filter': filtro})
+    else:
+        return HttpResponseRedirect("/login/")

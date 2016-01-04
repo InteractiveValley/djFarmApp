@@ -24,7 +24,8 @@ STATUS_SALE = {
 
 
 class Sale(models.Model):
-    user = models.ForeignKey(CustomUser)
+    user = models.ForeignKey(CustomUser, verbose_name="cliente", related_name="user")
+    vendor = models.ForeignKey(CustomUser, verbose_name="vendedor", related_name="vendor", null=True, blank=True)
     direction = models.ForeignKey(Direction, blank=True, null=True, on_delete=models.SET_NULL)
     status = models.IntegerField("Estatus", default=0, choices=STATUS_SALE)
     scheduled_order = models.BooleanField("pedido programado", default=False)
@@ -59,6 +60,13 @@ class Sale(models.Model):
         for detalle in detalle_ventas:
             dDiscount += float(detalle.discount)
         return dDiscount
+
+    def tax(self):
+        detalle_ventas = self.detail_sales.all()
+        dTax = 0.0
+        for detalle in detalle_ventas:
+            dTax += detalle.tax
+        return dTax
 
     def total(self):
         detalle_ventas = self.detail_sales.all()
@@ -102,6 +110,7 @@ class DetailSale(models.Model):
     price = models.DecimalField("precio", max_digits=10, decimal_places=2)
     quantity = models.IntegerField("cantidad")
     subtotal = models.DecimalField("subtotal", max_digits=10, decimal_places=2, default=0)
+    tax = models.DecimalField("IVA", max_digits=10, decimal_places=2, default=0)
     discount = models.DecimalField("descuento", max_digits=10, decimal_places=2, default=0)
 
     def need_validation(self):
@@ -118,6 +127,9 @@ class DetailSale(models.Model):
             self.price = self.product.price
         self.subtotal = self.quantity * self.price
         self.calculate_discount()
+        if self.product.with_tax:
+            total = float(self.subtotal) - float(self.discount)
+            self.tax = total * 0.16
         return super(DetailSale, self).save(*args, **kwargs)
 
     def calculate_discount(self):
@@ -149,7 +161,8 @@ class DetailSale(models.Model):
                     self.discount = float(self.price * self.quantity) - subtotal
 
     def total(self):
-        return float(self.subtotal) - float(self.discount)
+        return float(self.subtotal) - float(self.discount) + float(self.tax)
+
 
     class Meta:
         verbose_name = "detalle de venta"
@@ -163,3 +176,30 @@ class ImageSale(models.Model):
     class Meta:
         verbose_name = "receta"
         verbose_name_plural = "recetas"
+
+
+class Receipt(models.Model):
+    product = models.ForeignKey(Product, verbose_name="producto")
+    user = models.ForeignKey(CustomUser, verbose_name="usuario")
+    quantity = models.IntegerField("recibido", default=0)
+    status = models.BooleanField("procesado", default=False)
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        self.modified = timezone.now()
+        if not self.status:
+            product = self.product
+            product.inventory = product.inventory + self.quantity
+            product.save()
+            self.status = True
+        return super(Receipt, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'recibo'
+

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Discount, Receipt
+from .models import Category, Product, Discount, Laboratory
 
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -14,15 +14,23 @@ class CategoryAdmin(admin.ModelAdmin):
 admin.site.register(Category, CategoryAdmin)
 
 
+class LaboratoryAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
+
+admin.site.register(Laboratory, LaboratoryAdmin)
+
+
 class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('General', {'fields': ['name', 'substances', 'category', 'description', ]}),
+        ('General', {'fields': ['name', 'substances', 'category', 'laboratory', 'description', ]}),
         ('Thumbnails', {'fields': ['image_no_require', 'image_require_show', 'image_require'],
                         'classes': ['collapse']}),
-        ('Detalle', {'fields': ['price', 'inventory', 'active', 'recipe', ]}),
+        ('Detalle', {'fields': ['price', 'inventory', 'with_tax', 'active', 'recipe', ]}),
         ('Descuento', {'fields': ['discount', ]}),
     ]
-    list_display = ('name', 'substances', 'category', 'price', 'status_inventory', 'active', 'thumbnail',)
+    list_display = ('name', 'substances', 'category', 'price', 'with_tax', 'status_inventory', 'active', 'thumbnail',)
     search_fields = ('name', 'category__name', 'substances',)
 
 
@@ -39,14 +47,3 @@ class DiscountAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Discount, DiscountAdmin)
-
-
-class ReceiptAdmin(admin.ModelAdmin):
-    fieldsets = [
-        ('General', {'fields': ['product', 'quantity', 'status']}),
-    ]
-    list_display = ('product', 'quantity','status', 'created',)
-    search_fields = ('product__name', 'product__category__name',)
-
-
-admin.site.register(Receipt, ReceiptAdmin)
