@@ -17,9 +17,20 @@ from carrito.forms import ReceiptForm
 
 def pedidos(request):
     if request.user.is_authenticated():
-        sale_list = Sale.objects.order_by('-created').all()
+        filtro = request.GET.get('filter', 'todos')
+
+        if filtro == 'todos':
+            sale_list = Sale.objects.order_by('-created').all()
+        elif filtro == 'enviar':
+            sale_list = Sale.objects.filter(status=APPROVED).order_by('-created')
+        elif filtro == 'pagado':
+            sale_list = Sale.objects.filter(status=PAID).order_by('-created')
+        elif filtro == 'rechazado':
+            sale_list = Sale.objects.filter(status=REJECTED).order_by('-created')
+
         paginator = Paginator(sale_list, 10)
         page = request.GET.get('page')
+
         try:
             sales = paginator.page(page)
         except PageNotAnInteger:
@@ -29,7 +40,7 @@ def pedidos(request):
             # If page is out of range (e.g. 9999), deliver last page of results.
             sales = paginator.page(paginator.num_pages)
 
-        return render(request, 'pedidos.html', {"pedidos": sales})
+        return render(request, 'pedidos.html', {"pedidos": sales, "filter": filtro})
     else:
         return HttpResponseRedirect("/login/")
 
@@ -46,18 +57,43 @@ def detalle_aprobar(request, sale_id):
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
     message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
-    create_notification(pedido.user,"FarmaApp", message)
-    return render(request, 'detalle_pedido.html', {"pedido": pedido, 'detalles': detalles})
+    create_notification(pedido.user, "FarmaApp", message)
+    if request.is_ajax():
+        template = "item_pedido.html"
+    else:
+        template = "detalle_pedido.html"
+
+    return render(request, template, {"pedido": pedido, 'detalles': detalles})
 
 
-def detalle_rechazar(request, sale_id):
+def detalle_cancelar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     pedido.status = REJECTED
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
-    message = "Tu orden #" + str(pedido.id).zfill(6) + " no ha podido ser procesado, favor de capturar de nuevo."
-    create_notification(pedido.user,"FarmaApp", message)
-    return render(request, 'detalle_pedido.html', {"pedido": pedido, 'detalles': detalles})
+    message = "Tu orden #" + str(pedido.id).zfill(6) + " ha sido cancelada."
+    create_notification(pedido.user, "FarmaApp", message)
+    if request.is_ajax():
+        template = "item_pedido.html"
+    else:
+        template = "detalle_pedido.html"
+
+    return render(request, template, {"pedido": pedido, 'detalles': detalles})
+
+
+def detalle_rechazar_receta(request, sale_id):
+    pedido = Sale.objects.get(pk=sale_id)
+    pedido.status = REJECTED
+    pedido.save()
+    detalles = DetailSale.objects.filter(sale=pedido.id)
+    message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. Si lo deseas puedes volver a generar la orden."
+    create_notification(pedido.user, "FarmaApp", message)
+    if request.is_ajax():
+        template = "item_pedido.html"
+    else:
+        template = "detalle_pedido.html"
+
+    return render(request, template, {"pedido": pedido, 'detalles': detalles})
 
 
 def detalle_entregar(request, sale_id):
@@ -72,26 +108,26 @@ def detalle_entregar(request, sale_id):
     lista = []
     for detalle in detalles:
         dato = {
-          "name": detalle.product.name,
-          "description": detalle.product.description,
-          "unit_price": str(int(float(detalle.price * 100))),
-          "quantity": detalle.quantity,
-          "sku": str(detalle.product.id),
-          "type": "medicine"
-         };
+            "name": detalle.product.name,
+            "description": detalle.product.description,
+            "unit_price": str(int(float(detalle.price * 100))),
+            "quantity": detalle.quantity,
+            "sku": str(detalle.product.id),
+            "type": "medicine"
+        };
         lista.append(dato)
     charge = conekta.Charge.create({
-            "description": "Pedido FarmaApp",
-            "amount": amount,
-            "currency": "MXN",
-            "reference_id": "pedido-farmaapp-" + str(pedido.id),
-            "card": card.id,
-            "details": {
-                "name": pedido.user.get_full_name(),
-                "phone": pedido.user.cell,
-                "email": pedido.user.email,
-                "line_items": lista
-            }
+        "description": "Pedido FarmaApp",
+        "amount": amount,
+        "currency": "MXN",
+        "reference_id": "pedido-farmaapp-" + str(pedido.id),
+        "card": card.id,
+        "details": {
+            "name": pedido.user.get_full_name(),
+            "phone": pedido.user.cell,
+            "email": pedido.user.email,
+            "line_items": lista
+        }
     })
     #  import pdb; pdb.set_trace()
     if charge.status == "paid":
@@ -104,12 +140,17 @@ def detalle_entregar(request, sale_id):
         str_pedido = str(pedido.id).zfill(6)
         str_total = '{:20,.2f}'.format(pedido.total())
         message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
-        create_notification(pedido.user,"FarmaApp", message)
+        create_notification(pedido.user, "FarmaApp", message)
     else:
         pedido.status = NO_PAID
         pedido.save()
-    return render(request, 'detalle_pedido.html', {"pedido": pedido, 'detalles': detalles})
 
+    if request.is_ajax():
+        template = "item_pedido.html"
+    else:
+        template = "detalle_pedido.html"
+
+    return render(request, template, {"pedido": pedido, 'detalles': detalles})
 
 
 def send_sale_for_email(request, sale_id):

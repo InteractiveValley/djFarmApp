@@ -128,7 +128,8 @@ class Direction(models.Model):
         return super(Direction, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "%s %s %s" % (self.street, self.interior_number, self.exterior_number)
+        return "%s %s %s, CP: %s, Del: %s, Col: %s" % (self.street, self.interior_number, self.exterior_number,
+                                                      self.postal_code, self.delegation_municipaly, self.colony)
 
     def direction(self):
         return "%s %s %s, col: %s, cp: %s, Del/Mun: %s, %s" % \

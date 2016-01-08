@@ -21,7 +21,6 @@
                   <th>Comentario</th>
                   <th>Calificacion</th>
                   <th>Fecha</th>
-                  <th>Accion</th>
                 </tr>
               </thead>
               <tbody>
@@ -37,14 +36,6 @@
                   <td>{{ rating.comment }}</td>
                   <td>{{ rating.rating }}</td>
                   <td>{{ rating.created }}</td>
-                  <td>
-                      <a class="btn btn-success" href="/ratings/editar/{{rating.id}}/">
-                          <i class="glyphicon glyphicon-search"></i> &nbsp; Editar
-                      </a>
-                      <a class="btn btn-success" href="/ratings/ver/{{rating.id}}/">
-                          <i class="glyphicon glyphicon-search"></i> &nbsp; Ver
-                      </a>
-                  </td>
                 </tr>
                 {% endfor %}
               </tbody>

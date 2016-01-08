@@ -151,8 +151,11 @@ def calificaciones(request):
         year = request.GET.get('year', ahora.year)
         month = request.GET.get('month', ahora.month)
 
-        buenos = Rating.objects.filter(created__year=year).filter(created__month=month).filter(rating__gte=4).count()
-        malos = Rating.objects.filter(created__year=year).filter(created__month=month).filter(rating__lte=3).count()
+        #  buenos = Rating.objects.filter(created__year=year).filter(created__month=month).filter(rating__gte=4).count()
+        #  malos = Rating.objects.filter(created__year=year).filter(created__month=month).filter(rating__lte=3).count()
+
+        buenos = Rating.objects.filter(rating__gte=4).count()
+        malos = Rating.objects.filter(rating__lte=3).count()
 
         #  import pdb; pdb.set_trace()
 

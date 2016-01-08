@@ -65,7 +65,7 @@ class Sale(models.Model):
         detalle_ventas = self.detail_sales.all()
         dTax = 0.0
         for detalle in detalle_ventas:
-            dTax += detalle.tax
+            dTax += float(detalle.tax)
         return dTax
 
     def total(self):
