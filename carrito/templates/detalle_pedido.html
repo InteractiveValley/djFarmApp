@@ -1,4 +1,8 @@
-{% extends 'base_carrito.html' %}
+{% extends 'base_sencilla.html' %}
+
+{% block title %}
+Pedido numero #{{pedido.id}}
+{% endblock %}
 
 {% block body %}
     <div class="row">
@@ -34,24 +38,13 @@
           </div>
         </div>
       </div>
+      {% include 'recetas_pedido.html' with pedido=pedido %}
       <div class="row text-center">
             <ul class="list-inline">
                 <li>
-                    <a href="/pedidos/" class="btn btn-primary">Listado</a>
+                    <button onclick="window.print();" class="btn btn-primary">Imprimir</button>
                 </li>
-                {% if pedido.status == 1 %}
-                <li>
-                    <a href="/pedidos/{{ pedido.id }}/approved/" class="btn btn-primary">Enviado</a>
-                </li>
-                <li>
-                    <a href="/pedidos/{{ pedido.id }}/reject/" class="btn btn-danger">Cancelar</a>
-                </li>
-                {% endif %}
-                {% if pedido.status == 2 %}
-                <li>
-                    <a href="/pedidos/{{ pedido.id }}/delivered/" class="btn btn-success">Entregado</a>
-                </li>
-                {% endif %}
+
             </ul>
         </div>
 {% endblock %}

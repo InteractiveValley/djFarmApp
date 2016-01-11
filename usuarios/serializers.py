@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Direction, ScheduledOrder, Question, Rating, Inapam
+from .models import CustomUser, Direction, ScheduledOrder, Question, Rating, Inapam, TokenPhone
 from productos.serializers import ProductSerializer
 
 
@@ -14,7 +14,7 @@ class DirectionSerializer(serializers.ModelSerializer):
 class ScheduledOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScheduledOrder
-        fields = ('id', 'product', 'user', 'quantity', 'period', 'days', 'times', 'date_next', 'date_ends', )
+        fields = ('id', 'product', 'user', 'quantity', 'period', 'days', 'times', 'date_next', 'date_ends',)
         read_only_fields = ('user', 'date_next', 'date_ends',)
 
 
@@ -34,17 +34,24 @@ class InapamSerializer(serializers.ModelSerializer):
         read_only_fields = ('user',)
 
 
+class TokenPhoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TokenPhone
+        fields = ('id', 'user', 'token', 'created',)
+        read_only_fields = ('user', 'created',)
+
+
 class UserSerializer(serializers.ModelSerializer):
     directions = DirectionSerializer(many=True, read_only=True, )
     schedules_orders = ScheduledOrderFullSerializer(many=True, read_only=True, )
+    token_phone = TokenPhoneSerializer(many=True, read_only=True, )
     images_inapam = InapamSerializer(many=True, read_only=True, )
 
     class Meta:
         model = CustomUser
         fields = ('id', 'first_name', 'last_name', 'email', 'cell', 'directions', 'schedules_orders', 'inapam',
-                  'images_inapam',)
+                  'token_phone', 'images_inapam', )
         write_only_fields = ('password',)
-        depth = 1
 
 
 class QuestionSerializer(serializers.ModelSerializer):
@@ -56,4 +63,4 @@ class QuestionSerializer(serializers.ModelSerializer):
 class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
-        fields = ('id', 'user', 'comment',  'rating',)
+        fields = ('id', 'user', 'comment', 'rating',)

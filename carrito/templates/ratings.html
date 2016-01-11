@@ -1,0 +1,70 @@
+{% extends 'base_carrito.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'calificaciones' %}?filter=todos">Todos <span class="sr-only">(current)</span></a></li>
+                <li class="{% if filter == 'buenos' %} active {% endif %}"><a href="{% url 'calificaciones' %}?filter=buenos">Buenas <span class="badge">{{buenos}}</span></a></li>
+                <li class="{% if filter == 'malos' %} active {% endif %}"><a href="{% url 'calificaciones' %}?filter=malos">Malas <span class="badge">{{malos}}</span></a></li>
+              </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <br/>
+          <h1 class="page-header">Calificaciones</h1>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Usuario</th>
+                  <th>Comentario</th>
+                  <th>Calificacion</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for rating in ratings %}
+
+                {% if rating.rating <= 3 %}
+                    <tr class="rating-rojo">
+                {% else %}
+                    <tr>
+                {% endif %}
+                  <td>{{ rating.id }}</td>
+                  <td>{{ rating.user.get_full_name }}</td>
+                  <td>{{ rating.comment }}</td>
+                  <td>{{ rating.rating }}</td>
+                  <td>{{ rating.created }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row text-center">
+            <ul class="pagination">
+                <li>
+                  {% if ratings.has_previous %}
+                      <a href="?page={{ ratings.previous_page_number }}">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                  {% endif %}
+                </li>
+                <li>
+                    <span class="current">
+                        Pagina {{ ratings.number }} de {{ ratings.paginator.num_pages }}.
+                    </span>
+                </li>
+                <li>
+                  {% if ratings.has_next %}
+                      <a href="?page={{ ratings.next_page_number }}">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+{% endblock %}

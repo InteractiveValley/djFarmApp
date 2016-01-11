@@ -1,8 +1,15 @@
-{% extends 'base_productos.html' %}
+{% extends 'base_carrito.html' %}
 
 {% block body %}
     <div class="row">
-        <div class="col-sm-9 col-md-10 main">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li class="active"><a href="#">Recibos <span class="sr-only">(current)</span></a></li>
+                <li><a href="{% url 'crear_recibo' %}">Crear recibo</a></li>
+              </ul>
+
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <br/>
           <h1 class="page-header">Recibos</h1>
           <div class="table-responsive">
@@ -14,6 +21,7 @@
                   <th>Categoria</th>
                   <th>Cantidad</th>
                   <th>Recibido</th>
+                  <th>Fecha recibo</th>
                 </tr>
               </thead>
               <tbody>
@@ -23,14 +31,15 @@
                   <td>{{ recibo.product.name }}</td>
                   <td>{{ recibo.product.category.name }}</td>
                   <td>{{ recibo.quantity }}</td>
-                  <td>{{ recibo.created }}</td>
+                  <td>{{ recibo.user.get_full_name }}</td>
+                  <td>{{ recibo.created|date:"D d M Y H:i a" }}</td>
                 </tr>
                 {% endfor %}
               </tbody>
               <tfoot>
                 <tr>
-                  <td colspan="5">
-                      <a href="/crear/recibo/" class="btn btn-default">
+                  <td colspan="6">
+                      <a href="{% url 'crear_recibo' %}" class="btn btn-default">
                         Crear recibo
                       </a>
                   </td>

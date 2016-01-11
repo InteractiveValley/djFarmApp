@@ -2,22 +2,28 @@ from django.db import models
 from django.utils import timezone
 
 
-# Create your models here.
+def image_default():
+    return """
+    <img src="http://placehold.it/60x60" style="max-width: 60px; max-height: 60px;"/>
+    """
 
+
+# Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=140, verbose_name="categoria")
     image_category = models.ImageField(upload_to='categorias/', verbose_name="Imagen", null=True,
                                        blank=True)
 
     def thumbnail(self):
-        if self.image_category is not None and len(self.image_category) > 0:
-            return """
-            <img src="%s" style="max-width: 60px; max-height: 60px;"/>
-            """ % self.image_category.url
+        if self.image_category is not None:
+            try:
+                return """
+                <img src="%s" style="max-width: 60px; max-height: 60px;"/>
+                """ % self.image_category.url
+            except ValueError:
+                return image_default()
         else:
-            return """
-            <img src="http://placehold.it/60x60" style="max-width: 60px; max-height: 60px;"/>
-            """
+            return image_default()
 
     def __str__(self):
         return self.name
@@ -64,6 +70,17 @@ class Discount(models.Model):
         verbose_name_plural = "descuentos"
 
 
+class Laboratory(models.Model):
+    name = models.CharField("laboratorio", max_length=250)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "laboratorio"
+        verbose_name_plural = "laboratorios"
+
+
 class Product(models.Model):
     NORMAL = 1
     HAVE_RECIPE = 2
@@ -79,11 +96,13 @@ class Product(models.Model):
     description = models.TextField(verbose_name="descripcion")
     substances = models.CharField("sustancia activa", max_length=140, default="")
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="precio")
+    with_tax = models.BooleanField(verbose_name="con IVA", default=True)  # esta disponible
     require_prescription = models.BooleanField(verbose_name="require receta", default=False)  # descontinuada
     recipe = models.IntegerField("receta", default=NORMAL, choices=REQUIRE_PRESCRIPTION)
     active = models.BooleanField(verbose_name="es activo")  # esta disponible
     inventory = models.IntegerField("inventario", default=0)
     category = models.ForeignKey(Category, verbose_name="categoria")
+    laboratory = models.ForeignKey(Laboratory, verbose_name="laboratorio", null=True, blank=True)
     discount = models.ForeignKey(Discount, verbose_name="descuento", null=True, blank=True)
     image_require = models.ImageField(upload_to='productos/require/', verbose_name="Quedarse receta", null=True,
                                       blank=True)
@@ -95,37 +114,43 @@ class Product(models.Model):
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 
     def no_require(self):
-        import pdb; pdb.set_trace()
-        if self.image_no_require is not None and len(self.image_no_require) > 0:
-            return """
-            <img src="%s" style="max-width: 60px; max-height: 60px;"/>
-            """ % self.image_no_require.url
+        image = self.image_no_require
+        # import pdb; pdb.set_trace()
+        if image is not None:
+            try:
+                return """
+                <img src="%s" style="max-width: 60px; max-height: 60px;"/>
+                """ % self.image_no_require.url
+            except ValueError:
+                return image_default()
         else:
-            return """
-            <img src="http://placehold.it/60x60" style="max-width: 60px; max-height: 60px;"/>
-            """
+            return image_default()
 
     def show_recipe(self):
-        import pdb; pdb.set_trace()
-        if self.image_require_show is not None and len(self.image_require_show) > 0:
-            return """
-            <img src="%s" style="max-width: 60px; max-height: 60px;"/>
-            """ % self.image_require_show.url
+        image = self.image_require_show
+        # import pdb; pdb.set_trace()
+        if image is not None:
+            try:
+                return """
+                <img src="%s" style="max-width: 60px; max-height: 60px;"/>
+                """ % self.image_require_show.url
+            except ValueError:
+                return image_default()
         else:
-            return """
-            <img src="http://placehold.it/60x60" style="max-width: 60px; max-height: 60px;"/>
-            """
+            return image_default()
 
     def with_recipe(self):
-        import pdb; pdb.set_trace()
-        if self.image_require is not None and len(self.image_require) > 0:
-            return """
-            <img src="%s" style="max-width: 60px; max-height: 60px;"/>
-            """ % self.image_require.url
+        image = self.image_require
+        # import pdb; pdb.set_trace()
+        if image is not None:
+            try:
+                return """
+                <img src="%s" style="max-width: 60px; max-height: 60px;"/>
+                """ % self.image_require.url
+            except ValueError:
+                return image_default()
         else:
-            return """
-            <img src="http://placehold.it/60x60" style="max-width: 60px; max-height: 60px;"/>
-            """
+            return image_default()
 
     def __str__(self):
         return self.name
@@ -183,27 +208,3 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'producto'
 
-
-class Receipt(models.Model):
-    product = models.ForeignKey(Product, verbose_name="producto")
-    quantity = models.IntegerField("recibido", default=0)
-    status = models.BooleanField("procesado", default=False)
-    created = models.DateTimeField("creado", null=True, blank=True)
-    modified = models.DateTimeField("actualizado", null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        """
-        On save, update timestamps
-        """
-        if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
-        if not self.status:
-            product = self.product
-            product.inventory = product.inventory + self.quantity
-            product.save()
-            self.status = True
-        return super(Receipt, self).save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = 'recibo'

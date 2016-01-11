@@ -1,0 +1,8 @@
+<div class="recetas-pedido">
+    <ul>
+        {% for receta in pedido.images.all %}
+            <li><img src="{{receta.image_recipe.url}}" /></li>
+        {% endfor %}
+    </ul>
+
+</div>

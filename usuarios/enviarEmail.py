@@ -6,6 +6,8 @@ from email.mime.text import MIMEText
 from django.template import loader, Context
 import string
 import random
+from farmApp.secret import APP_EMAIL_HOST, APP_EMAIL_HOST_PASSWORD, APP_EMAIL_HOST_USER, \
+    APP_EMAIL_PORT, APP_EMAIL_USE_TLS, APP_EMAIL_HOST_EMAIL
 
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
@@ -35,16 +37,16 @@ class EmailUserCreated():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Registro de usuario en FarmaApp.mx'
-        msg['From'] = 'noreply@farmaapp.mx'
+        msg['From'] = APP_EMAIL_HOST_EMAIL
         msg['To'] = self.user.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
 
-        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -64,16 +66,16 @@ class EmailSolicitudRecoverPassword():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Solicitud para reestablecer contraseña de FarmaApp.mx'
-        msg['From'] = 'noreply@farmaapp.mx'
+        msg['From'] = APP_EMAIL_HOST_EMAIL
         msg['To'] = self.user.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
 
-        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -96,16 +98,16 @@ class EmailRecoverPassword():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Restablecio contraseña de FarmaApp.mx'
-        msg['From'] = 'noreply@farmaapp.mx'
+        msg['From'] = APP_EMAIL_HOST_EMAIL
         msg['To'] = self.user.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
 
-        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -128,16 +130,16 @@ class EmailSendSale():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Compra realizada en FarmaApp.mx'
-        msg['From'] = 'noreply@farmaapp.mx'
+        msg['From'] = APP_EMAIL_HOST_EMAIL
         msg['To'] = self.user.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
-
-        respuesta = server.sendmail('noreply@farmaapp.mx', self.user.email, msg.as_string())
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
+        #  import pdb; pdb.set_trace()
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta
 
@@ -150,7 +152,7 @@ class EmailContacto():
     message = ""
     html = ""
 
-    def __init__(self, name,email,phone,subject,message):
+    def __init__(self, name, email, phone, subject, message):
         self.name = name
         self.email = email
         self.phone = phone
@@ -164,15 +166,15 @@ class EmailContacto():
         msg = MIMEMultipart('alternative')
         part2 = MIMEText(self.html, 'html', _charset='UTF-8')
         msg['Subject'] = 'Compra realizada en FarmaApp.mx'
-        msg['From'] = 'noreply@farmaapp.mx'
+        msg['From'] = APP_EMAIL_HOST_EMAIL
         msg['To'] = self.email
 
         msg.attach(part2)
 
-        server = smtplib.SMTP('smtp.webfaction.com')
-        server.starttls()
-        server.login("noreply@farmaapp.mx", "D3m3s1s1")
+        server = smtplib.SMTP(APP_EMAIL_HOST)
+        #  server.starttls()
+        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
 
-        respuesta = server.sendmail(self.email, 'noreply@farmaapp.mx', msg.as_string())
+        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
         server.quit()
         return respuesta

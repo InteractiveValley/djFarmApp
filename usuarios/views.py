@@ -1,7 +1,9 @@
 import json
+import datetime
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from usuarios.models import ConektaUser, CustomUser
+from usuarios.models import ConektaUser, CustomUser, Inapam, Rating
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -31,7 +33,7 @@ def user_conekta_create(request):
     if user_conekta is not None:
         customer = conekta.Customer.find(user_conekta.conekta_user)
         card = customer.update({
-            "cards":[ data['conektaTokenId'] ]
+            "cards": [data['conektaTokenId']]
         })
         message = "Usuario actualizado"
     else:
@@ -39,7 +41,7 @@ def user_conekta_create(request):
             "name": user.get_full_name(),
             "email": user.email,
             "phone": user.cell,
-            "cards": [data['conektaTokenId'],]
+            "cards": [data['conektaTokenId'], ]
         })
         ConektaUser.objects.create(user=user, conekta_user=customer.id)
         message = "Usuario creado"
@@ -56,7 +58,7 @@ def login_frontend(request):
             if user.is_active:
                 login(request, user)
                 # Redirect to a success page.
-                return HttpResponseRedirect("/pedidos/")
+                return HttpResponseRedirect("/backend/pedidos/")
             else:
                 # Return a 'disabled account' error message
                 return HttpResponseRedirect("/login/")
@@ -120,3 +122,62 @@ def contacto(request):
     enviar_mensaje.enviarMensaje()
     data = {'status': 'ok', 'message': 'Email enviado'}
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@csrf_exempt
+def upload_images_inapam(request):
+    if request.method == 'POST':
+        if request.is_ajax() is False:
+            active = request.POST['active']
+            iduser = request.POST['usuario']
+            image = request.FILES['inapam']
+            user = CustomUser.objects.get(pk=iduser)
+            #  import pdb; pdb.set_trace()
+            inapam = Inapam(active=active, user=user, inapam=image)
+            inapam.save()
+            data = {'status': 'ok', 'message': 'Carga exitosa'}
+        else:
+            data = {'status': 'bat', 'message': 'No esta permitido este metodo por post normal'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def calificaciones(request):
+    if request.user.is_authenticated():
+        ahora = datetime.datetime.now()
+        filtro = request.GET.get('filter', 'todos')
+        #  print filtro
+        year = request.GET.get('year', ahora.year)
+        month = request.GET.get('month', ahora.month)
+
+        #  buenos = Rating.objects.filter(created__year=year).filter(created__month=month).filter(rating__gte=4).count()
+        #  malos = Rating.objects.filter(created__year=year).filter(created__month=month).filter(rating__lte=3).count()
+
+        buenos = Rating.objects.filter(rating__gte=4).count()
+        malos = Rating.objects.filter(rating__lte=3).count()
+
+        #  import pdb; pdb.set_trace()
+
+        if filtro == 'todos':
+            rating_list = Rating.objects.filter(rating__gte=1).order_by('-created')
+        elif filtro == 'malos':
+            rating_list = Rating.objects.filter(rating__lte=3).order_by('-created')
+        else:
+            rating_list = Rating.objects.filter(rating__gte=4).order_by('-created')
+
+        paginator = Paginator(rating_list, 10)
+        page = request.GET.get('page')
+
+        try:
+            ratings = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            ratings = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            ratings = paginator.page(paginator.num_pages)
+
+        return render(request, 'ratings.html', {"ratings": ratings, 'buenos': buenos, 'malos': malos, 'filter': filtro})
+    else:
+        return HttpResponseRedirect("/login/")

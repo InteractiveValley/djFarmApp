@@ -1,0 +1,71 @@
+{% extends 'base_carrito.html' %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=todos">Todos <span class="sr-only">(current)</span></a></li>
+                <li class="{% if filter == 'sininventario' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=sininventario">Sin inventario <span class="badge">{{sin_inventario}}</span></a></li>
+                <li class="{% if filter == 'enwarning' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=enwarning">En warning <span class="badge">{{en_warning}}</span></a></li>
+              </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <br/>
+          <h1 class="page-header">Productos</h1>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Producto</th>
+                  <th>Categoria</th>
+                  <th>Precio</th>
+                  <th>Inventario</th>
+                  <th>Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for producto in productos %}
+                <tr>
+                  <td>{{ producto.id }}</td>
+                  <td>{{ producto.name }}</td>
+                  <td>{{ producto.category.name }}</td>
+                  <td>{{ producto.price }}</td>
+                  <td>{{ producto.inventory }}</td>
+                  <td>
+                      <!--a class="btn btn-success" href="/inventario/editar/{{producto.id}}/">
+                          <i class="glyphicon glyphicon-search"></i> &nbsp; Crear recibo
+                      </a-->
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row text-center">
+            <ul class="pagination">
+                <li>
+                  {% if productos.has_previous %}
+                      <a href="?page={{ productos.previous_page_number }}">
+                        <span aria-hidden="true">&laquo;</span>
+                      </a>
+                  {% endif %}
+                </li>
+                <li>
+                    <span class="current">
+                        Pagina {{ productos.number }} de {{ productos.paginator.num_pages }}.
+                    </span>
+                </li>
+                <li>
+                  {% if productos.has_next %}
+                      <a href="?page={{ productos.next_page_number }}">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+{% endblock %}

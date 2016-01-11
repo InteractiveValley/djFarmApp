@@ -128,7 +128,8 @@ class Direction(models.Model):
         return super(Direction, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "%s %s %s" % (self.street, self.interior_number, self.exterior_number)
+        return "%s %s %s, CP: %s, Del: %s, Col: %s" % (self.street, self.interior_number, self.exterior_number,
+                                                      self.postal_code, self.delegation_municipaly, self.colony)
 
     def direction(self):
         return "%s %s %s, col: %s, cp: %s, Del/Mun: %s, %s" % \
@@ -219,5 +220,19 @@ class Rating(models.Model):
 class Inapam(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="images_inapam",
                              related_query_name="images_inapam")
-    inapam = models.ImageField(upload_to="/inapam")
+    inapam = models.ImageField(upload_to="inapam/")
     active = models.BooleanField(verbose_name="Autorizado", default=False)
+
+
+class TokenPhone(models.Model):
+    user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="token_phone")
+    token = models.CharField("token", max_length=250, blank=True, null=True)
+    created = models.DateTimeField("creado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        return super(TokenPhone, self).save(*args, **kwargs)
