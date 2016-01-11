@@ -4,10 +4,9 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
-                <li><a href="#">Sin inventario</a></li>
-                <li><a href="#">En warning</a></li>
-                <li><a href="#">Todos</a></li>
+                <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=todos">Todos <span class="sr-only">(current)</span></a></li>
+                <li class="{% if filter == 'sininventario' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=sininventario">Sin inventario <span class="badge">{{sin_inventario}}</span></a></li>
+                <li class="{% if filter == 'enwarning' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=enwarning">En warning <span class="badge">{{en_warning}}</span></a></li>
               </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
@@ -34,12 +33,9 @@
                   <td>{{ producto.price }}</td>
                   <td>{{ producto.inventory }}</td>
                   <td>
-                      <a class="btn btn-success" href="/inventario/editar/{{producto.id}}/">
-                          <i class="glyphicon glyphicon-search"></i> &nbsp; Editar
-                      </a>
-                      <a class="btn btn-success" href="/inventario/ver/{{producto.id}}/">
-                          <i class="glyphicon glyphicon-search"></i> &nbsp; Ver
-                      </a>
+                      <!--a class="btn btn-success" href="/inventario/editar/{{producto.id}}/">
+                          <i class="glyphicon glyphicon-search"></i> &nbsp; Crear recibo
+                      </a-->
                   </td>
                 </tr>
                 {% endfor %}

@@ -66,39 +66,8 @@
                   url: url,
                   type: 'get',
                   success: function(data) {
-                      $("#pedido-"+pedido).html(data);
-                      activarBotonesAccion();
-                  },
-                  failure: function(data) {
-                      alert('Got an error dude');
-                  }
-              });
-            });
-
-            $(".button-ver-receta").on("click",function(){
-                debugger;
-                var $button = $(this);
-                var url = $button.data("url");
-                $.ajax({
-                  url: url,
-                  type: 'get',
-                  success: function(data) {
-
-                  },
-                  failure: function(data) {
-                      alert('Got an error dude');
-                  }
-              });
-            });
-
-            $(".button-imprimir").on("click",function(){
-                debugger;
-                var $button = $(this);
-                var url = $button.data("url");
-                $.ajax({
-                  url: url,
-                  type: 'get',
-                  success: function(data) {
+                      alert(data);
+                      console.log(data);
                       $("#pedido-"+pedido).html(data);
                       activarBotonesAccion();
                   },

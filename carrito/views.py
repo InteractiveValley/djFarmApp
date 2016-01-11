@@ -1,6 +1,7 @@
 import base64
 import json
 import urllib2
+import conekta
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -9,7 +10,6 @@ from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, D
 from usuarios.models import ConektaUser
 from usuarios.enviarEmail import EmailSendSale
 from django.views.decorators.csrf import csrf_exempt
-import conekta
 from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
 from carrito.models import Receipt
 from carrito.forms import ReceiptForm
@@ -51,9 +51,16 @@ def detalle_pedido(request, sale_id):
     return render(request, 'detalle_pedido.html', {"pedido": pedido, 'detalles': detalles})
 
 
+def pedido_ver_recetas(request, sale_id):
+    pedido = Sale.objects.get(pk=sale_id)
+    images = pedido.images.all()
+    return render(request, 'ver_receta.html', {"pedido": pedido, 'images': images})
+
+
 def detalle_aprobar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     pedido.status = APPROVED
+    pedido.vendor = request.user
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
     message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
@@ -69,6 +76,7 @@ def detalle_aprobar(request, sale_id):
 def detalle_cancelar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     pedido.status = REJECTED
+    pedido.vendor = request.user
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
     message = "Tu orden #" + str(pedido.id).zfill(6) + " ha sido cancelada."
@@ -84,6 +92,7 @@ def detalle_cancelar(request, sale_id):
 def detalle_rechazar_receta(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     pedido.status = REJECTED
+    pedido.vendor = request.user
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
     message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. Si lo deseas puedes volver a generar la orden."
@@ -99,6 +108,7 @@ def detalle_rechazar_receta(request, sale_id):
 def detalle_entregar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     pedido.status = DELIVERED
+    pedido.vendor = request.user
     user_conekta = ConektaUser.objects.get(user=pedido.user)
     conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     customer_conekta = conekta.Customer.find(user_conekta.conekta_user)
@@ -114,7 +124,7 @@ def detalle_entregar(request, sale_id):
             "quantity": detalle.quantity,
             "sku": str(detalle.product.id),
             "type": "medicine"
-        };
+        }
         lista.append(dato)
     charge = conekta.Charge.create({
         "description": "Pedido FarmaApp",
@@ -129,14 +139,15 @@ def detalle_entregar(request, sale_id):
             "line_items": lista
         }
     })
-    #  import pdb; pdb.set_trace()
     if charge.status == "paid":
         pedido.charge_conekta = charge.id
         pedido.status = PAID
+        pedido.vendor = request.user
         pedido.save()
         pedido.discount_inventory()
         enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
         enviar_mensaje.enviarMensaje()
+        #  import pdb; pdb.set_trace()
         str_pedido = str(pedido.id).zfill(6)
         str_total = '{:20,.2f}'.format(pedido.total())
         message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
@@ -156,7 +167,6 @@ def detalle_entregar(request, sale_id):
 def send_sale_for_email(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     user = pedido.user
-    pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
     enviar_mensaje = EmailSendSale(pedido, detalles, user)
     enviar_mensaje.enviarMensaje()

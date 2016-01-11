@@ -147,7 +147,7 @@ def calificaciones(request):
     if request.user.is_authenticated():
         ahora = datetime.datetime.now()
         filtro = request.GET.get('filter', 'todos')
-        print filtro
+        #  print filtro
         year = request.GET.get('year', ahora.year)
         month = request.GET.get('month', ahora.month)
 

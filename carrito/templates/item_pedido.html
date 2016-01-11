@@ -1,6 +1,6 @@
 <div class="pedido" id="pedido-{{pedido.id}}">
-             {% if pedido.vendor %}
-                <p>Aprobado por: {{ pedido.vendor }}</p>
+             {% if pedido.vendor.id != None %}
+                <p>Usuario actualizo: {{ pedido.vendor.get_full_name }}</p>
              {% endif %}
              <h3>ORDEN: # {{pedido.id}} | Fecha: {{pedido.created | date:"d/m/Y H:ia" }} </h3>
              <h3>{{pedido.user.get_full_name}} | {{pedido.user.email}} | {{pedido.user.cell}}</h3>
@@ -14,7 +14,6 @@
                   <th>Precio</th>
                   <th>Subtotal</th>
                   <th>Status</th>
-                  <th>Accion</th>
                 </tr>
               </thead>
               <tbody>
@@ -44,11 +43,7 @@
                          <span class="label label-success">Pagado</span>
                       {% endif %}
                   </td>
-                  <td>
-                      <a class="btn btn-success" href="/backend/pedidos/{{pedido.id}}/">
-                          <i class="glyphicon glyphicon-search"></i> &nbsp; Ver
-                      </a>
-                  </td>
+
                 </tr>
                 {% endfor %}
               </tbody>
@@ -82,9 +77,20 @@
                       <td></td>
                   </tr>
             </table>
-            {% include "recetas_pedido.html" with pedido=pedido %}
             <div class="row text-center">
                 <ul class="list-inline"  data-sale="{{pedido.id}}">
+                    {% if pedido.images.all|length  > 0 %}
+                    <li>
+                        <a href="/backend/pedidos/{{ pedido.id }}/recetas/" target="_blank" class="btn btn-primary"
+                        onclick="window.open(this.href, this.target, 'width=800,height=600'); return false;"
+                        >Recetas</a>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a  href="/backend/pedidos/{{ pedido.id }}/" target="_blank" class="btn btn-primary"
+                        onclick="window.open(this.href, this.target, 'width=800,height=600'); return false;"
+                        >Visualizar</a>
+                    </li>
                     {% if pedido.status == 1 %}
                     <li>
                         <button data-url="/backend/pedidos/{{ pedido.id }}/approved/" class="button-action button-send btn btn-primary">Enviado</button>
