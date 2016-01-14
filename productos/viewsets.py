@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from .models import Category, Product, Discount
 from .serializers import CategorySerializer, ProductSerializer, DiscountSerializer
 from rest_framework import viewsets, filters

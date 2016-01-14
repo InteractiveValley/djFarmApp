@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from rest_framework import serializers
 from .models import CustomUser, Direction, ScheduledOrder, Question, Rating, Inapam, TokenPhone
 from productos.serializers import ProductSerializer
