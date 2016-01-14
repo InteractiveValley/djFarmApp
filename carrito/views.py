@@ -147,8 +147,8 @@ def detalle_entregar(request, sale_id):
         pedido.vendor = request.user
         pedido.save()
         pedido.discount_inventory()
-        enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
-        enviar_mensaje.enviarMensaje()
+        # enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
+        # enviar_mensaje.enviarMensaje()
         #  import pdb; pdb.set_trace()
         str_pedido = str(pedido.id).zfill(6)
         str_total = '{:20,.2f}'.format(pedido.total())
