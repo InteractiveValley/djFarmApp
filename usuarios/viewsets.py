@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from .models import Direction, ScheduledOrder, CustomUser, Question, Rating, Inapam, TokenPhone
 from .serializers import DirectionSerializer, ScheduledOrderSerializer, UserSerializer, \
     QuestionSerializer, RatingSerializer, InapamSerializer, TokenPhoneSerializer

@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 """farmApp URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:

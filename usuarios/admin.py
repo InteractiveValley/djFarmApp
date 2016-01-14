@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from django.contrib import admin
 from .models import Direction, CustomUser, ScheduledOrder, Question, ConektaUser, Rating, Inapam, TokenPhone
 from django.contrib.auth.admin import UserAdmin
