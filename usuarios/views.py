@@ -33,18 +33,16 @@ def user_conekta_create(request):
     # import pdb; pdb.set_trace()
     if user_conekta is not None:
         customer = conekta.Customer.find(user_conekta.conekta_user)
-        card = customer.update({
-            "cards": [data['conektaTokenId']]
-        })
+        card = customer.createCard({"token_id": data['conektaTokenId']})
         message = "Usuario actualizado"
     else:
         customer = conekta.Customer.create({
             "name": user.get_full_name(),
             "email": user.email,
             "phone": user.cell,
-            "cards": [data['conektaTokenId'], ]
         })
         ConektaUser.objects.create(user=user, conekta_user=customer.id)
+        card = customer.createCard({"token_id": data['conektaTokenId']})
         message = "Usuario creado"
 
     return Response({"message": message})
