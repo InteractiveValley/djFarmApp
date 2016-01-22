@@ -114,7 +114,8 @@ def detalle_entregar(request, sale_id):
     user_conekta = ConektaUser.objects.get(user=pedido.user)
     conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     customer_conekta = conekta.Customer.find(user_conekta.conekta_user)
-    card_conekta = CardConekta.objects.get(pk=pedido.card_conekta)
+    # import pdb; pdb.set_trace();
+    card_conekta = pedido.card_conekta
     #  card = customer_conekta.cards[0]
     amount = str(int(float(pedido.total() * 100)))
     detalles = pedido.detail_sales.all()

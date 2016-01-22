@@ -5,41 +5,97 @@ Pedido numero #{{pedido.id}}
 {% endblock %}
 
 {% block body %}
-    <div class="row">
-        <div class="col-sm-9 col-md-10 main">
-        <br/>
-          <h1 class="page-header">Pedido #{{ pedido.id }}, Total: {{ pedido.total }}</h1>
-          <h2 class="page-subheader">Usuario: {{ pedido.user.get_full_name }}, Status: {{ pedido.show_status }}</h2>
-          <div class="table-responsive">
+    <div class="padding">
+        {% if pedido.vendor.id != None %}
+                <p>Usuario actualizo: {{ pedido.vendor.get_full_name }}</p>
+             {% endif %}
+             <h3>ORDEN: # {{pedido.id}} | Fecha: {{pedido.created | date:"d/m/Y H:ia" }} </h3>
+             <h3>{{pedido.user.get_full_name}} | {{pedido.user.email}} | {{pedido.user.cell}}</h3>
+             <h4>{{pedido.direction}}</h4>
             <table class="table table-striped">
               <thead>
                 <tr>
+                  <th>#</th>
                   <th>Producto</th>
                   <th>Cantidad</th>
                   <th>Precio</th>
                   <th>Subtotal</th>
-                  <th>Descuento</th>
-                  <th>Total</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {% for detalle in detalles %}
-                <tr>
+                {% for detalle in pedido.detail_sales.all %}
+                {% if detalle.product.recipe == 3 %}
+                    <tr style="color: red;">
+                {% else %}
+                    <tr>
+                {% endif %}
+                  <td>{{ forloop.counter }}</td>
                   <td>{{ detalle.product.name }}</td>
                   <td>{{ detalle.quantity }}</td>
                   <td>{{ detalle.price }}</td>
                   <td>{{ detalle.subtotal }}</td>
-                  <td>{{ detalle.discount }}</td>
-                  <td>{{ detalle.total }}</td>
+                  <td>
+                      {% if pedido.status = 0 %}
+                        <span class="label label-default">Capturando</span>
+                      {% elif pedido.status = 1 %}
+                        <span class="label label-primary">Pedido</span>
+                      {% elif pedido.status == 2 %}
+                         <span class="label label-success">Enviado</span>
+                      {% elif pedido.status == 3 %}
+                         <span class="label label-warning">Cancelado</span>
+                      {% elif pedido.status == 4 %}
+                         <span class="label label-info">Entregado</span>
+                      {% elif pedido.status == 5 %}
+                         <span class="label label-success">Pagado</span>
+                      {% endif %}
+                  </td>
+
                 </tr>
                 {% endfor %}
               </tbody>
+              <tfoot>
+                  {% if pedido.discount > 0.0 %}
+                  <tr style="font-weight: bolder;">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>Descuento: </td>
+                      <td>-${{pedido.discount}}</td>
+                      <td></td>
+                  </tr>
+                  {% endif %}
+                  {% if pedido.tax > 0.0 %}
+                  <tr style="font-weight: bolder;">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>IVA: </td>
+                      <td>${{pedido.tax}}</td>
+                      <td></td>
+                  </tr>
+                  {% endif %}
+                  <tr style="font-weight: bolder;">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>Total: </td>
+                      <td>${{pedido.total}}</td>
+                      <td></td>
+                  </tr>
+                  {% if pedido.notes|length > 0 %}
+                    <tr>
+                        <td>
+                            Nota del cliente:
+                        </td>
+                        <td bgcolor="gray" style="color: white;" colspan="5">
+                            {{pedido.notes}}
+                        </td>
+                    </tr>
+                  {% endif %}
             </table>
-          </div>
-        </div>
       </div>
-      {% include 'recetas_pedido.html' with pedido=pedido %}
-      <div class="row text-center">
+        <div class="row text-center">
             <ul class="list-inline">
                 <li>
                     <button onclick="window.print();" class="btn btn-primary">Imprimir</button>
@@ -47,4 +103,5 @@ Pedido numero #{{pedido.id}}
 
             </ul>
         </div>
+        {% include 'recetas_pedido.html' with pedido=pedido %}
 {% endblock %}
