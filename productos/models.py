@@ -27,7 +27,7 @@ class Category(models.Model):
             return image_default()
 
     def __str__(self):
-        return self.name
+        return self.name.encode("utf8")
 
     thumbnail.allow_tags = True
 
@@ -56,7 +56,7 @@ class Discount(models.Model):
     date_ends = models.DateField('finaliza', null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.name.encode("utf8")
 
     def save(self, *args, **kwargs):
         """
@@ -75,7 +75,7 @@ class Laboratory(models.Model):
     name = models.CharField("laboratorio", max_length=250)
 
     def __str__(self):
-        return self.name
+        return self.name.encode("utf8")
 
     class Meta:
         verbose_name = "laboratorio"
@@ -154,7 +154,7 @@ class Product(models.Model):
             return image_default()
 
     def __str__(self):
-        return self.name
+        return self.name.encode("utf8")
 
     with_recipe.allow_tags = True
     show_recipe.allow_tags = True

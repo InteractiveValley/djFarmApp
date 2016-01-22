@@ -73,11 +73,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         Returns the first_name plus the last_name, with a space in between.
         """
         full_name = '%s %s' % (self.first_name, self.last_name)
-        return full_name.strip()
+        return full_name.strip().encode("utf8")
 
     def get_short_name(self):
         "Returns the short name for the user."
-        return self.first_name
+        return self.first_name.encode("utf8")
 
     def email_user(self, subject, message, from_email=None):
         """
@@ -129,13 +129,15 @@ class Direction(models.Model):
         return super(Direction, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "%s %s %s, CP: %s, Del: %s, Col: %s" % (self.street, self.interior_number, self.exterior_number,
+        cadena = "%s %s %s, CP: %s, Del: %s, Col: %s" % (self.street, self.interior_number, self.exterior_number,
                                                       self.postal_code, self.delegation_municipaly, self.colony)
+        return cadena.encode("utf8")
 
     def direction(self):
-        return "%s %s %s, col: %s, cp: %s, Del/Mun: %s, %s" % \
+        cadena = "%s %s %s, col: %s, cp: %s, Del/Mun: %s, %s" % \
                (self.street, self.interior_number, self.exterior_number,
                 self.colony, self.postal_code, self.delegation_municipaly, self.location)
+        return cadena.encode("utf8")
 
     direction.short_description = "direccion"
 
@@ -237,3 +239,23 @@ class TokenPhone(models.Model):
         if not self.id:
             self.created = timezone.now()
         return super(TokenPhone, self).save(*args, **kwargs)
+
+
+class CardConekta(models.Model):
+    user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="cards")
+    card = models.CharField(verbose_name="card",max_length=100)
+    name = models.CharField(verbose_name="name",max_length=140)
+    brand = models.CharField(verbose_name="brand", max_length=140)
+    last4 = models.CharField(verbose_name="last4", max_length=140)
+    active = models.BooleanField(verbose_name="active",default=True)
+    exp_year = models.CharField(verbose_name="exp year", max_length=4)
+    exp_month = models.CharField(verbose_name="exp month",max_length=2)
+    created = models.DateTimeField("creado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        return super(CardConekta, self).save(*args, **kwargs)

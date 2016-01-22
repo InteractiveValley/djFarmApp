@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
 from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale
-from usuarios.models import ConektaUser
+from usuarios.models import ConektaUser,CardConekta
 from usuarios.enviarEmail import EmailSendSale
 from django.views.decorators.csrf import csrf_exempt
 from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
@@ -114,7 +114,8 @@ def detalle_entregar(request, sale_id):
     user_conekta = ConektaUser.objects.get(user=pedido.user)
     conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     customer_conekta = conekta.Customer.find(user_conekta.conekta_user)
-    card = customer_conekta.cards[0]
+    card_conekta = CardConekta.objects.get(pk=pedido.card_conekta)
+    #  card = customer_conekta.cards[0]
     amount = str(int(float(pedido.total() * 100)))
     detalles = pedido.detail_sales.all()
     lista = []
@@ -133,7 +134,7 @@ def detalle_entregar(request, sale_id):
         "amount": amount,
         "currency": "MXN",
         "reference_id": "pedido-farmaapp-" + str(pedido.id),
-        "card": card.id,
+        "card": card_conekta.card,
         "details": {
             "name": pedido.user.get_full_name(),
             "phone": pedido.user.cell,

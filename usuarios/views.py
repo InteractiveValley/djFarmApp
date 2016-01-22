@@ -2,9 +2,10 @@
 import json
 import datetime
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core import serializers
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
-from usuarios.models import ConektaUser, CustomUser, Inapam, Rating
+from usuarios.models import ConektaUser, CustomUser, Inapam, Rating, CardConekta
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -32,22 +33,48 @@ def user_conekta_create(request):
     data = json.loads(request.body)
     # import pdb; pdb.set_trace()
     if user_conekta is not None:
-        customer = conekta.Customer.find(user_conekta.conekta_user)
-        card = customer.update({
-            "cards": [data['conektaTokenId']]
-        })
-        message = "Usuario actualizado"
+        try:
+            customer = conekta.Customer.find(user_conekta.conekta_user)
+            card = customer.createCard({"token_id": data['conektaTokenId']})
+            card_conekta = CardConekta(card=card.id, name=card.name, brand=card.brand, last4=card.last4
+                                       , exp_year=card.exp_year, active=card.active, exp_month=card.exp_month)
+            card_conekta.user = user
+            card_conekta.save()
+            message = "Usuario actualizado"
+            error = False
+            # import pdb; pdb.set_trace()
+        except conekta.ConektaError as e:
+            # el cliente no pudo ser actualizado
+            message = e.message_to_purchaser
+            error = True
+            card_conekta = None
     else:
-        customer = conekta.Customer.create({
-            "name": user.get_full_name(),
-            "email": user.email,
-            "phone": user.cell,
-            "cards": [data['conektaTokenId'], ]
-        })
-        ConektaUser.objects.create(user=user, conekta_user=customer.id)
-        message = "Usuario creado"
-
-    return Response({"message": message})
+        try:
+            customer = conekta.Customer.create({
+                "name": user.get_full_name(),
+                "email": user.email,
+                "phone": user.cell,
+            })
+            ConektaUser.objects.create(user=user, conekta_user=customer.id)
+            card = customer.createCard({"token_id": data['conektaTokenId']})
+            message = "Usuario creado"
+            card_conekta = CardConekta(card=card.id, name=card.name, brand=card.brand, last4=card.last4
+                                       , exp_year=card.exp_year, active=card.active, exp_month=card.exp_month)
+            card_conekta.user = user
+            card_conekta.save()
+            # import pdb; pdb.set_trace()
+        except conekta.ConektaError as e:
+            # el cliente no pudo ser creado
+            message = e.message_to_purchaser
+            error = True
+            card_conekta = None
+    if card_conekta is not None:
+        data = {"id": card_conekta.id, "card": card_conekta.card, "brand": card_conekta.brand,
+                "last4": card_conekta.last4, "active": card_conekta.active, "exp_year": card_conekta.exp_year,
+                "exp_month": card_conekta.exp_month}
+    else:
+        data = {}
+    return Response({"message": message, "card": data, "error": error})
 
 
 def login_frontend(request):

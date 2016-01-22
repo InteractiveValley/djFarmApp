@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from rest_framework import serializers
-from .models import CustomUser, Direction, ScheduledOrder, Question, Rating, Inapam, TokenPhone
+from .models import CustomUser, Direction, ScheduledOrder, Question, Rating, Inapam, TokenPhone, CardConekta
 from productos.serializers import ProductSerializer
 
 
@@ -41,17 +41,24 @@ class TokenPhoneSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'token', 'created',)
         read_only_fields = ('user', 'created',)
 
+class CardConektaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CardConekta
+        fields = ('id','user', 'card', 'name', 'brand','last4','active','exp_year','exp_month','created')
+        read_only_fields = ('user', 'created',)
+
 
 class UserSerializer(serializers.ModelSerializer):
     directions = DirectionSerializer(many=True, read_only=True, )
     schedules_orders = ScheduledOrderFullSerializer(many=True, read_only=True, )
     token_phone = TokenPhoneSerializer(many=True, read_only=True, )
     images_inapam = InapamSerializer(many=True, read_only=True, )
+    cards = CardConektaSerializer(many=True, read_only=True)
 
     class Meta:
         model = CustomUser
         fields = ('id', 'first_name', 'last_name', 'email', 'cell', 'directions', 'schedules_orders', 'inapam',
-                  'token_phone', 'images_inapam', )
+                  'token_phone', 'images_inapam', 'cards')
         write_only_fields = ('password',)
 
 
