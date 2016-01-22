@@ -1,6 +1,6 @@
 from django.db import models
 from productos.models import Product
-from usuarios.models import Direction, CustomUser
+from usuarios.models import Direction, CustomUser, CardConekta
 from django.utils import timezone
 from productos.models import Discount
 
@@ -30,6 +30,7 @@ class Sale(models.Model):
     status = models.IntegerField("Estatus", default=0, choices=STATUS_SALE)
     scheduled_order = models.BooleanField("pedido programado", default=False)
     delivered = models.BooleanField("entregado", default=False)
+    card_conekta = models.ForeignKey(CardConekta, verbose_name="tarjeta", null=True, blank=True)
     charge_conekta = models.CharField("Cargo Id Conekta", max_length=140, default="", null=True, blank=True)
     notes = models.TextField("Notas/Comentarios", blank=True, null=True)
     created = models.DateTimeField("creado", null=True, blank=True)
@@ -45,7 +46,8 @@ class Sale(models.Model):
         return super(Sale, self).save(*args, **kwargs)
 
     def __str__(self):
-        return "Venta: %i .- Usuario: %s" % (self.id, self.user.get_full_name())
+        cadena = "Venta: %i .- Usuario: %s" % (self.id, self.user.get_full_name())
+        return cadena.encode("utf8")
 
     def subtotal(self):
         detalle_ventas = self.detail_sales.all()
@@ -117,7 +119,8 @@ class DetailSale(models.Model):
         return self.product.require_prescription
 
     def __str__(self):
-        return "Venta: %i .- Producto: %s, Cant: %i" % (self.sale.id, self.product.name, self.quantity)
+        cadena = "Venta: %i .- Producto: %s, Cant: %i" % (self.sale.id, self.product.name, self.quantity)
+        return cadena.encode("utf8")
 
     def save(self, *args, **kwargs):
         """
@@ -135,7 +138,7 @@ class DetailSale(models.Model):
     def calculate_discount(self):
         descuento = self.product.discount
         now = timezone.now().date()
-        if descuento is not None and descuento.date_ends > now:
+        if descuento is not None and (descuento.date_begins <= now and descuento.date_ends >= now):
             if descuento.type == Discount.PRICE:
                 price = descuento.price
                 subtotal = float(self.quantity * price)
@@ -159,6 +162,9 @@ class DetailSale(models.Model):
                     sinDescuento = float(fracciones * self.price)
                     subtotal = conDescuento + sinDescuento
                     self.discount = float(self.price * self.quantity) - subtotal
+        else:
+            # import ipdb; ipdb.set_trace();
+            return 0.0
 
     def total(self):
         return float(self.subtotal) - float(self.discount) + float(self.tax)
