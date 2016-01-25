@@ -62,6 +62,7 @@
                 var $button = $(this);
                 var url = $button.data("url");
                 var pedido = $button.parent().parent().data("sale");
+                console.log(url);
                 $.ajax({
                   url: url,
                   type: 'get',

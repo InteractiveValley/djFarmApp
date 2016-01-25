@@ -133,6 +133,8 @@ class EmailSendSale():
         msg['From'] = APP_EMAIL_HOST_EMAIL
         msg['To'] = self.user.email
 
+        # import pdb; pdb.set_trace()
+
         msg.attach(part2)
 
         server = smtplib.SMTP(APP_EMAIL_HOST)
