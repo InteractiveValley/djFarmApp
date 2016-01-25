@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
 from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale
-from usuarios.models import ConektaUser,CardConekta
+from usuarios.models import ConektaUser, CardConekta
 from usuarios.enviarEmail import EmailSendSale
 from django.views.decorators.csrf import csrf_exempt
 from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
@@ -149,8 +149,8 @@ def detalle_entregar(request, sale_id):
         pedido.vendor = request.user
         pedido.save()
         pedido.discount_inventory()
-        # enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
-        # enviar_mensaje.enviarMensaje()
+        enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
+        enviar_mensaje.enviarMensaje()
         #  import pdb; pdb.set_trace()
         str_pedido = str(pedido.id).zfill(6)
         str_total = '{:20,.2f}'.format(pedido.total())
@@ -172,6 +172,7 @@ def send_sale_for_email(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     user = pedido.user
     detalles = DetailSale.objects.filter(sale=pedido.id)
+    # import pdb; pdb.set_trace()
     enviar_mensaje = EmailSendSale(pedido, detalles, user)
     enviar_mensaje.enviarMensaje()
     return HttpResponse("Email enviado")
