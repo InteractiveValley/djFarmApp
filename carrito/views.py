@@ -215,6 +215,7 @@ def create_notification(user, title, message):
     b64 = base64.encodestring('%s:' % private_key).replace('\n', '')
     req.add_header("Authorization", "Basic %s" % b64)
     resp = urllib2.urlopen(req)
+    return resp
 
 
 def recibos(request):
