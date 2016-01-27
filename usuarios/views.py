@@ -23,7 +23,7 @@ def home(request):
 
 def terminos(request):
 	with open(APP_PATH_TERMINOS_PDF, 'r') as pdf:
-		response = HttpResponse(pdf.read(), mimetype='application/pdf')
+		response = HttpResponse(pdf.read(), content_type='application/pdf')
 		response['Content-Disposition'] = 'inline;filename=terminos.pdf'
 		return response
 	pdf.closed
