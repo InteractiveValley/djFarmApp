@@ -22,11 +22,11 @@ def home(request):
 
 
 def terminos(request):
-	 with open(APP_PATH_TERMINOS_PDF, 'r') as pdf:
-        response = HttpResponse(pdf.read(), mimetype='application/pdf')
-        response['Content-Disposition'] = 'inline;filename=terminos.pdf'
-        return response
-    pdf.closed
+	with open(APP_PATH_TERMINOS_PDF, 'r') as pdf:
+		response = HttpResponse(pdf.read(), mimetype='application/pdf')
+		response['Content-Disposition'] = 'inline;filename=terminos.pdf'
+		return response
+	pdf.closed
 
 
 @api_view(['POST'])
