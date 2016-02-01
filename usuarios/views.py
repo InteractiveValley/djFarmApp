@@ -1,18 +1,20 @@
 # -*- encoding: utf-8 -*-
+import base64
 import json
+import urllib2
 import datetime
+import conekta
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core import serializers
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render
-from usuarios.models import ConektaUser, CustomUser, Inapam, Rating, CardConekta
+from usuarios.models import ConektaUser, CustomUser, Inapam, Rating, CardConekta, Reminder
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from usuarios.enviarEmail import EmailUserCreated, EmailSolicitudRecoverPassword, \
     EmailRecoverPassword, EmailContacto
 from django.views.decorators.csrf import csrf_exempt
-import conekta
+from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
 
 
 # Create your views here.
@@ -209,3 +211,64 @@ def calificaciones(request):
         return render(request, 'ratings.html', {"ratings": ratings, 'buenos': buenos, 'malos': malos, 'filter': filtro})
     else:
         return HttpResponseRedirect("/login/")
+
+
+def reminders(request):
+    now = datetime.datetime.now()
+    weekDay = now.weekday()
+    hour = request.GET.get('hour', now.hour)
+    minute = request.GET.get('minute', now.minute)
+    if weekDay == 0:
+        reminders = Reminder.objects.filter(monday=True, time=datetime.time(hour, minute))
+    elif weekDay == 1:
+        reminders = Reminder.objects.filter(tuesday=True, time=datetime.time(hour, minute))
+    elif weekDay == 2:
+        reminders = Reminder.objects.filter(wednesday=True, time=datetime.time(hour, minute))
+    elif weekDay == 3:
+        reminders = Reminder.objects.filter(thursday=True, time=datetime.time(hour, minute))
+    elif weekDay == 4:
+        reminders = Reminder.objects.filter(friday=True, time=datetime.time(hour, minute))
+    elif weekDay == 5:
+        reminders = Reminder.objects.filter(saturday=True, time=datetime.time(hour, minute))
+    elif weekDay == 6:
+        reminders = Reminder.objects.filter(sunday=True, time=datetime.time(hour, minute))
+    else:
+        reminders = None
+
+    for reminder in reminders:
+        create_notification_reminder(reminder)
+
+    return JsonResponse({'response': 'ok'});
+
+
+def create_notification_reminder(reminder):
+    tokens = [reminder.user.token_phone.all()[0].token]
+
+    post_data = {
+        "tokens": tokens,
+        "production": "true",
+        "notification": {
+            "title": "Recordatorio de FarmaApp",
+            "alert": reminder.message,
+            "ios": {
+                "payLoad": {
+                    "notificationId": reminder.id
+                }
+            },
+            "android": {
+                "payLoad": {
+                    "notificationId": reminder.id
+                }
+            }
+        }
+    }
+    app_id = PUSH_APP_ID
+    private_key = PUSH_SECRET_API_KEY
+    url = "https://push.ionic.io/api/v1/push"
+    req = urllib2.Request(url, data=json.dumps(post_data))
+    req.add_header("Content-Type", "application/json")
+    req.add_header("X-Ionic-Application-Id", app_id)
+    b64 = base64.encodestring('%s:' % private_key).replace('\n', '')
+    req.add_header("Authorization", "Basic %s" % b64)
+    resp = urllib2.urlopen(req)
+    return resp

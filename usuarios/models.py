@@ -259,3 +259,20 @@ class CardConekta(models.Model):
         if not self.id:
             self.created = timezone.now()
         return super(CardConekta, self).save(*args, **kwargs)
+
+
+class Reminder(models.Model):
+    user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="reminders")
+    message = models.CharField(verbose_name="mensaje", max_length=140)
+    time = models.TimeField(verbose_name="tiempo", null=True)
+    monday = models.BooleanField(verbose_name="lunes", default=False)
+    tuesday = models.BooleanField(verbose_name="martes", default=False)
+    wednesday = models.BooleanField(verbose_name="miercoles", default=False)
+    thursday = models.BooleanField(verbose_name="jueves", default=False)
+    friday = models.BooleanField(verbose_name="viernes", default=False)
+    saturday = models.BooleanField(verbose_name="sabado", default=False)
+    sunday = models.BooleanField(verbose_name="domingo", default=False)
+    active = models.BooleanField(verbose_name="activo", default=True)
+
+    def __str__(self):
+        return self.message.encode("utf8")

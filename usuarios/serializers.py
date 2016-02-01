@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from rest_framework import serializers
-from .models import CustomUser, Direction, ScheduledOrder, Question, Rating, Inapam, TokenPhone, CardConekta
+from .models import CustomUser, Direction, ScheduledOrder, Question, Rating, Inapam, TokenPhone, CardConekta, Reminder
 from productos.serializers import ProductSerializer
 
 
@@ -41,11 +41,21 @@ class TokenPhoneSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'token', 'created',)
         read_only_fields = ('user', 'created',)
 
+
 class CardConektaSerializer(serializers.ModelSerializer):
     class Meta:
         model = CardConekta
-        fields = ('id','user', 'card', 'name', 'brand','last4','active','exp_year','exp_month','created')
+        fields = ('id', 'user', 'card', 'name', 'brand', 'last4', 'active', 'exp_year', 'exp_month', 'created')
         read_only_fields = ('user', 'created',)
+
+
+class ReminderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reminder
+        fields = (
+            'id', 'user', 'message', 'time', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
+            'sunday', 'active')
+        read_only_fields = ('user',)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -54,11 +64,12 @@ class UserSerializer(serializers.ModelSerializer):
     token_phone = TokenPhoneSerializer(many=True, read_only=True, )
     images_inapam = InapamSerializer(many=True, read_only=True, )
     cards = CardConektaSerializer(many=True, read_only=True)
+    reminders = ReminderSerializer(many=True, read_only=True)
 
     class Meta:
         model = CustomUser
         fields = ('id', 'first_name', 'last_name', 'email', 'cell', 'directions', 'schedules_orders', 'inapam',
-                  'token_phone', 'images_inapam', 'cards')
+                  'token_phone', 'images_inapam', 'cards', 'reminders')
         write_only_fields = ('password',)
 
 

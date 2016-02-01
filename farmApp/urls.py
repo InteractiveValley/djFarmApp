@@ -22,7 +22,7 @@ admin.autodiscover()
 
 from productos.viewsets import CategoryViewSet, ProductViewSet, DiscountViewSet
 from usuarios.viewsets import UserViewSet, DirectionViewSet, ScheduledOrderViewSet, \
-    QuestionViewSet, RatingViewSet, InapamViewSet, TokenPhoneViewSet
+    QuestionViewSet, RatingViewSet, InapamViewSet, TokenPhoneViewSet, ReminderViewSet, CardConektaViewSet
 from carrito.viewsets import SaleViewSet, DetailSaleViewSet, ImageSaleViewSet
 from rest_framework.routers import DefaultRouter
 
@@ -40,6 +40,9 @@ router.register(r'images/ventas', ImageSaleViewSet)
 router.register(r'images/inapam', InapamViewSet)
 router.register(r'ratings', RatingViewSet)
 router.register(r'tokens/phone', TokenPhoneViewSet)
+router.register(r'cards', CardConektaViewSet)
+router.register(r'reminders', ReminderViewSet)
+
 
 
 urlpatterns = [
@@ -59,6 +62,7 @@ urlpatterns = [
     url(r'^images/inapam/$', 'usuarios.views.upload_images_inapam', name='upload_images_inapam'),
     url(r'^images/ventas/$', 'carrito.views.upload_images_ventas', name='upload_images_ventas'),
 
+    url(r'^reminders/$', 'usuarios.views.reminders', name='reminders'),
     url(r'^contacto/$', 'usuarios.views.contacto', name='contacto'),
     url(r'^usuario/creado/$', 'usuarios.views.user_created', name='usuario_creado'),
     url(r'^solicitud/recuperar/password/$', 'usuarios.views.solicitud_recover_password', name='solicitud_recuperar_password'),
