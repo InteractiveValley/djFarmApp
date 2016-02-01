@@ -25,7 +25,7 @@ class DiscountSerializer(serializers.ModelSerializer):
 
     def get_active_discount(self, obj):
         now = timezone.now().date()
-        return (obj.date_begins >= now and obj.date_ends <= now)
+        return (obj.date_begins <= now and obj.date_ends >= now)
 
 
 class ProductSerializer(serializers.ModelSerializer):
