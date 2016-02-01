@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from django.contrib import admin
-from .models import Direction, CustomUser, ScheduledOrder, Question, ConektaUser, Rating, Inapam, TokenPhone
+from .models import Direction, CustomUser, ScheduledOrder, Question, ConektaUser, Rating, Inapam, TokenPhone, Reminder
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 from usuarios.forms import CustomUserChangeForm, CustomUserCreationForm
@@ -84,6 +84,14 @@ admin.site.register(Inapam, InapamAdmin)
 
 
 class TokenPhoneAdmin(admin.ModelAdmin):
-    list_display = ('user','token','created')
+    list_display = ('user', 'token', 'created')
+
 
 admin.site.register(TokenPhone, TokenPhoneAdmin)
+
+
+class ReminderAdmin(admin.ModelAdmin):
+    list_display = (
+        'user', 'message', 'time', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday','active')
+
+admin.site.register(Reminder, ReminderAdmin)
