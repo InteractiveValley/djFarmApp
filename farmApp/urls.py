@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'usuarios.views.home', name='homepage'),
+	url(r'^terminos/$', 'usuarios.views.terminos', name='terminos'),
 
     url(r'^backend/', include('carrito.urls')),
     url(r'^backend/', include('productos.urls')),

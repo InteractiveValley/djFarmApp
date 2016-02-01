@@ -15,11 +15,20 @@ from usuarios.enviarEmail import EmailUserCreated, EmailSolicitudRecoverPassword
     EmailRecoverPassword, EmailContacto
 from django.views.decorators.csrf import csrf_exempt
 from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
+from farmApp.secret import APP_PATH_TERMINOS_PDF
 
 
 # Create your views here.
 def home(request):
     return render(request, 'homepage.html')
+
+
+def terminos(request):
+	with open(APP_PATH_TERMINOS_PDF, 'r') as pdf:
+		response = HttpResponse(pdf.read(), content_type='application/pdf')
+		response['Content-Disposition'] = 'inline;filename=terminos.pdf'
+		return response
+	pdf.closed
 
 
 @api_view(['POST'])
