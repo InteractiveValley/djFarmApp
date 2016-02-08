@@ -250,6 +250,10 @@ class CardConekta(models.Model):
     active = models.BooleanField(verbose_name="active",default=True)
     exp_year = models.CharField(verbose_name="exp year", max_length=4)
     exp_month = models.CharField(verbose_name="exp month",max_length=2)
+    allows_payouts = models.BooleanField(verbose_name="permite pagos", default=False)
+    allows_charges = models.BooleanField(verbose_name="permite cargos", default=False)
+    bank_name = models.CharField(verbose_name="institucion bancaria", max_length=140,default="")
+    type = models.CharField(verbose_name="tipo tarjeta", max_length=140, default="Credit")
     created = models.DateTimeField("creado", null=True, blank=True)
 
     def save(self, *args, **kwargs):
