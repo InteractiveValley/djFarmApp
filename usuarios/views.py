@@ -1,16 +1,24 @@
+# -*- encoding: utf-8 -*-
+import base64
 import json
+import urllib2
 import datetime
+# import conekta
+import openpay
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import render
-from usuarios.models import ConektaUser, CustomUser, Inapam, Rating
+from usuarios.models import ConektaUser, CustomUser, Inapam, Rating, CardConekta, Reminder
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from usuarios.enviarEmail import EmailUserCreated, EmailSolicitudRecoverPassword, \
     EmailRecoverPassword, EmailContacto
 from django.views.decorators.csrf import csrf_exempt
-import conekta
+from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
+from farmApp.secret import APP_PATH_TERMINOS_PDF
+from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, \
+    APP_OPENPAY_PRODUCTION
 
 
 # Create your views here.
@@ -18,35 +26,86 @@ def home(request):
     return render(request, 'homepage.html')
 
 
+def terminos(request):
+    with open(APP_PATH_TERMINOS_PDF, 'r') as pdf:
+        response = HttpResponse(pdf.read(), content_type='application/pdf')
+        response['Content-Disposition'] = 'inline;filename=terminos.pdf'
+        return response
+    pdf.closed
+
+
 @api_view(['POST'])
 def user_conekta_create(request):
-    conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
+    openpay.api_key = APP_OPENPAY_API_KEY
+    openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
+    openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
+    openpay.production = APP_OPENPAY_PRODUCTION  # By default this works in sandbox mode, production = True
+
+    #  conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
+
     user_conekta = None
     user = request.user
     try:
         user_conekta = ConektaUser.objects.get(user=user)
-    except user_conekta.DoesNotExist:
+    except ConektaUser.DoesNotExist:
         user_conekta = None
 
     data = json.loads(request.body)
     # import pdb; pdb.set_trace()
     if user_conekta is not None:
-        customer = conekta.Customer.find(user_conekta.conekta_user)
-        card = customer.update({
-            "cards": [data['conektaTokenId']]
-        })
+        # try:
+        # customer = conekta.Customer.find(user_conekta.conekta_user)
+        customer = openpay.Customer.retrieve(user_conekta.conekta_user)
+
+        # card = customer.createCard({"token_id": data['conektaTokenId']})
+        card = customer.cards.create(token_id=data['token_id'], device_session_id=data['device_session_id'])
+
+        card_conekta = CardConekta(card=card.id, name=card.holder_name, brand=card.brand, last4=card.card_number[:4],
+                                   exp_year=card.expiration_year, active=True, exp_month=card.expiration_month,
+                                   type=card.type, bank_name=card.bank_name, allows_payouts=card.allows_payouts,
+                                   allows_charges=card.allows_charges)
+        card_conekta.user = user
+        card_conekta.save()
         message = "Usuario actualizado"
+        error = False
+        # import pdb; pdb.set_trace()
+        # except conekta.ConektaError as e:
+        # el cliente no pudo ser actualizado
+        # message = e.message_to_purchaser
+        # error = True
+        # card_conekta = None
     else:
-        customer = conekta.Customer.create({
-            "name": user.get_full_name(),
-            "email": user.email,
-            "phone": user.cell,
-            "cards": [data['conektaTokenId'], ]
-        })
+        # try:
+        #  customer = conekta.Customer.create({
+        # import pdb; pdb.set_trace()
+        customer = openpay.Customer.create(name=user.first_name, last_name=user.last_name, email=user.email,
+                                           phone_number=user.cell)
         ConektaUser.objects.create(user=user, conekta_user=customer.id)
         message = "Usuario creado"
 
-    return Response({"message": message})
+        # card = customer.createCard({"token_id": data['conektaTokenId']})
+        card = customer.cards.create(token_id=data['token_id'], device_session_id=data['device_session_id'])
+
+        card_conekta = CardConekta(card=card.id, name=card.holder_name, brand=card.brand, last4=card.card_number[:4],
+                                   exp_year=card.expiration_year, active=True, exp_month=card.expiration_month,
+                                   type=card.type, bank_name=card.bank_name, allows_payouts=card.allows_payouts,
+                                   allows_charges=card.allows_charges)
+        card_conekta.user = user
+        card_conekta.save()
+        # import pdb; pdb.set_trace()
+        # except conekta.ConektaError as e:
+        # el cliente no pudo ser creado
+    #    message = e.message_to_purchaser
+        error = True
+    #    card_conekta = None
+    if card_conekta is not None:
+        data = dict(id=card_conekta.id, card=card_conekta.card, brand=card_conekta.brand, last4=card_conekta.last4,
+                    active=card_conekta.active, exp_year=card_conekta.exp_year, exp_month=card_conekta.exp_month,
+                    allows_payouts=card_conekta.allows_payouts, allows_charges=card_conekta.allows_charges,
+                    bank_name=card_conekta.bank_name, type=card_conekta.type)
+    else:
+        data = {}
+    return Response({"message": message, "card": data, "error": error})
 
 
 def login_frontend(request):
@@ -181,3 +240,64 @@ def calificaciones(request):
         return render(request, 'ratings.html', {"ratings": ratings, 'buenos': buenos, 'malos': malos, 'filter': filtro})
     else:
         return HttpResponseRedirect("/login/")
+
+
+def reminders(request):
+    now = datetime.datetime.now()
+    weekDay = now.weekday()
+    hour = request.GET.get('hour', now.hour)
+    minute = request.GET.get('minute', now.minute)
+    if weekDay == 0:
+        reminders = Reminder.objects.filter(monday=True, time=datetime.time(hour, minute))
+    elif weekDay == 1:
+        reminders = Reminder.objects.filter(tuesday=True, time=datetime.time(hour, minute))
+    elif weekDay == 2:
+        reminders = Reminder.objects.filter(wednesday=True, time=datetime.time(hour, minute))
+    elif weekDay == 3:
+        reminders = Reminder.objects.filter(thursday=True, time=datetime.time(hour, minute))
+    elif weekDay == 4:
+        reminders = Reminder.objects.filter(friday=True, time=datetime.time(hour, minute))
+    elif weekDay == 5:
+        reminders = Reminder.objects.filter(saturday=True, time=datetime.time(hour, minute))
+    elif weekDay == 6:
+        reminders = Reminder.objects.filter(sunday=True, time=datetime.time(hour, minute))
+    else:
+        reminders = None
+
+    for reminder in reminders:
+        create_notification_reminder(reminder)
+
+    return JsonResponse({'response': 'ok'});
+
+
+def create_notification_reminder(reminder):
+    tokens = [reminder.user.token_phone.all()[0].token]
+
+    post_data = {
+        "tokens": tokens,
+        "production": "true",
+        "notification": {
+            "title": "Recordatorio de FarmaApp",
+            "alert": reminder.message,
+            "ios": {
+                "payLoad": {
+                    "notificationId": reminder.id
+                }
+            },
+            "android": {
+                "payLoad": {
+                    "notificationId": reminder.id
+                }
+            }
+        }
+    }
+    app_id = PUSH_APP_ID
+    private_key = PUSH_SECRET_API_KEY
+    url = "https://push.ionic.io/api/v1/push"
+    req = urllib2.Request(url, data=json.dumps(post_data))
+    req.add_header("Content-Type", "application/json")
+    req.add_header("X-Ionic-Application-Id", app_id)
+    b64 = base64.encodestring('%s:' % private_key).replace('\n', '')
+    req.add_header("Authorization", "Basic %s" % b64)
+    resp = urllib2.urlopen(req)
+    return resp

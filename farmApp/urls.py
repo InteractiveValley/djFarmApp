@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 """farmApp URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -21,7 +22,7 @@ admin.autodiscover()
 
 from productos.viewsets import CategoryViewSet, ProductViewSet, DiscountViewSet
 from usuarios.viewsets import UserViewSet, DirectionViewSet, ScheduledOrderViewSet, \
-    QuestionViewSet, RatingViewSet, InapamViewSet, TokenPhoneViewSet
+    QuestionViewSet, RatingViewSet, InapamViewSet, TokenPhoneViewSet, ReminderViewSet, CardConektaViewSet
 from carrito.viewsets import SaleViewSet, DetailSaleViewSet, ImageSaleViewSet
 from rest_framework.routers import DefaultRouter
 
@@ -39,7 +40,8 @@ router.register(r'images/ventas', ImageSaleViewSet)
 router.register(r'images/inapam', InapamViewSet)
 router.register(r'ratings', RatingViewSet)
 router.register(r'tokens/phone', TokenPhoneViewSet)
-
+router.register(r'cards', CardConektaViewSet)
+router.register(r'reminders', ReminderViewSet)
 
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
@@ -50,6 +52,7 @@ urlpatterns = [
     url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'usuarios.views.home', name='homepage'),
+    url(r'^terminos/$', 'usuarios.views.terminos', name='terminos'),
 
     url(r'^backend/', include('carrito.urls')),
     url(r'^backend/', include('productos.urls')),
@@ -58,13 +61,15 @@ urlpatterns = [
     url(r'^images/inapam/$', 'usuarios.views.upload_images_inapam', name='upload_images_inapam'),
     url(r'^images/ventas/$', 'carrito.views.upload_images_ventas', name='upload_images_ventas'),
 
+    url(r'^reminders/$', 'usuarios.views.reminders', name='reminders'),
     url(r'^contacto/$', 'usuarios.views.contacto', name='contacto'),
     url(r'^usuario/creado/$', 'usuarios.views.user_created', name='usuario_creado'),
-    url(r'^solicitud/recuperar/password/$', 'usuarios.views.solicitud_recover_password', name='solicitud_recuperar_password'),
+    url(r'^solicitud/recuperar/password/$', 'usuarios.views.solicitud_recover_password',
+        name='solicitud_recuperar_password'),
     url(r'^recuperar/password/$', 'usuarios.views.recover_password', name='recuperar_password'),
 
     url(r'^login/$', 'usuarios.views.login_frontend', name='login_frontend'),
     url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/login/'}),
-    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, }),
-    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT, }),
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT,}),
+    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT,}),
 ]

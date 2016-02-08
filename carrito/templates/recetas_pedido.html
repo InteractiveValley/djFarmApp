@@ -1,7 +1,7 @@
 <div class="recetas-pedido">
     <ul>
         {% for receta in pedido.images.all %}
-            <li><img src="{{receta.image_recipe.url}}" /></li>
+            <li><img src="{{receta.image_recipe.url}}" style="max-width: 350px;" /></li>
         {% endfor %}
     </ul>
 

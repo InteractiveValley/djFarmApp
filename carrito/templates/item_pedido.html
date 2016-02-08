@@ -64,7 +64,7 @@
                       <td></td>
                       <td></td>
                       <td>IVA: </td>
-                      <td>${{pedido.total}}</td>
+                      <td>${{pedido.tax}}</td>
                       <td></td>
                   </tr>
                   {% endif %}
@@ -76,6 +76,16 @@
                       <td>${{pedido.total}}</td>
                       <td></td>
                   </tr>
+                  {% if pedido.notes|length > 0 %}
+                    <tr>
+                        <td>
+                            Nota del cliente:
+                        </td>
+                        <td bgcolor="gray" style="color: white;" colspan="5">
+                            {{pedido.notes}}
+                        </td>
+                    </tr>
+                  {% endif %}
             </table>
             <div class="row text-center">
                 <ul class="list-inline"  data-sale="{{pedido.id}}">

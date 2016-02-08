@@ -1,6 +1,8 @@
-from .models import Direction, ScheduledOrder, CustomUser, Question, Rating, Inapam, TokenPhone
+# -*- encoding: utf-8 -*-
+from .models import Direction, ScheduledOrder, CustomUser, Question, Rating, Inapam, TokenPhone, Reminder, CardConekta
 from .serializers import DirectionSerializer, ScheduledOrderSerializer, UserSerializer, \
-    QuestionSerializer, RatingSerializer, InapamSerializer, TokenPhoneSerializer
+    QuestionSerializer, RatingSerializer, InapamSerializer, TokenPhoneSerializer, CardConektaSerializer,\
+    ReminderSerializer
 from rest_framework import viewsets
 
 
@@ -88,3 +90,35 @@ class TokenPhoneViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         return TokenPhone.objects.filter(user=user)
+
+
+class CardConektaViewSet(viewsets.ModelViewSet):
+    serializer_class = CardConektaSerializer
+    queryset = CardConekta.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the directions
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return CardConekta.objects.filter(user=user)
+
+
+class ReminderViewSet(viewsets.ModelViewSet):
+    serializer_class = ReminderSerializer
+    queryset = Reminder.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the directions
+        for the currently authenticated user.
+        """
+        user = self.request.user
+        return Reminder.objects.filter(user=user)

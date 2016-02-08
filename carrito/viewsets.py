@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from .models import Sale, DetailSale, ImageSale
 from .serializers import SaleSerializer, DetailSaleSerializer, ImageSaleSerializer
 from rest_framework import viewsets

@@ -1,16 +1,20 @@
+# -*- encoding: utf-8 -*-
+
 import base64
 import json
 import urllib2
-import conekta
+# import conekta
+import openpay
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
 from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale
-from usuarios.models import ConektaUser
+from usuarios.models import ConektaUser, CardConekta
 from usuarios.enviarEmail import EmailSendSale
 from django.views.decorators.csrf import csrf_exempt
 from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
+from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, APP_OPENPAY_PRODUCTION
 from carrito.models import Receipt
 from carrito.forms import ReceiptForm
 
@@ -110,9 +114,18 @@ def detalle_entregar(request, sale_id):
     pedido.status = DELIVERED
     pedido.vendor = request.user
     user_conekta = ConektaUser.objects.get(user=pedido.user)
-    conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
-    customer_conekta = conekta.Customer.find(user_conekta.conekta_user)
-    card = customer_conekta.cards[0]
+
+    # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
+    openpay.api_key = APP_OPENPAY_API_KEY
+    openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
+    openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
+    openpay.production = APP_OPENPAY_PRODUCTION  # By default this works in sandbox mode, production = True
+
+    customer = openpay.Customer.retrieve(user_conekta.conekta_user)
+
+    # import pdb; pdb.set_trace();
+    card_conekta = pedido.card_conekta
+    #  card = customer_conekta.cards[0]
     amount = str(int(float(pedido.total() * 100)))
     detalles = pedido.detail_sales.all()
     lista = []
@@ -126,12 +139,13 @@ def detalle_entregar(request, sale_id):
             "type": "medicine"
         }
         lista.append(dato)
-    charge = conekta.Charge.create({
+    """
+    charge = customer.charges.create({
         "description": "Pedido FarmaApp",
         "amount": amount,
         "currency": "MXN",
         "reference_id": "pedido-farmaapp-" + str(pedido.id),
-        "card": card.id,
+        "card": card_conekta.card,
         "details": {
             "name": pedido.user.get_full_name(),
             "phone": pedido.user.cell,
@@ -139,7 +153,11 @@ def detalle_entregar(request, sale_id):
             "line_items": lista
         }
     })
-    if charge.status == "paid":
+    """
+    charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=pedido.total(),
+                                     description="Pedido de FarmaApp", order_id="pedido-farmaapp-" + str(pedido.id),
+                                     capture=False)
+    if charge.status == "completed":
         pedido.charge_conekta = charge.id
         pedido.status = PAID
         pedido.vendor = request.user
@@ -168,6 +186,7 @@ def send_sale_for_email(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     user = pedido.user
     detalles = DetailSale.objects.filter(sale=pedido.id)
+    # import pdb; pdb.set_trace()
     enviar_mensaje = EmailSendSale(pedido, detalles, user)
     enviar_mensaje.enviarMensaje()
     return HttpResponse("Email enviado")
@@ -210,6 +229,7 @@ def create_notification(user, title, message):
     b64 = base64.encodestring('%s:' % private_key).replace('\n', '')
     req.add_header("Authorization", "Basic %s" % b64)
     resp = urllib2.urlopen(req)
+    return resp
 
 
 def recibos(request):

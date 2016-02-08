@@ -60,7 +60,7 @@
                                                                         <tbody>
                                                                             <tr>
                                                                                 <td valign="top" style="padding-right:9px;padding-left:9px;padding-top:0;padding-bottom:0;text-align:center">
-                                                                                    <img align="center" alt="" src="http://farmaapp.mx/static/logo.png" width="509" style="max-width:509px;padding-bottom:0;display:inline!important;vertical-align:bottom">
+                                                                                    <img align="center" alt="" src="http://farmaapp.mx/static/usuarios/Logo.png" width="240" style="max-width:240px;padding-bottom:0;display:inline!important;vertical-align:bottom">
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
@@ -125,7 +125,7 @@
                                                                                         <tbody>
                                                                                             {% for detalle in detalles %}
                                                                                             <tr>
-                                                                                                <td>{{ detalle.quantity|floatformat:2 }}</td>
+                                                                                                <td>{{ detalle.quantity|floatformat:0 }}</td>
                                                                                                 <td>{{ detalle.product }}</td>
                                                                                                 <td>$ {{ detalle.total|floatformat:2 }}</td>
                                                                                             </tr>
@@ -148,6 +148,11 @@
                                                                                                 <td>-$ {{ pedido.discount|floatformat:2 }}</td>
                                                                                             </tr>
                                                                                             <tr>
+                                                                                                <td>IVA:</td>
+                                                                                                <td></td>
+                                                                                                <td>$ {{ pedido.tax|floatformat:2 }}</td>
+                                                                                            </tr>
+																							<tr>
                                                                                                 <td>Total:</td>
                                                                                                 <td></td>
                                                                                                 <td>$ {{ pedido.total|floatformat:2 }}</td>
@@ -163,10 +168,11 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
-                                                    </table><table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                    </table>
+													<table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                         <tbody>
                                                             <tr>
-                                                                <td style="padding-top:0;padding-right:18px;padding-bottom:18px;padding-left:18px" valign="top" align="center">
+                                                                <!--td style="padding-top:0;padding-right:18px;padding-bottom:18px;padding-left:18px" valign="top" align="center">
                                                                     <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate!important;border:2px solid #dfdfdf;border-radius:5px;background-color:#ee2a5a">
                                                                         <tbody>
                                                                             <tr>
@@ -176,10 +182,12 @@
                                                                             </tr>
                                                                         </tbody>
                                                                     </table>
-                                                                </td>
+                                                                </td-->
+																<td>&nbsp;</td>
                                                             </tr>
                                                         </tbody>
-                                                    </table><table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                    </table>
+													<table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                         <tbody>
                                                             <tr>
                                                                 <td style="padding:0px 18px">
