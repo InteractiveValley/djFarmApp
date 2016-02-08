@@ -45,7 +45,8 @@ class TokenPhoneSerializer(serializers.ModelSerializer):
 class CardConektaSerializer(serializers.ModelSerializer):
     class Meta:
         model = CardConekta
-        fields = ('id', 'user', 'card', 'name', 'brand', 'last4', 'active', 'exp_year', 'exp_month', 'created')
+        fields = ('id', 'user', 'card', 'name', 'brand', 'last4', 'active', 'exp_year', 'exp_month', 'created',
+                  'allows_payouts', 'allows_charges', 'bank_name', 'type')
         read_only_fields = ('user', 'created',)
 
 

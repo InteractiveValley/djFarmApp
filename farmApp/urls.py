@@ -43,8 +43,6 @@ router.register(r'tokens/phone', TokenPhoneViewSet)
 router.register(r'cards', CardConektaViewSet)
 router.register(r'reminders', ReminderViewSet)
 
-
-
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')),  # grappelli URLS
     url(r'^api/', include(router.urls)),
@@ -54,7 +52,7 @@ urlpatterns = [
     url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', 'usuarios.views.home', name='homepage'),
-	url(r'^terminos/$', 'usuarios.views.terminos', name='terminos'),
+    url(r'^terminos/$', 'usuarios.views.terminos', name='terminos'),
 
     url(r'^backend/', include('carrito.urls')),
     url(r'^backend/', include('productos.urls')),
@@ -66,11 +64,12 @@ urlpatterns = [
     url(r'^reminders/$', 'usuarios.views.reminders', name='reminders'),
     url(r'^contacto/$', 'usuarios.views.contacto', name='contacto'),
     url(r'^usuario/creado/$', 'usuarios.views.user_created', name='usuario_creado'),
-    url(r'^solicitud/recuperar/password/$', 'usuarios.views.solicitud_recover_password', name='solicitud_recuperar_password'),
+    url(r'^solicitud/recuperar/password/$', 'usuarios.views.solicitud_recover_password',
+        name='solicitud_recuperar_password'),
     url(r'^recuperar/password/$', 'usuarios.views.recover_password', name='recuperar_password'),
 
     url(r'^login/$', 'usuarios.views.login_frontend', name='login_frontend'),
     url(r'^logout/$', 'django.contrib.auth.views.logout', {'next_page': '/login/'}),
-    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, }),
-    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT, }),
+    url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT,}),
+    url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT,}),
 ]
