@@ -268,6 +268,7 @@ class CardConekta(models.Model):
 class Reminder(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="reminders")
     message = models.CharField(verbose_name="mensaje", max_length=140)
+    title = models.CharField(verbose_name="title", max_length=140)
     time = models.TimeField(verbose_name="tiempo", null=True)
     monday = models.BooleanField(verbose_name="lunes", default=False)
     tuesday = models.BooleanField(verbose_name="martes", default=False)
