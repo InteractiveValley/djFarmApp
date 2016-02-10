@@ -96,7 +96,7 @@ def user_conekta_create(request):
         # except conekta.ConektaError as e:
         # el cliente no pudo ser creado
     #    message = e.message_to_purchaser
-        error = True
+        error = False
     #    card_conekta = None
     if card_conekta is not None:
         data = dict(id=card_conekta.id, card=card_conekta.card, brand=card_conekta.brand, last4=card_conekta.last4,
