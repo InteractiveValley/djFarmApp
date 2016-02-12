@@ -14,7 +14,8 @@ from usuarios.models import ConektaUser, CardConekta
 from usuarios.enviarEmail import EmailSendSale
 from django.views.decorators.csrf import csrf_exempt
 from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
-from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, APP_OPENPAY_PRODUCTION
+from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, \
+    APP_OPENPAY_PRODUCTION
 from carrito.models import Receipt
 from carrito.forms import ReceiptForm
 
@@ -99,7 +100,8 @@ def detalle_rechazar_receta(request, sale_id):
     pedido.vendor = request.user
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
-    message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. Si lo deseas puedes volver a generar la orden."
+    message = "La receta de tu pedido #" + str(pedido.id).zfill(
+            6) + " ha sido rechazada. Si lo deseas puedes volver a generar la orden."
     create_notification(pedido.user, "FarmaApp", message)
     if request.is_ajax():
         template = "item_pedido.html"
@@ -114,6 +116,8 @@ def detalle_entregar(request, sale_id):
     pedido.status = DELIVERED
     pedido.vendor = request.user
     user_conekta = ConektaUser.objects.get(user=pedido.user)
+
+    device_session_id = request.GET.get('device_session_id')
 
     # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     openpay.api_key = APP_OPENPAY_API_KEY
@@ -154,10 +158,21 @@ def detalle_entregar(request, sale_id):
         }
     })
     """
-    charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=pedido.total(),
-                                     description="Pedido de FarmaApp", order_id="pedido-farmaapp-" + str(pedido.id),
-                                     capture=False)
-    if charge.status == "completed":
+    charge = None
+    if len(pedido.charge_conekta) == 0:
+        charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=pedido.total(),
+                                         description="Pedido de FarmaApp", order_id="pedido-farmaapp-" + str(pedido.id),
+                                         capture=False, device_session_id=device_session_id)
+    else:
+        charge = customer.charges.get(pedido.charge_conekta, None)
+
+    import pdb;
+    pdb.set_trace()
+
+    if charge is None:
+        pedido.status = NO_PAID
+        pedido.save()
+    elif charge.status == "completed":
         pedido.charge_conekta = charge.id
         pedido.status = PAID
         pedido.vendor = request.user
@@ -169,8 +184,15 @@ def detalle_entregar(request, sale_id):
         str_pedido = str(pedido.id).zfill(6)
         str_total = '{:20,.2f}'.format(pedido.total())
         message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
-        create_notification(pedido.user, "FarmaApp", message)
-    else:
+        resp = create_notification(pedido.user, "FarmaApp", message)
+        import pdb;
+        pdb.set_trace()
+    elif charge.status == "in_progress":
+        pedido.charge_conekta = charge.id
+        pedido.status = NO_PAID
+        pedido.vendor = request.user
+        pedido.save()
+    elif charge.status == "failed":
         pedido.status = NO_PAID
         pedido.save()
 
@@ -214,7 +236,7 @@ def create_notification(user, title, message):
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
-        "production": "true",
+        "production": True,
         "notification": {
             "title": title,
             "alert": message

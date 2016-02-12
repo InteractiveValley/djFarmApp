@@ -264,6 +264,10 @@ class CardConekta(models.Model):
             self.created = timezone.now()
         return super(CardConekta, self).save(*args, **kwargs)
 
+    def __str__(self):
+        cadena =  "%s.- %s %s " % (self.user.get_full_name(), self.brand, self.last4)
+        return cadena.encode("utf8")
+
 
 class Reminder(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="reminders")

@@ -53,12 +53,15 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://openpay.s3.amazonaws.com/openpay.v1.min.js"></script>
+    <script type='text/javascript' src="https://openpay.s3.amazonaws.com/openpay-data.v1.min.js"></script>
     <script>
       (function(){
-
+          OpenPay.setId('mpoejxraordmyeoi3naf');
+          OpenPay.setApiKey('pk_9ac5b1cf9fc24904b6fac2de97c1439f');
+          OpenPay.setSandboxMode(true);
           function activarBotonesAccion(){
             $(".button-action").on("click",function(){
-                debugger;
                 var $button = $(this);
                 var url = $button.data("url");
                 var pedido = $button.parent().parent().data("sale");
@@ -77,7 +80,27 @@
                   }
               });
             });
-
+            $(".button-action-delivered").on("click",function(){
+                var $button = $(this);
+                var url = $button.data("url");
+                var pedido = $button.parent().parent().data("sale");
+                console.log(url);
+                var deviceSessionId = OpenPay.deviceData.setup();
+                $.ajax({
+                  url: url,
+                  type: 'get',
+                  data: {'devide_session_id': deviceSessionId },
+                  success: function(data) {
+                      //alert(data);
+                      console.log(data);
+                      $("#pedido-"+pedido).html(data);
+                      activarBotonesAccion();
+                  },
+                  failure: function(data) {
+                      alert('Got an error dude');
+                  }
+              });
+            });
           }
           activarBotonesAccion();
       })();

@@ -92,12 +92,12 @@ def user_conekta_create(request):
                                    allows_charges=card.allows_charges)
         card_conekta.user = user
         card_conekta.save()
+        error = False
         # import pdb; pdb.set_trace()
         # except conekta.ConektaError as e:
         # el cliente no pudo ser creado
-    #    message = e.message_to_purchaser
-        error = True
-    #    card_conekta = None
+        # message = e.message_to_purchaser
+        # card_conekta = None
     if card_conekta is not None:
         data = dict(id=card_conekta.id, card=card_conekta.card, brand=card_conekta.brand, last4=card_conekta.last4,
                     active=card_conekta.active, exp_year=card_conekta.exp_year, exp_month=card_conekta.exp_month,
