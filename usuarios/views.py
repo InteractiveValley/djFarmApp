@@ -66,7 +66,7 @@ def user_conekta_create(request):
                                    allows_charges=card.allows_charges)
         card_conekta.user = user
         card_conekta.save()
-        message = "Usuario actualizado"
+        message = 'Usuario actualizado'
         error = False
         # import pdb; pdb.set_trace()
         # except conekta.ConektaError as e:
@@ -81,7 +81,7 @@ def user_conekta_create(request):
         customer = openpay.Customer.create(name=user.first_name, last_name=user.last_name, email=user.email,
                                            phone_number=user.cell)
         ConektaUser.objects.create(user=user, conekta_user=customer.id)
-        message = "Usuario creado"
+        message = 'Usuario creado'
 
         # card = customer.createCard({"token_id": data['conektaTokenId']})
         card = customer.cards.create(token_id=data['token_id'], device_session_id=data['device_session_id'])
@@ -109,7 +109,7 @@ def user_conekta_create(request):
 
 
 def login_frontend(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)

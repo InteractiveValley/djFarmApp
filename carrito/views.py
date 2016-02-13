@@ -117,7 +117,11 @@ def detalle_entregar(request, sale_id):
     pedido.vendor = request.user
     user_conekta = ConektaUser.objects.get(user=pedido.user)
 
-    device_session_id = request.GET.get('device_session_id')
+    if request.is_ajax:
+        data = json.loads(request.body)
+        device_session_id = data['device_session_id']
+    else:
+        device_session_id = request.GET.get('device_session_id')
 
     # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     openpay.api_key = APP_OPENPAY_API_KEY

@@ -92,6 +92,6 @@ admin.site.register(TokenPhone, TokenPhoneAdmin)
 
 class ReminderAdmin(admin.ModelAdmin):
     list_display = (
-        'user', 'message', 'time', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday','active')
+        'user','title', 'message', 'time', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday','active')
 
 admin.site.register(Reminder, ReminderAdmin)
