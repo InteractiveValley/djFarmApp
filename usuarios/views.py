@@ -171,16 +171,20 @@ def recover_password(request):
 
 @csrf_exempt
 def contacto(request):
-    data = json.loads(request.body)
-    name = data['name']
-    email = data['email']
-    phone = data['phone']
-    subject = data['subject']
-    message = data['message']
-    enviar_mensaje = EmailContacto(name, email, phone, subject, message)
-    enviar_mensaje.enviarMensaje()
-    data = {'status': 'ok', 'message': 'Email enviado'}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        name = data['name']
+        email = data['email']
+        phone = data['phone']
+        subject = data['subject']
+        message = data['message']
+        enviar_mensaje = EmailContacto(name, email, phone, subject, message)
+        enviar_mensaje.enviarMensaje()
+        data = {'status': 'ok', 'message': 'Email enviado'}
+        return HttpResponse(json.dumps(data), content_type='application/json')
+    else:
+        data = {'status': 'bat', 'message': 'Esta pagina no es accesible desde esta forma'}
+        return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 @csrf_exempt

@@ -117,11 +117,7 @@ def detalle_entregar(request, sale_id):
     pedido.vendor = request.user
     user_conekta = ConektaUser.objects.get(user=pedido.user)
 
-    if request.is_ajax:
-        data = json.loads(request.body)
-        device_session_id = data['device_session_id']
-    else:
-        device_session_id = request.GET.get('device_session_id')
+    device_session_id = request.GET.get('device_session_id')
 
     # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     openpay.api_key = APP_OPENPAY_API_KEY
@@ -133,20 +129,21 @@ def detalle_entregar(request, sale_id):
 
     # import pdb; pdb.set_trace();
     card_conekta = pedido.card_conekta
-    #  card = customer_conekta.cards[0]
-    amount = str(int(float(pedido.total() * 100)))
+    amount = pedido.total()
     detalles = pedido.detail_sales.all()
     lista = []
+    """
     for detalle in detalles:
         dato = {
             "name": detalle.product.name,
             "description": detalle.product.description,
-            "unit_price": str(int(float(detalle.price * 100))),
+            "unit_price": detalle.price,
             "quantity": detalle.quantity,
             "sku": str(detalle.product.id),
             "type": "medicine"
         }
         lista.append(dato)
+    """
     """
     charge = customer.charges.create({
         "description": "Pedido FarmaApp",
@@ -164,14 +161,13 @@ def detalle_entregar(request, sale_id):
     """
     charge = None
     if len(pedido.charge_conekta) == 0:
-        charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=pedido.total(),
+        charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=amount,
                                          description="Pedido de FarmaApp", order_id="pedido-farmaapp-" + str(pedido.id),
-                                         capture=False, device_session_id=device_session_id)
+                                         device_session_id=device_session_id)
     else:
         charge = customer.charges.get(pedido.charge_conekta, None)
 
-    import pdb;
-    pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     if charge is None:
         pedido.status = NO_PAID
@@ -189,8 +185,7 @@ def detalle_entregar(request, sale_id):
         str_total = '{:20,.2f}'.format(pedido.total())
         message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
         resp = create_notification(pedido.user, "FarmaApp", message)
-        import pdb;
-        pdb.set_trace()
+        # import pdb; pdb.set_trace()
     elif charge.status == "in_progress":
         pedido.charge_conekta = charge.id
         pedido.status = NO_PAID
