@@ -15,7 +15,8 @@ class DirectionSerializer(serializers.ModelSerializer):
 class ScheduledOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScheduledOrder
-        fields = ('id', 'product', 'user', 'quantity', 'period', 'days', 'times', 'date_next', 'date_ends',)
+        fields = ('id', 'product', 'user', 'direction', 'card_conekta', 'quantity', 'period', 'days', 'times',
+                  'date_next', 'date_ends',)
         read_only_fields = ('user', 'date_next', 'date_ends',)
 
 
@@ -24,7 +25,8 @@ class ScheduledOrderFullSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ScheduledOrder
-        fields = ('id', 'product', 'user', 'quantity', 'period', 'days', 'times', 'date_next', 'date_ends')
+        fields = ('id', 'product', 'user', 'direction', 'card_conekta', 'quantity', 'period', 'days', 'times',
+                  'date_next', 'date_ends')
         read_only_fields = ('user', 'date_next', 'date_ends',)
 
 
@@ -38,7 +40,7 @@ class InapamSerializer(serializers.ModelSerializer):
 class TokenPhoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = TokenPhone
-        fields = ('id', 'user', 'token', 'created',)
+        fields = ('id', 'user', 'token', 'active', 'created',)
         read_only_fields = ('user', 'created',)
 
 
@@ -54,7 +56,8 @@ class ReminderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reminder
         fields = (
-            'id', 'user', 'title','message', 'time', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
+            'id', 'user', 'title', 'message', 'time', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
+            'saturday',
             'sunday', 'active')
         read_only_fields = ('user',)
 
