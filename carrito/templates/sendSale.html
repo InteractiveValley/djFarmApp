@@ -52,7 +52,7 @@
                                         <table border="0" cellpadding="0" cellspacing="0" width="600">
                                             <tr>
                                                 <td valign="top">
-                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #8791A7;">
                                                         <tbody>
                                                             <tr>
                                                                 <td valign="top" style="padding:9px">
@@ -60,7 +60,7 @@
                                                                         <tbody>
                                                                             <tr>
                                                                                 <td valign="top" style="padding-right:9px;padding-left:9px;padding-top:0;padding-bottom:0;text-align:center">
-                                                                                    <img align="center" alt="" src="http://farmaapp.mx/static/usuarios/Logo.png" width="240" style="max-width:240px;padding-bottom:0;display:inline!important;vertical-align:bottom">
+                                                                                    <img align="center" alt="" src="http://farmaapp.mx/static/usuarios/Logo.png" width="120" style="max-width:240px;padding-bottom:0;display:inline!important;vertical-align:bottom">
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
@@ -85,7 +85,7 @@
                                                                 <td style="padding:0px 18px">
                                                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top-width:1px;border-top-style:solid;border-top-color:#d9d9d9">
                                                                         <tbody>
-                                                                            <tr>
+                                                                            <tr style="text-align: right;">
                                                                                 <td>
                                                                                     <span>{% now "d/m/Y H:i a" %}</span>
                                                                                 </td>
@@ -105,8 +105,7 @@
                                                                             <tr>
                                                                                 <td valign="top" style="padding-top:9px;padding-right:18px;padding-bottom:9px;padding-left:18px">
                                                                                     <h3>Compra realizada</h3>
-                                                                                    <p>Resumen de su compra.</p>
-                                                                                    <p>
+                                                                                    <p>Resumen de su compra. <br/>
                                                                                         Pedido: # {{ pedido.id }} <br/>
                                                                                         <table>
                                                                                             <tr>
@@ -114,9 +113,9 @@
                                                                                             </tr>
                                                                                         </table>
                                                                                     </p>
-                                                                                    <table>
+                                                                                    <table width="100%">
                                                                                         <thead>
-                                                                                            <tr>
+                                                                                            <tr style="color: white; background-color: #2EC7C7;">
                                                                                                 <th>Cantidad</th>
                                                                                                 <th>Producto</th>
                                                                                                 <th>$</th>
@@ -138,24 +137,24 @@
                                                                                         <tfoot>
                                                                                             <tr><td colspan="3">&nbsp;</td></tr>
                                                                                             <tr>
-                                                                                                <td>Subtotal:</td>
                                                                                                 <td></td>
-                                                                                                <td>$ {{ pedido.subtotal|floatformat:2 }}</td>
+                                                                                                <td style="background-color: #8791A7; text-align: right; padding: 5px;">Subtotal:</td>
+                                                                                                <td style="text-align: right;">$ {{ pedido.subtotal|floatformat:2 }}</td>
                                                                                             </tr>
                                                                                             <tr>
-                                                                                                <td>Descuento:</td>
                                                                                                 <td></td>
-                                                                                                <td>-$ {{ pedido.discount|floatformat:2 }}</td>
+                                                                                                <td style="background-color: #8791A7; text-align: right; padding: 5px;">Descuento:</td>
+                                                                                                <td style="text-align: right;">-$ {{ pedido.discount|floatformat:2 }}</td>
                                                                                             </tr>
                                                                                             <tr>
-                                                                                                <td>IVA:</td>
                                                                                                 <td></td>
-                                                                                                <td>$ {{ pedido.tax|floatformat:2 }}</td>
+                                                                                                <td style="background-color: #8791A7; text-align: right; padding: 5px;">IVA:</td>
+                                                                                                <td style="text-align: right;">$ {{ pedido.tax|floatformat:2 }}</td>
                                                                                             </tr>
 																							<tr>
-                                                                                                <td>Total:</td>
                                                                                                 <td></td>
-                                                                                                <td>$ {{ pedido.total|floatformat:2 }}</td>
+                                                                                                <td style="background-color: #8791A7; text-align: right; padding: 5px;">Total:</td>
+                                                                                                <td style="text-align: right;">$ {{ pedido.total|floatformat:2 }}</td>
                                                                                             </tr>
                                                                                         </tfoot>
                                                                                     </table>

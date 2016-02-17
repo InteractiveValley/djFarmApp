@@ -86,7 +86,7 @@ def detalle_cancelar(request, sale_id):
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
     message = "Tu orden #" + str(pedido.id).zfill(6) + " ha sido cancelada."
-    create_notification_carrito(pedido, pedido.user, "FarmaApp", message)
+    create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
     if request.is_ajax():
         template = "item_pedido.html"
     else:
@@ -101,8 +101,8 @@ def detalle_rechazar_receta(request, sale_id):
     pedido.vendor = request.user
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
-    message = "La receta de tu pedido #" + str(pedido.id).zfill(
-        6) + " ha sido rechazada. Si lo deseas puedes volver a generar la orden."
+    message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. " + \
+              "Si lo deseas puedes volver a generar la orden."
     create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
     if request.is_ajax():
         template = "item_pedido.html"
@@ -167,8 +167,6 @@ def detalle_entregar(request, sale_id):
                                          device_session_id=device_session_id)
     else:
         charge = customer.charges.retrieve(pedido.charge_conekta)
-
-    #  import pdb; pdb.set_trace()
 
     if charge is None:
         pedido.status = NO_PAID
@@ -314,6 +312,7 @@ def create_notification_carrito(sale, user, title, message):
 
 
 def create_notification_ionic_push_carrito(sale, user, title, message):
+    # import pdb; pdb.set_trace()
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,

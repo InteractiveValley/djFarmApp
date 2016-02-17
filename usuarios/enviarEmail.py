@@ -1,8 +1,6 @@
 #! /usr/bin/python
 # -*- coding: UTF-8 -*-
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+from django.core.mail import EmailMultiAlternatives
 from django.template import loader, Context
 import string
 import random
@@ -34,20 +32,13 @@ class EmailUserCreated():
         self.html = t.render(c)
 
     def enviarMensaje(self):
-        msg = MIMEMultipart('alternative')
-        part2 = MIMEText(self.html, 'html', _charset='UTF-8')
-        msg['Subject'] = 'Registro de usuario en FarmaApp.mx'
-        msg['From'] = APP_EMAIL_HOST_EMAIL
-        msg['To'] = self.user.email
-
-        msg.attach(part2)
-
-        server = smtplib.SMTP(APP_EMAIL_HOST)
-        #  server.starttls()
-        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
-
-        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
-        server.quit()
+        subject = 'Registro de usuario en FarmaApp.mx'
+        text_content = 'Registro de usuario'
+        from_email = APP_EMAIL_HOST_EMAIL
+        to = self.user.email
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(self.html, "text/html")
+        respuesta = msg.send()
         return respuesta
 
 
@@ -63,20 +54,13 @@ class EmailSolicitudRecoverPassword():
         self.html = t.render(c)
 
     def enviarMensaje(self):
-        msg = MIMEMultipart('alternative')
-        part2 = MIMEText(self.html, 'html', _charset='UTF-8')
-        msg['Subject'] = 'Solicitud para reestablecer contraseña de FarmaApp.mx'
-        msg['From'] = APP_EMAIL_HOST_EMAIL
-        msg['To'] = self.user.email
-
-        msg.attach(part2)
-
-        server = smtplib.SMTP(APP_EMAIL_HOST)
-        #  server.starttls()
-        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
-
-        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
-        server.quit()
+        subject = 'Solicitud para reestablecer contraseña de FarmaApp.mx'
+        text_content = 'Restablecer contraseña de usuario'
+        from_email = APP_EMAIL_HOST_EMAIL
+        to = self.user.email
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(self.html, "text/html")
+        respuesta = msg.send()
         return respuesta
 
 
@@ -95,20 +79,13 @@ class EmailRecoverPassword():
         self.html = t.render(c)
 
     def enviarMensaje(self):
-        msg = MIMEMultipart('alternative')
-        part2 = MIMEText(self.html, 'html', _charset='UTF-8')
-        msg['Subject'] = 'Restablecio contraseña de FarmaApp.mx'
-        msg['From'] = APP_EMAIL_HOST_EMAIL
-        msg['To'] = self.user.email
-
-        msg.attach(part2)
-
-        server = smtplib.SMTP(APP_EMAIL_HOST)
-        #  server.starttls()
-        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
-
-        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
-        server.quit()
+        subject = 'Restablecio contraseña de FarmaApp.mx'
+        text_content = 'Se reestableciio la contraseña de FarmaApp.mx'
+        from_email = APP_EMAIL_HOST_EMAIL
+        to = self.user.email
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(self.html, "text/html")
+        respuesta = msg.send()
         return respuesta
 
 
@@ -127,22 +104,13 @@ class EmailSendSale():
         self.html = t.render(c)
 
     def enviarMensaje(self):
-        msg = MIMEMultipart('alternative')
-        part2 = MIMEText(self.html, 'html', _charset='UTF-8')
-        msg['Subject'] = 'Compra realizada en FarmaApp.mx'
-        msg['From'] = APP_EMAIL_HOST_EMAIL
-        msg['To'] = self.user.email
-
-        # import pdb; pdb.set_trace()
-
-        msg.attach(part2)
-
-        server = smtplib.SMTP(APP_EMAIL_HOST)
-        #  server.starttls()
-        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
-        #  import pdb; pdb.set_trace()
-        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
-        server.quit()
+        subject = 'Compra realizada en FarmaApp.mx'
+        text_content = 'Se envia detalle de la compra de FarmaApp.mx'
+        from_email = APP_EMAIL_HOST_EMAIL
+        to = self.user.email
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(self.html, "text/html")
+        respuesta = msg.send()
         return respuesta
 
 
@@ -165,18 +133,11 @@ class EmailContacto():
         self.html = t.render(c)
 
     def enviarMensaje(self):
-        msg = MIMEMultipart('alternative')
-        part2 = MIMEText(self.html, 'html', _charset='UTF-8')
-        msg['Subject'] = 'Compra realizada en FarmaApp.mx'
-        msg['From'] = APP_EMAIL_HOST_EMAIL
-        msg['To'] = self.email
-
-        msg.attach(part2)
-
-        server = smtplib.SMTP(APP_EMAIL_HOST)
-        #  server.starttls()
-        server.login(APP_EMAIL_HOST_USER, APP_EMAIL_HOST_PASSWORD)
-
-        respuesta = server.sendmail(APP_EMAIL_HOST_EMAIL, self.user.email, msg.as_string())
-        server.quit()
+        subject = 'Contacto desde la app FarmaApp'
+        text_content = 'Envio de mensaje desde app'
+        from_email = APP_EMAIL_HOST_EMAIL
+        to = self.email
+        msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+        msg.attach_alternative(self.html, "text/html")
+        respuesta = msg.send()
         return respuesta
