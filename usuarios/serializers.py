@@ -5,6 +5,7 @@ from productos.serializers import ProductSerializer
 
 
 class DirectionSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Direction
         fields = ('id', 'location', 'street', 'interior_number', 'exterior_number',

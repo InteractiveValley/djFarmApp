@@ -26,8 +26,9 @@ class Category(models.Model):
         else:
             return image_default()
 
-    def __str__(self):
-        return self.name.encode("utf8")
+    def __unicode__(self):
+        #  return self.name.encode("utf8")
+        return self.name
 
     thumbnail.allow_tags = True
 
@@ -55,8 +56,9 @@ class Discount(models.Model):
     date_begins = models.DateField('inicia', null=True, blank=True)
     date_ends = models.DateField('finaliza', null=True, blank=True)
 
-    def __str__(self):
-        return self.name.encode("utf8")
+    def __unicode__(self):
+        # return self.name.encode("utf8")
+        return self.name
 
     def save(self, *args, **kwargs):
         """
@@ -74,8 +76,9 @@ class Discount(models.Model):
 class Laboratory(models.Model):
     name = models.CharField("laboratorio", max_length=250)
 
-    def __str__(self):
-        return self.name.encode("utf8")
+    def __unicode__(self):
+        #  return self.name.encode("utf8")
+        return self.name
 
     class Meta:
         verbose_name = "laboratorio"
@@ -153,8 +156,9 @@ class Product(models.Model):
         else:
             return image_default()
 
-    def __str__(self):
-        return self.name.encode("utf8")
+    def __unicode__(self):
+        # return self.name.encode("utf8")
+        return self.name
 
     with_recipe.allow_tags = True
     show_recipe.allow_tags = True
