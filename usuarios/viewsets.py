@@ -4,13 +4,11 @@ from .serializers import DirectionSerializer, ScheduledOrderSerializer, UserSeri
     QuestionSerializer, RatingSerializer, InapamSerializer, TokenPhoneSerializer, CardConektaSerializer,\
     ReminderSerializer
 from rest_framework import viewsets
-from rest_framework.renderers import JSONRenderer
 
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     queryset = CustomUser.objects.all()
-    renderer_classes = JSONRenderer
 
     def get_queryset(self):
         """

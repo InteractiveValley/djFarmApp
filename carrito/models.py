@@ -46,9 +46,11 @@ class Sale(models.Model):
         self.modified = timezone.now()
         return super(Sale, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
     def __unicode__(self):
         cadena = "Venta: %i .- Usuario: %s" % (self.id, self.user.get_full_name())
-        # return cadena.encode("utf8")
         return cadena
 
     def subtotal(self):
@@ -122,9 +124,11 @@ class DetailSale(models.Model):
     def need_validation(self):
         return self.product.require_prescription
 
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
     def __unicode__(self):
         cadena = "Venta: %i .- Producto: %s, Cant: %i" % (self.sale.id, self.product.name, self.quantity)
-        # return cadena.encode("utf8")
         return cadena
 
     def save(self, *args, **kwargs):

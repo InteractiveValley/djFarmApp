@@ -73,11 +73,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         Returns the first_name plus the last_name, with a space in between.
         """
         full_name = '%s %s' % (self.first_name, self.last_name)
-        return full_name.strip().encode("utf8")
+        return full_name.strip().encode("utf-8")
 
     def get_short_name(self):
         "Returns the short name for the user."
-        return self.first_name.encode("utf8")
+        return self.first_name.encode("utf-8")
 
     def email_user(self, subject, message, from_email=None):
         """
@@ -127,6 +127,9 @@ class Direction(models.Model):
             self.created = timezone.now()
         self.modified = timezone.now()
         return super(Direction, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return unicode(self).encode("utf-8")
 
     def __unicode__(self):
         return "%s %s %s, CP: %s, Del: %s, Col: %s" % (self.street, self.interior_number, self.exterior_number,
@@ -215,9 +218,11 @@ class CardConekta(models.Model):
             self.created = timezone.now()
         return super(CardConekta, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
     def __unicode__(self):
         cadena = "%s.- %s %s " % (self.user.get_full_name(), self.brand, self.last4)
-        # return cadena.encode("utf8")
         return cadena
 
 
@@ -235,8 +240,10 @@ class Reminder(models.Model):
     sunday = models.BooleanField(verbose_name="domingo", default=False)
     active = models.BooleanField(verbose_name="activo", default=True)
 
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
     def __unicode__(self):
-        #  return self.message.encode("utf8")
         return self.message
 
 
@@ -245,9 +252,11 @@ class Notifications(models.Model):
     title = models.CharField("titulo", max_length=140)
     message = models.CharField("mensaje", max_length=255)
 
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
     def __unicode__(self):
         cadena = "%s %s" % (self.title, self.message)
-        #  return cadena.encode("utf8")
         return cadena
 
 
