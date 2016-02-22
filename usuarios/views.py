@@ -155,16 +155,31 @@ def solicitud_recover_password(request):
 
 @csrf_exempt
 def recover_password(request):
-    data = json.loads(request.body)
-    email = data['email']
-    user = CustomUser.objects.get(email=email)
-    if user is not None:
-        enviar_mensaje = EmailRecoverPassword(user)
-        enviar_mensaje.enviarMensaje()
-        data = {'status': 'ok', 'message': 'Email enviado'}
-        return HttpResponse(json.dumps(data), content_type='application/json')
+    if request.method == 'POST':
+        # import pdb; pdb.set_trace()
+        username = request.POST['username']
+        password = request.POST['password']
+        repeat = request.POST['repeat']
+        try:
+            user = CustomUser.objects.get(email=username)
+        except CustomUser.DoesNotExist:
+            user = None
+
+        if user is None:
+            data = {'status': 'bat', 'message': 'El usuario no existe'}
+        elif password != repeat:
+            data = {'status': 'bat', 'message': 'Las contraseñas no son iguales'}
+        else:
+            user.set_password(password)
+            user.save()
+            enviar_mensaje = EmailRecoverPassword(user, password)
+            enviar_mensaje.enviarMensaje()
+            data = {'status': 'ok', 'message': 'Se ha reestablecido la contraseña'}
+        return render(request, 'recovery.html', {"username": username , "data": data})
     else:
-        return HttpResponse("Email enviado")
+        email = request.GET.get('email')
+        data = {'status': '', 'message': ''}
+        return render(request, 'recovery.html', {"username": email , "data": data})
 
 
 @csrf_exempt

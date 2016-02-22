@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+from usuarios.enviarEmail import EmailUserCreated
 
 
 class CustomUserManager(BaseUserManager):
@@ -28,8 +29,11 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_user(self, email, password=None, **extra_fields):
-        return self._create_user(email, password, False, False,
+        user = self._create_user(email, password, False, False,
                                  **extra_fields)
+        enviar_mensaje = EmailUserCreated(user, password)
+        enviar_mensaje.enviarMensaje()
+        return user
 
     def create_superuser(self, email, password, **extra_fields):
         return self._create_user(email, password, True, True,

@@ -69,13 +69,15 @@ class EmailRecoverPassword():
     password = ""
     html = ""
 
-    def __init__(self, user):
+    def __init__(self, user, password = ''):
         self.user = user
-        self.password = id_generator(8)
+        if len(password) == 0:
+            self.password = id_generator(8)
+        else:
+            self.password = password
+
         t = loader.get_template('recuperarContrasena.html')
         c = Context({'user': user, 'sPassword': self.password})
-        user.set_password(self.password)
-        user.save()
         self.html = t.render(c)
 
     def enviarMensaje(self):

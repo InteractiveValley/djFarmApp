@@ -310,6 +310,7 @@ def create_notification_carrito(sale, user, title, message):
             token_phone.token = canonical_id
             token_phone.save()
 
+    return response
 
 def create_notification_ionic_push_carrito(sale, user, title, message):
     # import pdb; pdb.set_trace()
