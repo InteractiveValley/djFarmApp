@@ -31,8 +31,8 @@ class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         user = self._create_user(email, password, False, False,
                                  **extra_fields)
-        enviar_mensaje = EmailUserCreated(user, password)
-        enviar_mensaje.enviarMensaje()
+        #  enviar_mensaje = EmailUserCreated(user, password)
+        #  enviar_mensaje.enviarMensaje()
         return user
 
     def create_superuser(self, email, password, **extra_fields):
@@ -44,7 +44,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
     A fully featured User model with admin-compliant permissions that uses
     a full-length email field as the username.
-
     Email and password are required. Other fields are optional.
     """
     email = models.EmailField(_('email address'), max_length=254, unique=True)

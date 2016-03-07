@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 sale = Sale.objects.create(user=user, direction=direction, scheduled_order=True, status=INCOMPLETE,
                                            card_conekta=card_conekta, notes="pedido programado")
             detail_sale = DetailSale.objects.create(sale=sale, product=product, quantity=quantity, price=product.price)
-            scheduled_order.times -= 1
+            scheduled_order.times = 1
             scheduled_order.save()
             scheduled_order_cont += 1
 
