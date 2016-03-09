@@ -31,8 +31,9 @@ class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         user = self._create_user(email, password, False, False,
                                  **extra_fields)
-        #  enviar_mensaje = EmailUserCreated(user, password)
-        #  enviar_mensaje.enviarMensaje()
+        # import pdb; pdb.set_trace()
+        enviar_mensaje = EmailUserCreated(user, password)
+        enviar_mensaje.enviarMensaje()
         return user
 
     def create_superuser(self, email, password, **extra_fields):
