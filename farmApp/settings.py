@@ -101,9 +101,10 @@ DATABASES = {
     }
 }
 
-# if DEBUG == False:
-#    import dj_database_url
-#    DATABASES['default'] = dj_database_url.config()
+# comentar solo para heroku
+if DEBUG == False:
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.config()
 
 
 # Internationalization

@@ -28,6 +28,9 @@ class Command(BaseCommand):
         weekday = now.weekday()
         hour = now.hour
         minute = now.minute
+
+
+
         if weekday == 0:
             reminders = Reminder.objects.filter(monday=True, time=datetime.time(hour, minute))
         elif weekday == 1:
