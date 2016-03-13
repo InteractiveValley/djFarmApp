@@ -7,7 +7,6 @@ from productos.serializers import ProductWithoutDiscountSerializer
 class DetailSaleListSerializer(serializers.ListSerializer):
     def create(self, validated_data):
         detalles = [DetailSale(**item) for item in validated_data]
-        import pdb; pdb.set_trace();
         return DetailSale.objects.bulk_create(detalles)
 
 
@@ -29,12 +28,16 @@ class DetailSaleWithProductSerializer(serializers.ModelSerializer):
 
 class SaleSerializer(serializers.ModelSerializer):
     detail_sales = DetailSaleWithProductSerializer(many=True, read_only=True, )
+    status_string = serializers.SerializerMethodField()
 
     class Meta:
         model = Sale
         fields = ('id', 'user', 'direction', 'status', 'scheduled_order', 'delivered', 'created', 'modified',
-                  'detail_sales', 'subtotal', 'discount', 'total', 'notes','card_conekta')
+                  'detail_sales', 'subtotal', 'discount', 'tax', 'total', 'notes','card_conekta','status_string')
         read_only_fields = ('user', 'created', 'modified', 'total',)
+
+    def get_status_string(self, obj):
+        return obj.show_status()
 
 
 class ImageSaleListSerializer(serializers.ListSerializer):

@@ -52,7 +52,7 @@
                                         <table border="0" cellpadding="0" cellspacing="0" width="600">
                                             <tr>
                                                 <td valign="top">
-                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #8791A7;">
                                                         <tbody>
                                                             <tr>
                                                                 <td valign="top" style="padding:9px">
@@ -60,7 +60,7 @@
                                                                         <tbody>
                                                                             <tr>
                                                                                 <td valign="top" style="padding-right:9px;padding-left:9px;padding-top:0;padding-bottom:0;text-align:center">
-                                                                                    <img align="center" alt="" src="http://farmaapp.mx/static/usuarios/Logo.png" width="240" style="max-width:240px;padding-bottom:0;display:inline!important;vertical-align:bottom">
+                                                                                    <img align="center" alt="" src="http://farmaapp.mx/static/usuarios/Logo.png" width="120" style="max-width:240px;padding-bottom:0;display:inline!important;vertical-align:bottom">
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
@@ -85,7 +85,7 @@
                                                                 <td style="padding:0px 18px">
                                                                     <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top-width:1px;border-top-style:solid;border-top-color:#d9d9d9">
                                                                         <tbody>
-                                                                            <tr>
+                                                                            <tr style="text-align: right;">
                                                                                 <td>
                                                                                     <span>{% now "d/m/Y H:i a" %}</span>
                                                                                 </td>
@@ -115,7 +115,7 @@
                                                                                         Nombre: {{user.first_name}} {{user.last_name}}<br/>
                                                                                         Email: {{user.email}}<br/>
                                                                                         {% if sPassword|length == 0 %}
-                                                                                            Recuperar contraseña: <a href="{% url 'recuperar_password' %}?email={{user.email}}" target="_blank">aqui</a>
+                                                                                            Recuperar contraseña: <a href="http://farmaapp.mx/recuperar/password/?email={{user.email}}" target="_blank">aqui</a>
                                                                                         {% else %}
                                                                                             Nuevo password: {{sPassword}}<br/>
                                                                                         {% endif %}
@@ -129,10 +129,11 @@
                                                                 </td>
                                                             </tr>
                                                         </tbody>
-                                                    </table><table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                    </table>
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                         <tbody>
                                                             <tr>
-                                                                <td style="padding-top:0;padding-right:18px;padding-bottom:18px;padding-left:18px" valign="top" align="center">
+                                                                <!--td style="padding-top:0;padding-right:18px;padding-bottom:18px;padding-left:18px" valign="top" align="center">
                                                                     <table border="0" cellpadding="0" cellspacing="0" style="border-collapse:separate!important;border:2px solid #dfdfdf;border-radius:5px;background-color:#ee2a5a">
                                                                         <tbody>
                                                                             <tr>
@@ -142,10 +143,12 @@
                                                                             </tr>
                                                                         </tbody>
                                                                     </table>
-                                                                </td>
+                                                                </td-->
+																<td>&nbsp;</td>
                                                             </tr>
                                                         </tbody>
-                                                    </table><table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                                    </table>
+                                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                                         <tbody>
                                                             <tr>
                                                                 <td style="padding:0px 18px">

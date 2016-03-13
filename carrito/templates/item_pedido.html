@@ -2,7 +2,7 @@
              {% if pedido.vendor.id != None %}
                 <p>Usuario actualizo: {{ pedido.vendor.get_full_name }}</p>
              {% endif %}
-             <h3>ORDEN: # {{pedido.id}} | Fecha: {{pedido.created | date:"d/m/Y H:ia" }} </h3>
+             <h3>ORDEN: # {{pedido.id}} | Fecha: {{pedido.created | date:"d/m/Y H:ia" }} {% if pedido.scheduled_order == True %} <span class="label label-warning">Pedido Periodico</span> {% endif %}</h3>
              <h3>{{pedido.user.get_full_name}} | {{pedido.user.email}} | {{pedido.user.cell}}</h3>
              <h4>{{pedido.direction}}</h4>
             <table class="table table-striped">
@@ -112,9 +112,13 @@
                         <button data-url="/backend/pedidos/{{ pedido.id }}/reject/" class="button-action button-reject  btn btn-warning">Rechazar receta</button>
                     </li>
                     {% endif %}
-                    {% if pedido.status == 2 %}
+                    {% if pedido.status == 2 and pedido.charge_conekta|length == 0 %}
                     <li>
-                        <button data-url="/backend/pedidos/{{ pedido.id }}/delivered/" class="button-action button-delivered  btn btn-success">Entregado</button>
+                        <button data-url="/backend/pedidos/{{ pedido.id }}/delivered/" class="button-action-delivered button-delivered  btn btn-success">Entregado</button>
+                    </li>
+                    {% elif  pedido.status == 2 and pedido.charge_conekta|length > 0 %}
+                    <li>
+                        <button data-url="/backend/pedidos/{{ pedido.id }}/review/" class="button-action button-delivered  btn btn-success">Revisar pago</button>
                     </li>
                     {% endif %}
                 </ul>

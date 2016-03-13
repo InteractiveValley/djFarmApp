@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.mail import send_mail
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
+from usuarios.enviarEmail import EmailUserCreated
 
 
 class CustomUserManager(BaseUserManager):
@@ -28,8 +29,12 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_user(self, email, password=None, **extra_fields):
-        return self._create_user(email, password, False, False,
+        user = self._create_user(email, password, False, False,
                                  **extra_fields)
+        # import pdb; pdb.set_trace()
+        enviar_mensaje = EmailUserCreated(user, password)
+        enviar_mensaje.enviarMensaje()
+        return user
 
     def create_superuser(self, email, password, **extra_fields):
         return self._create_user(email, password, True, True,
@@ -40,7 +45,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     """
     A fully featured User model with admin-compliant permissions that uses
     a full-length email field as the username.
-
     Email and password are required. Other fields are optional.
     """
     email = models.EmailField(_('email address'), max_length=254, unique=True)
@@ -73,11 +77,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         Returns the first_name plus the last_name, with a space in between.
         """
         full_name = '%s %s' % (self.first_name, self.last_name)
-        return full_name.strip().encode("utf8")
+        return full_name.strip().encode("utf-8")
 
     def get_short_name(self):
         "Returns the short name for the user."
-        return self.first_name.encode("utf8")
+        return self.first_name.encode("utf-8")
 
     def email_user(self, subject, message, from_email=None):
         """
@@ -129,14 +133,15 @@ class Direction(models.Model):
         return super(Direction, self).save(*args, **kwargs)
 
     def __str__(self):
-        cadena = "%s %s %s, CP: %s, Del: %s, Col: %s" % (self.street, self.interior_number, self.exterior_number,
-                                                      self.postal_code, self.delegation_municipaly, self.colony)
-        return cadena.encode("utf8")
+        return unicode(self).encode("utf-8")
+
+    def __unicode__(self):
+        return "%s %s %s, CP: %s, Del: %s, Col: %s" % (self.street, self.interior_number, self.exterior_number,
+                                                       self.postal_code, self.delegation_municipaly, self.colony)
 
     def direction(self):
-        cadena = "%s %s %s, col: %s, cp: %s, Del/Mun: %s, %s" % \
-               (self.street, self.interior_number, self.exterior_number,
-                self.colony, self.postal_code, self.delegation_municipaly, self.location)
+        cadena = "%s %s %s, CP: %s, Del: %s, Col: %s" % (self.street, self.interior_number, self.exterior_number,
+                                                         self.postal_code, self.delegation_municipaly, self.colony)
         return cadena.encode("utf8")
 
     direction.short_description = "direccion"
@@ -144,54 +149,6 @@ class Direction(models.Model):
     class Meta:
         verbose_name = "direccion"
         verbose_name_plural = "direcciones"
-
-
-class ScheduledOrder(models.Model):
-    DAILY = 'por dia'
-    WEEKLY = 'semanal'
-    MONTHLY = 'mensual'
-
-    PERIODS = (
-        (DAILY, 'Por dia',),
-        (WEEKLY, 'Semanal',),
-        (MONTHLY, 'Mensual'),
-    )
-
-    product = models.ForeignKey(Product, verbose_name="producto")
-    user = models.ForeignKey(CustomUser, related_name='schedules_orders')
-    quantity = models.IntegerField("cantidad", default=1)
-    period = models.CharField("periodo", choices=PERIODS, max_length=100)  # por dia, semanal, mensual
-    days = models.PositiveIntegerField("dias", default=1)
-    times = models.IntegerField("veces", default=0)
-    date_next = models.DateField("proxima entrega", null=True, blank=True)
-    date_ends = models.DateField("finaliza", null=True, blank=True)
-    created = models.DateTimeField("creado", null=True, blank=True)
-    modified = models.DateTimeField("actualizado", null=True, blank=True)
-    canceled_for_user = models.BooleanField("cancelado por usuario", default=False)
-    canceled_for_system = models.BooleanField("finalizacion", default=False)
-
-    def save(self, *args, **kwargs):
-        """
-        On save, update timestamps
-        """
-        if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
-        self.calculate_date_next()
-        return super(ScheduledOrder, self).save(*args, **kwargs)
-
-    def calculate_date_next(self):
-        if self.period == self.WEEKLY:
-            self.days = 7
-        elif self.period == self.MONTHLY:
-            self.days = 30
-        now = self.modified
-        self.date_next = now.date() + timezone.timedelta(days=self.days)
-        self.date_ends = now.date() + timezone.timedelta(days=self.days * self.times)
-
-    class Meta:
-        verbose_name = "pedido programado"
-        verbose_name_plural = "pedidos programados"
 
 
 # esta clase no tiene gran uso
@@ -231,6 +188,7 @@ class TokenPhone(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="token_phone")
     token = models.CharField("token", max_length=250, blank=True, null=True)
     created = models.DateTimeField("creado", null=True, blank=True)
+    active = models.BooleanField("activo", default=True)
 
     def save(self, *args, **kwargs):
         """
@@ -243,16 +201,16 @@ class TokenPhone(models.Model):
 
 class CardConekta(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="cards")
-    card = models.CharField(verbose_name="card",max_length=100)
-    name = models.CharField(verbose_name="name",max_length=140)
+    card = models.CharField(verbose_name="card", max_length=100)
+    name = models.CharField(verbose_name="name", max_length=140)
     brand = models.CharField(verbose_name="brand", max_length=140)
     last4 = models.CharField(verbose_name="last4", max_length=140)
-    active = models.BooleanField(verbose_name="active",default=True)
+    active = models.BooleanField(verbose_name="active", default=True)
     exp_year = models.CharField(verbose_name="exp year", max_length=4)
-    exp_month = models.CharField(verbose_name="exp month",max_length=2)
+    exp_month = models.CharField(verbose_name="exp month", max_length=2)
     allows_payouts = models.BooleanField(verbose_name="permite pagos", default=False)
     allows_charges = models.BooleanField(verbose_name="permite cargos", default=False)
-    bank_name = models.CharField(verbose_name="institucion bancaria", max_length=140,default="")
+    bank_name = models.CharField(verbose_name="institucion bancaria", max_length=140, default="")
     type = models.CharField(verbose_name="tipo tarjeta", max_length=140, default="Credit")
     created = models.DateTimeField("creado", null=True, blank=True)
 
@@ -264,10 +222,18 @@ class CardConekta(models.Model):
             self.created = timezone.now()
         return super(CardConekta, self).save(*args, **kwargs)
 
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
+    def __unicode__(self):
+        cadena = "%s.- %s %s " % (self.user.get_full_name(), self.brand, self.last4)
+        return cadena
+
 
 class Reminder(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="reminders")
     message = models.CharField(verbose_name="mensaje", max_length=140)
+    title = models.CharField(verbose_name="title", max_length=140, default="")
     time = models.TimeField(verbose_name="tiempo", null=True)
     monday = models.BooleanField(verbose_name="lunes", default=False)
     tuesday = models.BooleanField(verbose_name="martes", default=False)
@@ -279,4 +245,71 @@ class Reminder(models.Model):
     active = models.BooleanField(verbose_name="activo", default=True)
 
     def __str__(self):
-        return self.message.encode("utf8")
+        return unicode(self).encode("utf-8")
+
+    def __unicode__(self):
+        return self.message
+
+
+class Notifications(models.Model):
+    token_phone = models.ForeignKey(TokenPhone, verbose_name="token_phone", related_name="notifications")
+    title = models.CharField("titulo", max_length=140)
+    message = models.CharField("mensaje", max_length=255)
+
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
+    def __unicode__(self):
+        cadena = "%s %s" % (self.title, self.message)
+        return cadena
+
+
+class ScheduledOrder(models.Model):
+    DAILY = 'por dia'
+    WEEKLY = 'semanal'
+    MONTHLY = 'mensual'
+
+    PERIODS = (
+        (DAILY, 'Por dia',),
+        (WEEKLY, 'Semanal',),
+        (MONTHLY, 'Mensual'),
+    )
+
+    product = models.ForeignKey(Product, verbose_name="producto")
+    user = models.ForeignKey(CustomUser, related_name='schedules_orders')
+    direction = models.ForeignKey(Direction, null=True, blank=True)
+    card_conekta = models.ForeignKey(CardConekta, null=True, blank=True)
+    quantity = models.IntegerField("cantidad", default=1)
+    period = models.CharField("periodo", choices=PERIODS, max_length=100)  # por dia, semanal, mensual
+    days = models.PositiveIntegerField("dias", default=1)
+    times = models.IntegerField("veces", default=0)
+    date_next = models.DateField("proxima entrega", null=True, blank=True)
+    date_ends = models.DateField("finaliza", null=True, blank=True)
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
+    canceled_for_user = models.BooleanField("cancelado por usuario", default=False)
+    canceled_for_system = models.BooleanField("finalizacion", default=False)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        self.modified = timezone.now()
+        self.calculate_date_next()
+        return super(ScheduledOrder, self).save(*args, **kwargs)
+
+    def calculate_date_next(self):
+        if self.period == self.WEEKLY:
+            self.days = 7
+        elif self.period == self.MONTHLY:
+            self.days = 30
+        now = self.modified
+        if self.times > 0:
+            self.date_next = now.date() + timezone.timedelta(days=self.days)
+            self.date_ends = now.date() + timezone.timedelta(days=self.days * self.times)
+
+    class Meta:
+        verbose_name = "pedido programado"
+        verbose_name_plural = "pedidos programados"

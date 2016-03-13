@@ -87,7 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'farmApp.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
@@ -102,9 +101,10 @@ DATABASES = {
     }
 }
 
-# if DEBUG == False:
-#    import dj_database_url
-#    DATABASES['default'] = dj_database_url.config()
+# comentar solo para heroku
+if DEBUG == False:
+    import dj_database_url
+    DATABASES['default'] = dj_database_url.config()
 
 
 # Internationalization
@@ -119,7 +119,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
@@ -158,8 +157,8 @@ CORS_ORIGIN_WHITELIST = (
 # config to profile user
 AUTH_USER_MODEL = 'usuarios.CustomUser'
 
-#email settings
-EMAIL_HOST  = APP_EMAIL_HOST
+# email settings
+EMAIL_HOST = APP_EMAIL_HOST
 EMAIL_HOST_USER = APP_EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = APP_EMAIL_HOST_PASSWORD
 EMAIL_PORT = APP_EMAIL_PORT

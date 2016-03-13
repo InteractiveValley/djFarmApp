@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Category, Product, Discount, Laboratory
 from django.utils import timezone
 
+
 class CategorySerializer(serializers.ModelSerializer):
     image = serializers.ImageField(source='image_category', read_only=True)
 
@@ -19,9 +20,11 @@ class LaboratorySerializer(serializers.ModelSerializer):
 
 class DiscountSerializer(serializers.ModelSerializer):
     active_discount = serializers.SerializerMethodField()
+
     class Meta:
         model = Discount
-        fields = ('id', 'name', 'short_name', 'type', 'price', 'percentage', 'quantity', 'date_begins', 'date_ends','active_discount')
+        fields = ('id', 'name', 'short_name', 'type', 'price', 'percentage', 'quantity', 'date_begins', 'date_ends',
+                  'active_discount')
 
     def get_active_discount(self, obj):
         now = timezone.now().date()
@@ -37,8 +40,9 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = (
-        'id', 'name', 'substances', 'description', 'price', 'with_tax', 'recipe', 'active', 'category', 'laboratory',
-        'image', 'discount', 'inventory',)
+            'id', 'name', 'substances', 'description', 'price', 'with_tax', 'recipe', 'active', 'category',
+            'laboratory',
+            'image', 'discount', 'inventory',)
 
 
 class ProductWithoutDiscountSerializer(serializers.ModelSerializer):

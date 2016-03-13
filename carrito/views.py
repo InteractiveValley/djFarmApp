@@ -13,10 +13,12 @@ from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, D
 from usuarios.models import ConektaUser, CardConekta
 from usuarios.enviarEmail import EmailSendSale
 from django.views.decorators.csrf import csrf_exempt
-from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
-from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, APP_OPENPAY_PRODUCTION
+from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY, APP_GCM_API_KEY
+from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, \
+    APP_OPENPAY_PRODUCTION
 from carrito.models import Receipt
 from carrito.forms import ReceiptForm
+from gcm import GCM
 
 
 def pedidos(request):
@@ -68,7 +70,7 @@ def detalle_aprobar(request, sale_id):
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
     message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
-    create_notification(pedido.user, "FarmaApp", message)
+    create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
     if request.is_ajax():
         template = "item_pedido.html"
     else:
@@ -84,7 +86,7 @@ def detalle_cancelar(request, sale_id):
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
     message = "Tu orden #" + str(pedido.id).zfill(6) + " ha sido cancelada."
-    create_notification(pedido.user, "FarmaApp", message)
+    create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
     if request.is_ajax():
         template = "item_pedido.html"
     else:
@@ -99,8 +101,9 @@ def detalle_rechazar_receta(request, sale_id):
     pedido.vendor = request.user
     pedido.save()
     detalles = DetailSale.objects.filter(sale=pedido.id)
-    message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. Si lo deseas puedes volver a generar la orden."
-    create_notification(pedido.user, "FarmaApp", message)
+    message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. " + \
+              "Si lo deseas puedes volver a generar la orden."
+    create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
     if request.is_ajax():
         template = "item_pedido.html"
     else:
@@ -115,6 +118,8 @@ def detalle_entregar(request, sale_id):
     pedido.vendor = request.user
     user_conekta = ConektaUser.objects.get(user=pedido.user)
 
+    device_session_id = request.GET.get('device_session_id')
+
     # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     openpay.api_key = APP_OPENPAY_API_KEY
     openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
@@ -125,20 +130,21 @@ def detalle_entregar(request, sale_id):
 
     # import pdb; pdb.set_trace();
     card_conekta = pedido.card_conekta
-    #  card = customer_conekta.cards[0]
-    amount = str(int(float(pedido.total() * 100)))
+    amount = pedido.total()
     detalles = pedido.detail_sales.all()
     lista = []
+    """
     for detalle in detalles:
         dato = {
             "name": detalle.product.name,
             "description": detalle.product.description,
-            "unit_price": str(int(float(detalle.price * 100))),
+            "unit_price": detalle.price,
             "quantity": detalle.quantity,
             "sku": str(detalle.product.id),
             "type": "medicine"
         }
         lista.append(dato)
+    """
     """
     charge = customer.charges.create({
         "description": "Pedido FarmaApp",
@@ -154,10 +160,18 @@ def detalle_entregar(request, sale_id):
         }
     })
     """
-    charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=pedido.total(),
-                                     description="Pedido de FarmaApp", order_id="pedido-farmaapp-" + str(pedido.id),
-                                     capture=False)
-    if charge.status == "completed":
+    charge = None
+    if len(pedido.charge_conekta) == 0:
+        charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=amount,
+                                         description="Pedido de FarmaApp", order_id="pedido-farmaapp-" + str(pedido.id),
+                                         device_session_id=device_session_id)
+    else:
+        charge = customer.charges.retrieve(pedido.charge_conekta)
+
+    if charge is None:
+        pedido.status = NO_PAID
+        pedido.save()
+    elif charge.status == "completed":
         pedido.charge_conekta = charge.id
         pedido.status = PAID
         pedido.vendor = request.user
@@ -169,10 +183,53 @@ def detalle_entregar(request, sale_id):
         str_pedido = str(pedido.id).zfill(6)
         str_total = '{:20,.2f}'.format(pedido.total())
         message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
-        create_notification(pedido.user, "FarmaApp", message)
-    else:
+        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+        # import pdb; pdb.set_trace()
+    elif charge.status == "in_progress":
+        pedido.charge_conekta = charge.id
+        pedido.status = NO_PAID
+        pedido.vendor = request.user
+        pedido.save()
+    elif charge.status == "failed":
         pedido.status = NO_PAID
         pedido.save()
+
+    if request.is_ajax():
+        template = "item_pedido.html"
+    else:
+        template = "detalle_pedido.html"
+
+    return render(request, template, {"pedido": pedido, 'detalles': detalles})
+
+
+def revisar_pago(request, sale_id):
+    pedido = Sale.objects.get(pk=sale_id)
+
+    user_conekta = ConektaUser.objects.get(user=pedido.user)
+
+     # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
+    openpay.api_key = APP_OPENPAY_API_KEY
+    openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
+    openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
+    openpay.production = APP_OPENPAY_PRODUCTION  # By default this works in sandbox mode, production = True
+
+    customer = openpay.Customer.retrieve(user_conekta.conekta_user)
+
+    if len(pedido.charge_conekta) > 0:
+        charge = customer.charges.retrieve(pedido.charge_conekta)
+        # import pdb; pdb.set_trace()
+        if charge.status == "completed":
+            pedido.status = PAID
+            pedido.vendor = request.user
+            pedido.save()
+            pedido.discount_inventory()
+            detalles = pedido.detail_sales.all()
+            enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
+            enviar_mensaje.enviarMensaje()
+            str_pedido = str(pedido.id).zfill(6)
+            str_total = '{:20,.2f}'.format(pedido.total())
+            message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
+            create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
 
     if request.is_ajax():
         template = "item_pedido.html"
@@ -210,14 +267,69 @@ def upload_images_ventas(request):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
-def create_notification(user, title, message):
+def create_notification_carrito(sale, user, title, message):
+    gcm = GCM(APP_GCM_API_KEY)
+
+    registration_ids = [user.token_phone.all()[0].token]
+
+    notification = {
+        "title": title,
+        "message": message,
+        "saleId": sale.id
+    }
+
+    response = gcm.json_request(registration_ids=registration_ids,
+                                data=notification,
+                                collapse_key='notificacion_carrito',
+                                priority='normal',
+                                delay_while_idle=False)
+
+    # Successfully handled registration_ids
+    if response and 'success' in response:
+        for reg_id, success_id in response['success'].items():
+            print('Successfully sent notification for reg_id {0}'.format(reg_id))
+
+    # Handling errors
+    if 'errors' in response:
+        for error, reg_ids in response['errors'].items():
+            # Check for errors and act accordingly
+            if error in ['NotRegistered', 'InvalidRegistration']:
+                # Remove reg_ids from database
+                token_phone = user.token_phone.all()[0]
+                token_phone.delete()
+            elif error in ['Unavailable', 'InternalServerError']:
+                from usuarios.models import Notifications
+                token_phone = user.token_phone.all()[0]
+                Notifications.objects.create(token_phone=token_phone, title=title, message=message)
+
+    # Repace reg_id with canonical_id in your database
+    if 'canonical' in response:
+        for reg_id, canonical_id in response['canonical'].items():
+            print("Replacing reg_id: {0} with canonical_id: {1} in db".format(reg_id, canonical_id))
+            token_phone = user.token_phone.all()[0]
+            token_phone.token = canonical_id
+            token_phone.save()
+
+    return response
+
+def create_notification_ionic_push_carrito(sale, user, title, message):
+    # import pdb; pdb.set_trace()
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
-        "production": "true",
         "notification": {
             "title": title,
-            "alert": message
+            "alert": message,
+            "android": {
+                "payload": {
+                    "saleId": sale.id
+                }
+            },
+            "ios": {
+                "payload": {
+                    "saleId": sale.id
+                }
+            }
         }
     }
     app_id = PUSH_APP_ID

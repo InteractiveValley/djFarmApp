@@ -15,11 +15,10 @@ from rest_framework.response import Response
 from usuarios.enviarEmail import EmailUserCreated, EmailSolicitudRecoverPassword, \
     EmailRecoverPassword, EmailContacto
 from django.views.decorators.csrf import csrf_exempt
-from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY
-from farmApp.secret import APP_PATH_TERMINOS_PDF
+from farmApp.secret import APP_PATH_TERMINOS_PDF, APP_GCM_API_KEY, PUSH_APP_ID, PUSH_SECRET_API_KEY
 from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, \
     APP_OPENPAY_PRODUCTION
-
+from gcm import GCM
 
 # Create your views here.
 def home(request):
@@ -60,44 +59,43 @@ def user_conekta_create(request):
         # card = customer.createCard({"token_id": data['conektaTokenId']})
         card = customer.cards.create(token_id=data['token_id'], device_session_id=data['device_session_id'])
 
-        card_conekta = CardConekta(card=card.id, name=card.holder_name, brand=card.brand, last4=card.card_number[:4],
+        if "id" in card:
+            card_conekta = CardConekta(card=card.id, name=card.holder_name, brand=card.brand, last4=card.card_number[:4],
                                    exp_year=card.expiration_year, active=True, exp_month=card.expiration_month,
                                    type=card.type, bank_name=card.bank_name, allows_payouts=card.allows_payouts,
                                    allows_charges=card.allows_charges)
-        card_conekta.user = user
-        card_conekta.save()
-        message = "Usuario actualizado"
-        error = False
-        # import pdb; pdb.set_trace()
-        # except conekta.ConektaError as e:
-        # el cliente no pudo ser actualizado
-        # message = e.message_to_purchaser
-        # error = True
-        # card_conekta = None
+            card_conekta.user = user
+            card_conekta.save()
+            message = 'Usuario actualizado'
+            error = False
+        else:
+            error = True
+            message = card.description
+            card_conekta = None
     else:
-        # try:
-        #  customer = conekta.Customer.create({
-        # import pdb; pdb.set_trace()
         customer = openpay.Customer.create(name=user.first_name, last_name=user.last_name, email=user.email,
                                            phone_number=user.cell)
-        ConektaUser.objects.create(user=user, conekta_user=customer.id)
-        message = "Usuario creado"
+        if "id" in customer:
+            ConektaUser.objects.create(user=user, conekta_user=customer.id)
+            message = 'Usuario creado'
+            card = customer.cards.create(token_id=data['token_id'], device_session_id=data['device_session_id'])
+            if "id" in card:
+                card_conekta = CardConekta(card=card.id, name=card.holder_name, brand=card.brand, last4=card.card_number[:4],
+                                           exp_year=card.expiration_year, active=True, exp_month=card.expiration_month,
+                                           type=card.type, bank_name=card.bank_name, allows_payouts=card.allows_payouts,
+                                           allows_charges=card.allows_charges)
+                card_conekta.user = user
+                card_conekta.save()
+                error = False
+            else:
+                error = True
+                message = card.description
+                card_conekta = None
+        else:
+            error = True
+            message = customer.description
+            card_conekta = None
 
-        # card = customer.createCard({"token_id": data['conektaTokenId']})
-        card = customer.cards.create(token_id=data['token_id'], device_session_id=data['device_session_id'])
-
-        card_conekta = CardConekta(card=card.id, name=card.holder_name, brand=card.brand, last4=card.card_number[:4],
-                                   exp_year=card.expiration_year, active=True, exp_month=card.expiration_month,
-                                   type=card.type, bank_name=card.bank_name, allows_payouts=card.allows_payouts,
-                                   allows_charges=card.allows_charges)
-        card_conekta.user = user
-        card_conekta.save()
-        # import pdb; pdb.set_trace()
-        # except conekta.ConektaError as e:
-        # el cliente no pudo ser creado
-    #    message = e.message_to_purchaser
-        error = True
-    #    card_conekta = None
     if card_conekta is not None:
         data = dict(id=card_conekta.id, card=card_conekta.card, brand=card_conekta.brand, last4=card_conekta.last4,
                     active=card_conekta.active, exp_year=card_conekta.exp_year, exp_month=card_conekta.exp_month,
@@ -109,7 +107,7 @@ def user_conekta_create(request):
 
 
 def login_frontend(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
@@ -157,30 +155,49 @@ def solicitud_recover_password(request):
 
 @csrf_exempt
 def recover_password(request):
-    data = json.loads(request.body)
-    email = data['email']
-    user = CustomUser.objects.get(email=email)
-    if user is not None:
-        enviar_mensaje = EmailRecoverPassword(user)
-        enviar_mensaje.enviarMensaje()
-        data = {'status': 'ok', 'message': 'Email enviado'}
-        return HttpResponse(json.dumps(data), content_type='application/json')
+    if request.method == 'POST':
+        # import pdb; pdb.set_trace()
+        username = request.POST['username']
+        password = request.POST['password']
+        repeat = request.POST['repeat']
+        try:
+            user = CustomUser.objects.get(email=username)
+        except CustomUser.DoesNotExist:
+            user = None
+
+        if user is None:
+            data = {'status': 'bat', 'message': 'El usuario no existe'}
+        elif password != repeat:
+            data = {'status': 'bat', 'message': 'Las contraseñas no son iguales'}
+        else:
+            user.set_password(password)
+            user.save()
+            enviar_mensaje = EmailRecoverPassword(user, password)
+            enviar_mensaje.enviarMensaje()
+            data = {'status': 'ok', 'message': 'Se ha reestablecido la contraseña'}
+        return render(request, 'recovery.html', {"username": username , "data": data})
     else:
-        return HttpResponse("Email enviado")
+        email = request.GET.get('email')
+        data = {'status': '', 'message': ''}
+        return render(request, 'recovery.html', {"username": email , "data": data})
 
 
 @csrf_exempt
 def contacto(request):
-    data = json.loads(request.body)
-    name = data['name']
-    email = data['email']
-    phone = data['phone']
-    subject = data['subject']
-    message = data['message']
-    enviar_mensaje = EmailContacto(name, email, phone, subject, message)
-    enviar_mensaje.enviarMensaje()
-    data = {'status': 'ok', 'message': 'Email enviado'}
-    return HttpResponse(json.dumps(data), content_type='application/json')
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        name = data['name']
+        email = data['email']
+        phone = data['phone']
+        subject = data['subject']
+        message = data['message']
+        enviar_mensaje = EmailContacto(name, email, phone, subject, message)
+        enviar_mensaje.enviarMensaje()
+        data = {'status': 'ok', 'message': 'Email enviado'}
+        return HttpResponse(json.dumps(data), content_type='application/json')
+    else:
+        data = {'status': 'bat', 'message': 'Esta pagina no es accesible desde esta forma'}
+        return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 @csrf_exempt
@@ -244,49 +261,92 @@ def calificaciones(request):
 
 def reminders(request):
     now = datetime.datetime.now()
-    weekDay = now.weekday()
+    weekday = now.weekday()
     hour = request.GET.get('hour', now.hour)
     minute = request.GET.get('minute', now.minute)
-    if weekDay == 0:
+    if weekday == 0:
         reminders = Reminder.objects.filter(monday=True, time=datetime.time(hour, minute))
-    elif weekDay == 1:
+    elif weekday == 1:
         reminders = Reminder.objects.filter(tuesday=True, time=datetime.time(hour, minute))
-    elif weekDay == 2:
+    elif weekday == 2:
         reminders = Reminder.objects.filter(wednesday=True, time=datetime.time(hour, minute))
-    elif weekDay == 3:
+    elif weekday == 3:
         reminders = Reminder.objects.filter(thursday=True, time=datetime.time(hour, minute))
-    elif weekDay == 4:
+    elif weekday == 4:
         reminders = Reminder.objects.filter(friday=True, time=datetime.time(hour, minute))
-    elif weekDay == 5:
+    elif weekday == 5:
         reminders = Reminder.objects.filter(saturday=True, time=datetime.time(hour, minute))
-    elif weekDay == 6:
+    elif weekday == 6:
         reminders = Reminder.objects.filter(sunday=True, time=datetime.time(hour, minute))
     else:
         reminders = None
 
     for reminder in reminders:
-        create_notification_reminder(reminder)
+        create_notification_ionic_push_reminder(reminder)
 
-    return JsonResponse({'response': 'ok'});
+    return JsonResponse({'response': 'ok'})
 
 
 def create_notification_reminder(reminder):
-    tokens = [reminder.user.token_phone.all()[0].token]
+    gcm = GCM(APP_GCM_API_KEY)
+    user = reminder.user
+    registration_ids = [user.token_phone.all()[0].token]
 
+    notification = {
+        "title": reminder.title,
+        "message": reminder.message,
+        "reminderId": reminder.id
+    }
+
+    response = gcm.json_request(registration_ids=registration_ids,
+                                data=notification,
+                                collapse_key='notificacion_reminder',
+                                priority='normal',
+                                delay_while_idle=False)
+
+    # Successfully handled registration_ids
+    if response and 'success' in response:
+        for reg_id, success_id in response['success'].items():
+            print('Successfully sent notification for reg_id {0}'.format(reg_id))
+
+    # Handling errors
+    if 'errors' in response:
+        for error, reg_ids in response['errors'].items():
+            # Check for errors and act accordingly
+            if error in ['NotRegistered', 'InvalidRegistration']:
+                # Remove reg_ids from database
+                token_phone = user.token_phone.all()[0]
+                token_phone.delete()
+            elif error in ['Unavailable', 'InternalServerError']:
+                from usuarios.models import Notifications
+                token_phone = user.token_phone.all()[0]
+                Notifications.objects.create(token_phone=token_phone, title=reminder.title, message=reminder.message)
+
+    # Repace reg_id with canonical_id in your database
+    if 'canonical' in response:
+        for reg_id, canonical_id in response['canonical'].items():
+            print("Replacing reg_id: {0} with canonical_id: {1} in db".format(reg_id, canonical_id))
+            token_phone = user.token_phone.all()[0]
+            token_phone.token = canonical_id
+            token_phone.save()
+
+
+def create_notification_ionic_push_reminder(reminder):
+    user = reminder.user
+    tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
-        "production": "true",
         "notification": {
-            "title": "Recordatorio de FarmaApp",
+            "title": reminder.title,
             "alert": reminder.message,
-            "ios": {
-                "payLoad": {
-                    "notificationId": reminder.id
+            "android": {
+                "payload": {
+                    "reminderId": reminder.id
                 }
             },
-            "android": {
-                "payLoad": {
-                    "notificationId": reminder.id
+            "ios": {
+                "payload": {
+                    "reminderId": reminder.id
                 }
             }
         }
