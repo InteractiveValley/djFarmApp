@@ -3,6 +3,7 @@
 
 // Run button configuration
   "commands": {
+	  	"Restart apache2": "parts restart apache2",
         "Node version": "node --version"
   },
 

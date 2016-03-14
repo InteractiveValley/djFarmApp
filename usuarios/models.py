@@ -305,7 +305,7 @@ class ScheduledOrder(models.Model):
             self.days = 7
         elif self.period == self.MONTHLY:
             self.days = 30
-        now = self.modified
+        now = timezone.now()
         if self.times > 0:
             self.date_next = now.date() + timezone.timedelta(days=self.days)
             self.date_ends = now.date() + timezone.timedelta(days=self.days * self.times)

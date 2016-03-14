@@ -1,6 +1,6 @@
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
-
+from django.utils import timezone
 
 # Class MUST be named 'Command'
 class Command(BaseCommand):
@@ -24,7 +24,7 @@ class Command(BaseCommand):
         from usuarios.views import create_notification_ionic_push_reminder
         from usuarios.models import Reminder
 
-        now = datetime.datetime.now()
+        now = timezone.now()
         weekday = now.weekday()
         hour = now.hour
         minute = now.minute
