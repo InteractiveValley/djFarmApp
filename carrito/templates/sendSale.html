@@ -104,13 +104,16 @@
                                                                         <tbody>
                                                                             <tr>
                                                                                 <td valign="top" style="padding-top:9px;padding-right:18px;padding-bottom:9px;padding-left:18px">
-                                                                                    <h3>Compra realizada</h3>
-                                                                                    <p>Resumen de su compra. <br/>
+                                                                                    <h3>{% if pedido.scheduled_order %} Pedido programado {% else %} Compra realizada {% endif %}</h3> 
+                                                                                    <p>{% if pedido.scheduled_order %} Resumen de su pedido programado: {% else %} Resumen de su compra: {% endif %} <br/>
                                                                                         Pedido: # {{ pedido.id }} <br/>
                                                                                         <table>
                                                                                             <tr>
                                                                                                 <td colspan="3">{{ user.first_name }} {{ user.last_name }}</td>
                                                                                             </tr>
+																							<tr>
+																								<td colspan="3">Enviar a: {{ pedido.direction }}</td>
+																							</tr>
                                                                                         </table>
                                                                                     </p>
                                                                                     <table width="100%">
@@ -159,7 +162,7 @@
                                                                                         </tfoot>
                                                                                     </table>
 
-                                                                                    <p>&nbsp;</p>
+                                                                                    <p>{% if pedido.scheduled_order %} Este pedido es programado. {% endif %}</p>
                                                                                 </td>
                                                                             </tr>
                                                                         </tbody>
