@@ -25,7 +25,7 @@ class Command(BaseCommand):
         from carrito.models import Sale, DetailSale, INCOMPLETE, COMPLETE
 
         now = datetime.datetime.now().date()
-        scheduled_orders = ScheduledOrder.objects.filter(date_next=now)
+        scheduled_orders = ScheduledOrder.objects.filter(date_next__lte=now)
 
         scheduled_order_cont = 0
         for scheduled_order in scheduled_orders:
@@ -34,7 +34,8 @@ class Command(BaseCommand):
             card_conekta = scheduled_order.card_conekta
             product = scheduled_order.product
             quantity = scheduled_order.quantity
-            sale = Sale.objects.filter(user=user, status=INCOMPLETE)
+            sale = Sale.objects.filter(user=user, direction=direction, scheduled_order=True, status=INCOMPLETE,
+                                           card_conekta=card_conekta ).first()
             if sale is None:
                 sale = Sale.objects.create(user=user, direction=direction, scheduled_order=True, status=INCOMPLETE,
                                            card_conekta=card_conekta, notes="pedido programado")

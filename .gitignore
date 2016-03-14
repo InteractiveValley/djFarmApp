@@ -3,6 +3,7 @@
 *.pyc
 staticfiles/
 .idea
-#farmApp/secret.py
+farmApp/secret.py
 media/
 db.sqlite3
+.DS_Store
