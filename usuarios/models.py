@@ -226,7 +226,7 @@ class CardConekta(models.Model):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        cadena = "%s.- %s %s " % (self.user.get_full_name(), self.brand, self.last4)
+        cadena = "%s.- %s %s " % (self.user.get_full_name().encode("utf-8"), self.brand, self.last4)
         return cadena
 
 
@@ -277,7 +277,7 @@ class ScheduledOrder(models.Model):
 
     product = models.ForeignKey(Product, verbose_name="producto")
     user = models.ForeignKey(CustomUser, related_name='schedules_orders')
-    direction = models.ForeignKey(Direction, null=True, blank=True)
+    direction = models.ForeignKey("Direccion",Direction, null=True, blank=True)
     card_conekta = models.ForeignKey(CardConekta, null=True, blank=True)
     quantity = models.IntegerField("cantidad", default=1)
     period = models.CharField("periodo", choices=PERIODS, max_length=100)  # por dia, semanal, mensual
