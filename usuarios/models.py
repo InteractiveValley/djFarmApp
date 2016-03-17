@@ -301,11 +301,11 @@ class ScheduledOrder(models.Model):
         return super(ScheduledOrder, self).save(*args, **kwargs)
 
     def calculate_date_next(self):
-        if self.period == self.WEEKLY:
+        """if self.period == self.WEEKLY:
             self.days = 7
         elif self.period == self.MONTHLY:
-            self.days = 30
-        now = timezone.now()
+            self.days = 30"""
+        now = timezone.localtime(timezone.now())
         if self.times > 0:
             self.date_next = now.date() + timezone.timedelta(days=self.days)
             self.date_ends = now.date() + timezone.timedelta(days=self.days * self.times)
