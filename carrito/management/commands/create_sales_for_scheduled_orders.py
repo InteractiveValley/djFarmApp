@@ -1,6 +1,6 @@
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
-
+from django.utils import timezone
 
 # Class MUST be named 'Command'
 class Command(BaseCommand):
@@ -20,11 +20,10 @@ class Command(BaseCommand):
         app_labels - app labels (eg. myapp in "manage.py reset myapp")
         options - configurable command line options
         """
-        import datetime
         from usuarios.models import ScheduledOrder
         from carrito.models import Sale, DetailSale, INCOMPLETE, COMPLETE
 
-        now = datetime.datetime.now().date()
+        now = timezone.now().date()
         scheduled_orders = ScheduledOrder.objects.filter(date_next__lte=now)
 
         scheduled_order_cont = 0

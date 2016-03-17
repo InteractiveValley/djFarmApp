@@ -138,7 +138,7 @@ class EmailContacto():
         subject = 'Contacto desde la app FarmaApp'
         text_content = 'Envio de mensaje desde app'
         from_email = APP_EMAIL_HOST_EMAIL
-        to = self.email
+        to = 'info@farmaapp.mx'
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
         msg.attach_alternative(self.html, "text/html")
         respuesta = msg.send()
