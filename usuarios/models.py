@@ -277,7 +277,7 @@ class ScheduledOrder(models.Model):
 
     product = models.ForeignKey(Product, verbose_name="producto")
     user = models.ForeignKey(CustomUser, related_name='schedules_orders')
-    direction = models.ForeignKey("Direccion",Direction, null=True, blank=True)
+    direction = models.ForeignKey(Direction, null=True, blank=True)
     card_conekta = models.ForeignKey(CardConekta, null=True, blank=True)
     quantity = models.IntegerField("cantidad", default=1)
     period = models.CharField("periodo", choices=PERIODS, max_length=100)  # por dia, semanal, mensual
