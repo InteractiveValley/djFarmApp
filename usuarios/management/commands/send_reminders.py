@@ -24,7 +24,7 @@ class Command(BaseCommand):
         from usuarios.views import create_notification_ionic_push_reminder
         from usuarios.models import Reminder
 
-        now = timezone.now()
+        now = timezone.localtime(timezone.now())
         weekday = now.weekday()
         hour = now.hour
         minute = now.minute
