@@ -209,7 +209,7 @@ def upload_images_inapam(request):
             image = request.FILES['inapam']
             user = CustomUser.objects.get(pk=iduser)
             #  import pdb; pdb.set_trace()
-            inapam = Inapam(active=active, user=user, inapam=image)
+            inapam = Inapam(active=active, user=user, image=image)
             inapam.save()
             data = {'status': 'ok', 'message': 'Carga exitosa'}
         else:
@@ -254,9 +254,9 @@ def calificaciones(request):
             # If page is out of range (e.g. 9999), deliver last page of results.
             ratings = paginator.page(paginator.num_pages)
 
-        return render(request, 'ratings.html', {"ratings": ratings, 'buenos': buenos, 'malos': malos, 'filter': filtro})
+        return render(request, 'ratings.html', {'ratings': ratings, 'buenos': buenos, 'malos': malos, 'filter': filtro})
     else:
-        return HttpResponseRedirect("/login/")
+        return HttpResponseRedirect('/login/')
 
 
 def reminders(request):
@@ -293,9 +293,9 @@ def create_notification_reminder(reminder):
     registration_ids = [user.token_phone.all()[0].token]
 
     notification = {
-        "title": reminder.title,
-        "message": reminder.message,
-        "reminderId": reminder.id
+        'title': reminder.title,
+        'message': reminder.message,
+        'reminderId': reminder.id
     }
 
     response = gcm.json_request(registration_ids=registration_ids,
@@ -347,6 +347,130 @@ def create_notification_ionic_push_reminder(reminder):
             "ios": {
                 "payload": {
                     "reminderId": reminder.id
+                }
+            }
+        }
+    }
+    app_id = PUSH_APP_ID
+    private_key = PUSH_SECRET_API_KEY
+    url = "https://push.ionic.io/api/v1/push"
+    req = urllib2.Request(url, data=json.dumps(post_data))
+    req.add_header("Content-Type", "application/json")
+    req.add_header("X-Ionic-Application-Id", app_id)
+    b64 = base64.encodestring('%s:' % private_key).replace('\n', '')
+    req.add_header("Authorization", "Basic %s" % b64)
+    resp = urllib2.urlopen(req)
+    return resp
+
+
+def inapams(request):
+    if request.user.is_authenticated():
+
+        filtro = request.GET.get('filter', 'todos')
+
+        activos = Inapam.objects.filter(user__inapam=True).count()
+        inactivos = Inapam.objects.filter(user__inapam=False).count()
+
+        #  import pdb; pdb.set_trace()
+
+        if filtro == 'todos':
+            inapams_list = Inapam.objects.all().order_by('-created')
+        elif filtro == 'activos':
+            inapams_list = Inapam.objects.filter(user__inapam=True).order_by('-created')
+        else:
+            inapams_list = Rating.objects.filter(user__inapam=False).order_by('-created')
+
+        paginator = Paginator(inapams_list, 10)
+        page = request.GET.get('page')
+
+        try:
+            registros = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            registros = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            registros = paginator.page(paginator.num_pages)
+        return render(request, 'inapams.html', {'registros': registros, 'activos': activos, 'inactivos': inactivos, 'filter': filtro})
+    else:
+        return HttpResponseRedirect("/login/")
+
+@csrf_exempt
+def inapams_approve(request, inapam_id):
+    if request.method == 'POST':
+        if request.is_ajax() is True:
+            inapam = Inapam.objects.get(pk=inapam_id)
+            user = inapam.user
+            user.inapam = True
+            inapam.active = True
+            inapam.vendor = request.user
+            user.save()
+            inapam.save()
+            create_notification_ionic_push_inapam(inapam, "Inapam", "Tu registro fue autorizado")
+            return render(request, 'item_inapam.html', {"registro": inapam})
+        else:
+            data = {'status': 'bat', 'message': 'No esta autorizado otro metodo'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@csrf_exempt
+def inapams_update(request, inapam_id):
+    if request.method == 'POST':
+        if request.is_ajax() is True:
+            inapam = Inapam.objects.get(pk=inapam_id)
+            user = inapam.user
+            user.inapam = False
+            inapam.active = False
+            inapam.vendor = request.user
+            user.save()
+            inapam.save()
+            create_notification_ionic_push_inapam(inapam, "Inapam", "Tu credencial necesita ser actualizada, favor de subir nuevamente la imagen")
+            return render(request, 'item_inapam.html', {"registro": inapam})
+        else:
+            data = {'status': 'bat', 'message': 'No esta autorizado otro metodo'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@csrf_exempt
+def inapams_reject(request, inapam_id):
+    if request.method == 'POST':
+        if request.is_ajax() is True:
+            inapam = Inapam.objects.get(pk=inapam_id)
+            user = inapam.user
+            user.inapam = False
+            inapam.active = False
+            inapam.vendor = request.user
+            user.save()
+            inapam.save()
+            create_notification_ionic_push_inapam(inapam, "Inapam", "Tu registro no fue autorizado")
+            return render(request, 'item_inapam.html', {"registro": inapam})
+        else:
+            data = {'status': 'bat', 'message': 'No esta autorizado otro metodo'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def create_notification_ionic_push_inapam(register, title, message):
+    user = register.user
+    tokens = [user.token_phone.all()[0].token]
+    post_data = {
+        "tokens": tokens,
+        "notification": {
+            "title": title,
+            "alert": message,
+            "android": {
+                "payload": {
+                    "inapam": user.inapam
+                }
+            },
+            "ios": {
+                "payload": {
+                    "inapam": user.inapam
                 }
             }
         }

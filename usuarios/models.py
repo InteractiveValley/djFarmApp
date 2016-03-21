@@ -180,9 +180,19 @@ class Rating(models.Model):
 class Inapam(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="images_inapam",
                              related_query_name="images_inapam")
-    inapam = models.ImageField(upload_to="inapam/")
+    vendor = models.ForeignKey(CustomUser, verbose_name="vendor", related_name="inapam_vendor",
+                               related_query_name="inapam_vendor", null=True, blank=True)
+    image = models.ImageField(upload_to="inapam/")
+    created = models.DateTimeField("creado", null=True, blank=True)
     active = models.BooleanField(verbose_name="Autorizado", default=False)
 
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        return super(Inapam, self).save(*args, **kwargs)
 
 class TokenPhone(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="token_phone")
@@ -194,8 +204,7 @@ class TokenPhone(models.Model):
         """
         On save, update timestamps
         """
-        if not self.id:
-            self.created = timezone.now()
+        self.created = timezone.now()
         return super(TokenPhone, self).save(*args, **kwargs)
 
 

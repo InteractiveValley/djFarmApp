@@ -65,12 +65,14 @@ def pedido_ver_recetas(request, sale_id):
 
 def detalle_aprobar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
-    pedido.status = APPROVED
-    pedido.vendor = request.user
-    pedido.save()
-    detalles = DetailSale.objects.filter(sale=pedido.id)
-    message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
-    create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+    if pedido.status != APPROVED:
+        pedido.status = APPROVED
+        pedido.vendor = request.user
+        pedido.save()
+        detalles = DetailSale.objects.filter(sale=pedido.id)
+        message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
+        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+
     if request.is_ajax():
         template = "item_pedido.html"
     else:
@@ -81,12 +83,14 @@ def detalle_aprobar(request, sale_id):
 
 def detalle_cancelar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
-    pedido.status = REJECTED
-    pedido.vendor = request.user
-    pedido.save()
-    detalles = DetailSale.objects.filter(sale=pedido.id)
-    message = "Tu orden #" + str(pedido.id).zfill(6) + " ha sido cancelada."
-    create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+    if pedido.status != REJECTED:
+        pedido.status = REJECTED
+        pedido.vendor = request.user
+        pedido.save()
+        detalles = DetailSale.objects.filter(sale=pedido.id)
+        message = "Tu orden #" + str(pedido.id).zfill(6) + " ha sido cancelada."
+        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+
     if request.is_ajax():
         template = "item_pedido.html"
     else:
@@ -97,13 +101,15 @@ def detalle_cancelar(request, sale_id):
 
 def detalle_rechazar_receta(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
-    pedido.status = REJECTED
-    pedido.vendor = request.user
-    pedido.save()
-    detalles = DetailSale.objects.filter(sale=pedido.id)
-    message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. " + \
-              "Si lo deseas puedes volver a generar la orden."
-    create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+    if pedido.status != REJECTED:
+        pedido.status = REJECTED
+        pedido.vendor = request.user
+        pedido.save()
+        detalles = DetailSale.objects.filter(sale=pedido.id)
+        message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. " + \
+                  "Si lo deseas puedes volver a generar la orden."
+        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+
     if request.is_ajax():
         template = "item_pedido.html"
     else:
@@ -114,85 +120,59 @@ def detalle_rechazar_receta(request, sale_id):
 
 def detalle_entregar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
-    pedido.status = DELIVERED
-    pedido.vendor = request.user
-    user_conekta = ConektaUser.objects.get(user=pedido.user)
-
-    device_session_id = request.GET.get('device_session_id')
-
-    # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
-    openpay.api_key = APP_OPENPAY_API_KEY
-    openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
-    openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
-    openpay.production = APP_OPENPAY_PRODUCTION  # By default this works in sandbox mode, production = True
-
-    customer = openpay.Customer.retrieve(user_conekta.conekta_user)
-
-    # import pdb; pdb.set_trace();
-    card_conekta = pedido.card_conekta
-    amount = pedido.total()
-    detalles = pedido.detail_sales.all()
-    lista = []
-    """
-    for detalle in detalles:
-        dato = {
-            "name": detalle.product.name,
-            "description": detalle.product.description,
-            "unit_price": detalle.price,
-            "quantity": detalle.quantity,
-            "sku": str(detalle.product.id),
-            "type": "medicine"
-        }
-        lista.append(dato)
-    """
-    """
-    charge = customer.charges.create({
-        "description": "Pedido FarmaApp",
-        "amount": amount,
-        "currency": "MXN",
-        "reference_id": "pedido-farmaapp-" + str(pedido.id),
-        "card": card_conekta.card,
-        "details": {
-            "name": pedido.user.get_full_name(),
-            "phone": pedido.user.cell,
-            "email": pedido.user.email,
-            "line_items": lista
-        }
-    })
-    """
-    charge = None
-    if len(pedido.charge_conekta) == 0:
-        charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=amount,
-                                         description="Pedido de FarmaApp", order_id="pedido-farmaapp-" + str(pedido.id),
-                                         device_session_id=device_session_id)
-    else:
-        charge = customer.charges.retrieve(pedido.charge_conekta)
-
-    if charge is None:
-        pedido.status = NO_PAID
-        pedido.save()
-    elif charge.status == "completed":
-        pedido.charge_conekta = charge.id
-        pedido.status = PAID
+    if pedido.status != DELIVERED:
+        pedido.status = DELIVERED
         pedido.vendor = request.user
-        pedido.save()
-        pedido.discount_inventory()
-        enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
-        enviar_mensaje.enviarMensaje()
-        #  import pdb; pdb.set_trace()
-        str_pedido = str(pedido.id).zfill(6)
-        str_total = '{:20,.2f}'.format(pedido.total())
-        message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
-        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
-        # import pdb; pdb.set_trace()
-    elif charge.status == "in_progress":
-        pedido.charge_conekta = charge.id
-        pedido.status = NO_PAID
-        pedido.vendor = request.user
-        pedido.save()
-    elif charge.status == "failed":
-        pedido.status = NO_PAID
-        pedido.save()
+        user_conekta = ConektaUser.objects.get(user=pedido.user)
+
+        device_session_id = request.GET.get('device_session_id')
+
+        # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
+        openpay.api_key = APP_OPENPAY_API_KEY
+        openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
+        openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
+        openpay.production = APP_OPENPAY_PRODUCTION  # By default this works in sandbox mode, production = True
+
+        customer = openpay.Customer.retrieve(user_conekta.conekta_user)
+
+        # import pdb; pdb.set_trace();
+        card_conekta = pedido.card_conekta
+        amount = pedido.total()
+        detalles = pedido.detail_sales.all()
+        lista = []
+        charge = None
+        if len(pedido.charge_conekta) == 0:
+            charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=amount,
+                                             description="Pedido de FarmaApp", order_id="pedido-farmaapp-" + str(pedido.id),
+                                             device_session_id=device_session_id)
+        else:
+            charge = customer.charges.retrieve(pedido.charge_conekta)
+
+        if charge is None:
+            pedido.status = NO_PAID
+            pedido.save()
+        elif charge.status == "completed":
+            pedido.charge_conekta = charge.id
+            pedido.status = PAID
+            pedido.vendor = request.user
+            pedido.save()
+            pedido.discount_inventory()
+            enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
+            enviar_mensaje.enviarMensaje()
+            #  import pdb; pdb.set_trace()
+            str_pedido = str(pedido.id).zfill(6)
+            str_total = '{:20,.2f}'.format(pedido.total())
+            message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
+            create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+            # import pdb; pdb.set_trace()
+        elif charge.status == "in_progress":
+            pedido.charge_conekta = charge.id
+            pedido.status = NO_PAID
+            pedido.vendor = request.user
+            pedido.save()
+        elif charge.status == "failed":
+            pedido.status = NO_PAID
+            pedido.save()
 
     if request.is_ajax():
         template = "item_pedido.html"

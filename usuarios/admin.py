@@ -77,7 +77,7 @@ admin.site.register(Rating, RatingAdmin)
 
 
 class InapamAdmin(admin.ModelAdmin):
-    list_display = ('user', 'inapam', 'active')
+    list_display = ('user', 'image', 'active')
 
 
 admin.site.register(Inapam, InapamAdmin)
