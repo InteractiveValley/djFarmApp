@@ -180,9 +180,19 @@ class Rating(models.Model):
 class Inapam(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="images_inapam",
                              related_query_name="images_inapam")
-    inapam = models.ImageField(upload_to="inapam/")
+    vendor = models.ForeignKey(CustomUser, verbose_name="vendor", related_name="inapam_vendor",
+                               related_query_name="inapam_vendor", null=True, blank=True)
+    image = models.ImageField(upload_to="inapam/")
+    created = models.DateTimeField("creado", null=True, blank=True)
     active = models.BooleanField(verbose_name="Autorizado", default=False)
 
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.now()
+        return super(Inapam, self).save(*args, **kwargs)
 
 class TokenPhone(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="usuario", related_name="token_phone")
@@ -194,8 +204,7 @@ class TokenPhone(models.Model):
         """
         On save, update timestamps
         """
-        if not self.id:
-            self.created = timezone.now()
+        self.created = timezone.now()
         return super(TokenPhone, self).save(*args, **kwargs)
 
 
@@ -210,7 +219,7 @@ class CardConekta(models.Model):
     exp_month = models.CharField(verbose_name="exp month", max_length=2)
     allows_payouts = models.BooleanField(verbose_name="permite pagos", default=False)
     allows_charges = models.BooleanField(verbose_name="permite cargos", default=False)
-    bank_name = models.CharField(verbose_name="institucion bancaria", max_length=140, default="")
+    bank_name = models.CharField(verbose_name="institucion bancaria", max_length=140, default="", blank=True, null=True)
     type = models.CharField(verbose_name="tipo tarjeta", max_length=140, default="Credit")
     created = models.DateTimeField("creado", null=True, blank=True)
 
@@ -226,7 +235,7 @@ class CardConekta(models.Model):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        cadena = "%s.- %s %s " % (self.user.get_full_name().encode("utf-8"), self.brand, self.last4)
+        cadena = "%s.- %s %s " % (str(self.user.id), self.brand, self.last4)
         return cadena
 
 
@@ -305,7 +314,7 @@ class ScheduledOrder(models.Model):
             self.days = 7
         elif self.period == self.MONTHLY:
             self.days = 30"""
-        now = timezone.localtime(timezone.now())
+        now = timezone.now()
         if self.times > 0:
             self.date_next = now.date() + timezone.timedelta(days=self.days)
             self.date_ends = now.date() + timezone.timedelta(days=self.days * self.times)

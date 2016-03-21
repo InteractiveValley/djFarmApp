@@ -9,7 +9,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Pedidos</title>
+    <title>{% block title %} Pedidos {% endblock %}</title>
     {% block sheetstyles %}
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -53,6 +53,8 @@
                   <li class="dropdown-header">Ventas</li>
                   <li><a href="{% url 'pedidos' %}">Pedidos</a></li>
                   <li><a href="{% url 'calificaciones' %}">Calificaciones</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="{% url 'inapams' %}">Credenciales inapam</a></li>
                 </ul>
               </li>
             <li><a href="#">{{ user.get_full_name }}</a></li>
