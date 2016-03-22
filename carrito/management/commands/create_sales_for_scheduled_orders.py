@@ -25,8 +25,8 @@ class Command(BaseCommand):
         from usuarios.models import ScheduledOrder
         from carrito.models import Sale, DetailSale, INCOMPLETE, COMPLETE
 
-        now = timezone.localtime(timezone.now()).date()
-        scheduled_orders = ScheduledOrder.objects.filter(date_next__lte=now)
+        now = timezone.localtime(timezone.now())
+        scheduled_orders = ScheduledOrder.objects.filter(date_next__lte=now.date())
 
         scheduled_order_cont = 0
         for scheduled_order in scheduled_orders:
@@ -55,5 +55,6 @@ class Command(BaseCommand):
 
         fecha1 = timezone.now() + timezone.timedelta(days=1)
         fecha2 = datetime.now() + timedelta(days=1)
+        fecha3 = now + timezone.timedelta(days=1)
 
-        return "%s %s Schedules: %s. Sales process: %s." % (str(fecha1), str(fecha2), str(scheduled_order_cont), str(sale_cont))
+        return "%s %s %s Schedules: %s. Sales process: %s." % (str(fecha1), str(fecha2), str(fecha3), str(scheduled_order_cont), str(sale_cont))
