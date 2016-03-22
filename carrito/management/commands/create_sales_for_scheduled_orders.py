@@ -21,6 +21,7 @@ class Command(BaseCommand):
         app_labels - app labels (eg. myapp in "manage.py reset myapp")
         options - configurable command line options
         """
+        from datetime import datetime, timedelta
         from usuarios.models import ScheduledOrder
         from carrito.models import Sale, DetailSale, INCOMPLETE, COMPLETE
 
@@ -52,4 +53,7 @@ class Command(BaseCommand):
             sale.save()
             sale_cont += 1
 
-        return "%s Schedules: %s. Sales process: %s." % (str(now), str(scheduled_order_cont), str(sale_cont))
+        fecha1 = timezone.now() + timezone.timedelta(days=1)
+        fecha2 = datetime.now() + timedelta(days=1)
+
+        return "%s %s Schedules: %s. Sales process: %s." % (str(fecha1), str(fecha2), str(scheduled_order_cont), str(sale_cont))
