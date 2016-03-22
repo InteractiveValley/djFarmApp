@@ -42,8 +42,8 @@ class Sale(models.Model):
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
+            self.created = timezone.localtime(timezone.now())
+        self.modified = timezone.localtime(timezone.now())
         return super(Sale, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -170,7 +170,7 @@ class DetailSale(models.Model):
 
     def calculate_discount(self):
         descuento = self.product.discount
-        now = timezone.now().date()
+        now = timezone.localtime(timezone.now()).date()
         if descuento is not None and (descuento.date_begins <= now and descuento.date_ends >= now):
             if descuento.type == Discount.PRICE:
                 price = descuento.price
@@ -229,8 +229,8 @@ class Receipt(models.Model):
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
+            self.created = timezone.localtime(timezone.now())
+        self.modified = timezone.localtime(timezone.now())
         if not self.status:
             product = self.product
             product.inventory = product.inventory + self.quantity

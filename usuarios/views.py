@@ -221,7 +221,7 @@ def upload_images_inapam(request):
 
 def calificaciones(request):
     if request.user.is_authenticated():
-        ahora = datetime.datetime.now()
+        ahora =  timezone.localtime(timezone.now())
         filtro = request.GET.get('filter', 'todos')
         #  print filtro
         year = request.GET.get('year', ahora.year)
@@ -260,7 +260,7 @@ def calificaciones(request):
 
 
 def reminders(request):
-    now = datetime.datetime.now()
+    now = timezone.localtime(timezone.now())
     weekday = now.weekday()
     hour = request.GET.get('hour', now.hour)
     minute = request.GET.get('minute', now.minute)
