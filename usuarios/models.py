@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+from datetime import datetime, timedelta
 from django.db import models
 from productos.models import Product
 from django.utils import timezone
@@ -314,10 +315,10 @@ class ScheduledOrder(models.Model):
             self.days = 7
         elif self.period == self.MONTHLY:
             self.days = 30"""
-        now = timezone.now()
+        now = datetime.now()
         if self.times > 0:
-            self.date_next = now.date() + timezone.timedelta(days=self.days)
-            self.date_ends = now.date() + timezone.timedelta(days=self.days * self.times)
+            self.date_next = now.date() + timedelta(days=self.days)
+            self.date_ends = now.date() + timedelta(days=self.days * self.times)
 
     class Meta:
         verbose_name = "pedido programado"
