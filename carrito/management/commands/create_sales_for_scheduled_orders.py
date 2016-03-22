@@ -53,8 +53,5 @@ class Command(BaseCommand):
             sale.save()
             sale_cont += 1
 
-        fecha1 = timezone.now() + timezone.timedelta(days=1)
-        fecha2 = datetime.now() + timedelta(days=1)
-        fecha3 = now + timezone.timedelta(days=1)
-
-        return "%s %s %s Schedules: %s. Sales process: %s." % (str(fecha1), str(fecha2), str(fecha3), str(scheduled_order_cont), str(sale_cont))
+        
+        return "%s %s %s Schedules: %s. Sales process: %s." % (str(now), str(scheduled_order_cont), str(sale_cont))
