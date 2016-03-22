@@ -24,7 +24,7 @@ class Command(BaseCommand):
         from usuarios.models import ScheduledOrder
         from carrito.models import Sale, DetailSale, INCOMPLETE, COMPLETE
 
-        now = timezone.now().date()
+        now = timezone.localtime(timezone.now()).date()
         scheduled_orders = ScheduledOrder.objects.filter(date_next__lte=now)
 
         scheduled_order_cont = 0
@@ -52,4 +52,4 @@ class Command(BaseCommand):
             sale.save()
             sale_cont += 1
 
-        return "%s Schedules: %s. Sales process: %s." % (str(timezone.now()), str(scheduled_order_cont), str(sale_cont))
+        return "%s Schedules: %s. Sales process: %s." % (str(now), str(scheduled_order_cont), str(sale_cont))
