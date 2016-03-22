@@ -88,6 +88,7 @@
                 var $modal = $("#modalImage")
                 $modal.find(".modal-title").text(usuario);
                 var $img = $("<img>").attr({'src': imagen});
+                $img.css({'width': '100%'});
                 $modal.find(".modal-body").html($img);
                 $modal.modal('show');
       }
