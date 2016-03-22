@@ -7,8 +7,8 @@
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
                 <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'inapams' %}?filter=todos">Todos <span class="sr-only">(current)</span></a></li>
-                <li class="{% if filter == 'activos' %} active {% endif %}"><a href="{% url 'inapams' %}?filter=activos">Activos <span class="badge">{{buenos}}</span></a></li>
-                <li class="{% if filter == 'inactivos' %} active {% endif %}"><a href="{% url 'inapams' %}?filter=inactivos">Inactivos <span class="badge">{{malos}}</span></a></li>
+                <li class="{% if filter == 'activos' %} active {% endif %}"><a href="{% url 'inapams' %}?filter=activos">Activos <span class="badge">{{activos}}</span></a></li>
+                <li class="{% if filter == 'inactivos' %} active {% endif %}"><a href="{% url 'inapams' %}?filter=inactivos">Inactivos <span class="badge">{{inactivos}}</span></a></li>
               </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
@@ -58,6 +58,23 @@
                 </li>
             </ul>
         </div>
+        <div id="modalImage" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Modal title</h4>
+              </div>
+              <div class="modal-body text-center">
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
 {% endblock %}
 {% block  javascripts %}
     <!-- Bootstrap core JavaScript
@@ -67,7 +84,33 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script>
+      function mostrarImagen(usuario, imagen){
+                var $modal = $("#modalImage")
+                $modal.find(".modal-title").text(usuario);
+                var $img = $("<img>").attr({'src': imagen});
+                $modal.find(".modal-body").html($img);
+                $modal.modal('show');
+      }
       (function(){
+          (function (BootStrap, $, undefined) {
+			 	var Utils = (function () {
+					function Utils() {
+						//ctor
+					}
+					Utils.prototype.createAlert = function (title, message, alertType, targetElement) {
+						var html = '<div class="alert alert-block ' + alertType + '">' +
+										'<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+										'<h4>' + title + '</h4>' + message  +
+									'</div>'
+						$(targetElement).prepend(html);
+					}
+					return Utils;
+				})();
+				BootStrap.Utils = Utils;
+		  })(window.BootStrap || (window.BootStrap = {}),jQuery);
+
+
+
           function activarBotonesAccion(){
             $(".button-action").on("click",function(){
                 var $button = $(this);
@@ -81,6 +124,24 @@
                       //alert(data);
                       console.log(data);
                       $("#registro-"+registro).html($(data).html());
+                      activarBotonesAccion();
+                  },
+                  failure: function(data) {
+                      alert('Got an error dude');
+                  }
+              });
+            });
+            $(".button-action-reject").on("click",function(){
+                var $button = $(this);
+                var url = $button.data("url");
+                var registro = $button.parent().parent().parent().parent().data("registro");
+                console.log(url);
+                $.ajax({
+                  url: url,
+                  type: 'post',
+                  success: function() {
+                      $("#registro-"+registro).remove();
+                      new BootStrap.Utils().createAlert("Inapam", "Se ha eliminado el registro", "alert-danger", "body");
                       activarBotonesAccion();
                   },
                   failure: function(data) {

@@ -9,7 +9,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'image',)
+        fields = ('id', 'name', 'position', 'image',)
 
 
 class LaboratorySerializer(serializers.ModelSerializer):

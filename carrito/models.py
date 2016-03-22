@@ -55,31 +55,38 @@ class Sale(models.Model):
 
     def subtotal(self):
         detalle_ventas = self.detail_sales.all()
-        dSubtotal = 0.0
+        d_subtotal = 0.0
         for detalle in detalle_ventas:
-            dSubtotal += float(detalle.subtotal)
-        return dSubtotal
+            d_subtotal += float(detalle.subtotal)
+        return d_subtotal
 
     def discount(self):
         detalle_ventas = self.detail_sales.all()
-        dDiscount = 0.0
+        d_discount = 0.0
         for detalle in detalle_ventas:
-            dDiscount += float(detalle.discount)
-        return dDiscount
+            d_discount += float(detalle.discount)
+        return d_discount
+
+    def discount_inapam(self):
+        detalle_ventas = self.detail_sales.all()
+        d_discount_inapam = 0.0
+        for detalle in detalle_ventas:
+            d_discount_inapam += float(detalle.discount_inapam)
+        return d_discount_inapam
 
     def tax(self):
         detalle_ventas = self.detail_sales.all()
-        dTax = 0.0
+        d_tax = 0.0
         for detalle in detalle_ventas:
-            dTax += float(detalle.tax)
-        return dTax
+            d_tax += float(detalle.tax)
+        return d_tax
 
     def total(self):
         detalle_ventas = self.detail_sales.all()
-        dTotal = 0.0
+        d_total = 0.0
         for detalle in detalle_ventas:
-            dTotal += detalle.total()
-        return dTotal
+            d_total += detalle.total()
+        return d_total
 
     def discount_inventory(self):
         detalle_ventas = self.detail_sales.all()
@@ -88,6 +95,15 @@ class Sale(models.Model):
             detalle.product.inventory = detalle.product.inventory - detalle.quantity
             product.save()
         return True
+
+    def has_recipe(self):
+        detalle_ventas = self.detail_sales.all()
+        b_recipe = False
+        for detalle in detalle_ventas:
+            if detalle.product.recipe == Product.STAY_RECIPE:
+                b_recipe = True
+                break
+        return b_recipe
 
     def show_status(self):
         if self.status == INCOMPLETE:
@@ -120,6 +136,7 @@ class DetailSale(models.Model):
     subtotal = models.DecimalField("subtotal", max_digits=10, decimal_places=2, default=0)
     tax = models.DecimalField("IVA", max_digits=10, decimal_places=2, default=0)
     discount = models.DecimalField("descuento", max_digits=10, decimal_places=2, default=0)
+    discount_inapam = models.DecimalField("descuento inapam", max_digits=10, decimal_places=2, default=0)
 
     def need_validation(self):
         return self.product.require_prescription
@@ -137,11 +154,18 @@ class DetailSale(models.Model):
         """
         if self.id is None:
             self.price = self.product.price
+
         self.subtotal = self.quantity * self.price
         self.calculate_discount()
-        if self.product.with_tax:
+
+        if self.sale.user.inapam:
             total = float(self.subtotal) - float(self.discount)
+            self.discount_inapam = float(total * 0.10)
+
+        if self.product.with_tax:
+            total = float(self.subtotal) - float(self.discount) - float(self.discount_inapam)
             self.tax = total * 0.16
+
         return super(DetailSale, self).save(*args, **kwargs)
 
     def calculate_discount(self):
@@ -176,8 +200,7 @@ class DetailSale(models.Model):
             return 0.0
 
     def total(self):
-        return float(self.subtotal) - float(self.discount) + float(self.tax)
-
+        return float(self.subtotal) - float(self.discount) - float(self.discount_inapam) + float(self.tax)
 
     class Meta:
         verbose_name = "detalle de venta"
@@ -217,4 +240,3 @@ class Receipt(models.Model):
 
     class Meta:
         verbose_name = 'recibo'
-

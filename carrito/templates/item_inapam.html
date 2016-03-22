@@ -1,24 +1,24 @@
-                <tr id="registro-{{registro.id}}" data-registro="{{registro.id}}">
-                  <td>{{ registro.id }}</td>
-                  <td>{{ registro.user.get_full_name }}</td>
-                  <td>
-                      <img src="{{ registro.image.url }}" alt="{{registro.user.get_full_name}}" style="max-width: 120px;"/>
-                  </td>
-                  <td>{% if registro.user.inapam == True %} Autorizado {% else %} Sin autorizar {% endif %}</td>
-                  <td>
-                      <ul class="list-inline"  data-registro="{{registro.id}}">
-                          {% if registro.user.inapam == False %}
-                          <li>
-                              <button data-url="/backend/inapam/{{ registro.id }}/approve/" class="button-action button-send btn btn-primary">Autorizar</button>
-                          </li>
-                          <li>
-                              <button data-url="/backend/inapam/{{ registro.id }}/reject/" class="button-action button-cancel btn btn-danger">Rechazar</button>
-                          </li>
-                          {% else %}
-                          <li>
-                              <button data-url="/backend/inapam/{{ registro.id }}/update/" class="button-action button-cancel btn btn-success">Actualizar</button>
-                          </li>
-                          {% endif %}
-                      </ul>
-                  </td>
-                </tr>
+<tr id="registro-{{registro.id}}" data-registro="{{registro.id}}">
+  <td>{{ registro.id }}</td>
+  <td>{{ registro.user.get_full_name }}</td>
+  <td>
+      <img src="{{ registro.image.url }}" alt="{{registro.user.get_full_name}}" onclick="javascript:mostrarImagen('{{registro.user.get_full_name}}','{{registro.image.url}}');" style="max-width: 120px;"/>
+  </td>
+  <td>{% if registro.user.inapam == True %} Autorizado {% else %} Sin autorizar {% endif %}</td>
+  <td>
+      <ul class="list-inline"  data-registro="{{registro.id}}">
+          {% if registro.user.inapam == False %}
+          <li>
+              <button data-url="/backend/inapam/{{ registro.id }}/approve/" class="button-action button-send btn btn-primary">Autorizar</button>
+          </li>
+          <li>
+              <button data-url="/backend/inapam/{{ registro.id }}/reject/" class="button-action-reject button-cancel btn btn-danger">Rechazar</button>
+          </li>
+          {% else %}
+          <li>
+              <button data-url="/backend/inapam/{{ registro.id }}/update/" class="button-action button-cancel btn btn-success">Actualizar</button>
+          </li>
+          {% endif %}
+      </ul>
+  </td>
+</tr>

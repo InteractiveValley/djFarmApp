@@ -378,7 +378,7 @@ def inapams(request):
         elif filtro == 'activos':
             inapams_list = Inapam.objects.filter(user__inapam=True).order_by('-created')
         else:
-            inapams_list = Rating.objects.filter(user__inapam=False).order_by('-created')
+            inapams_list = Inapam.objects.filter(user__inapam=False).order_by('-created')
 
         paginator = Paginator(inapams_list, 10)
         page = request.GET.get('page')
@@ -447,7 +447,8 @@ def inapams_reject(request, inapam_id):
             user.save()
             inapam.save()
             create_notification_ionic_push_inapam(inapam, "Inapam", "Tu registro no fue autorizado")
-            return render(request, 'item_inapam.html', {"registro": inapam})
+            inapam.remove()
+            data = {'status': 'ok', 'message': 'El registro se ha eliminado'}
         else:
             data = {'status': 'bat', 'message': 'No esta autorizado otro metodo'}
     else:

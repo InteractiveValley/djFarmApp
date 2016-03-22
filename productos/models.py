@@ -12,8 +12,17 @@ def image_default():
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=140, verbose_name="categoria")
+    position = models.PositiveSmallIntegerField('posicion', default=0)
     image_category = models.ImageField(upload_to='categorias/', verbose_name="Imagen", null=True,
                                        blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update date_begins
+        """
+        if self.position == 0:
+            self.position = Category.objects.count() + 1
+        return super(Category, self).save(*args, **kwargs)
 
     def thumbnail(self):
         if self.image_category is not None:
@@ -220,4 +229,3 @@ class Product(models.Model):
 
     class Meta:
         verbose_name = 'producto'
-

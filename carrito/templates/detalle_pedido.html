@@ -65,6 +65,16 @@ Pedido numero #{{pedido.id}}
                       <td></td>
                   </tr>
                   {% endif %}
+                  {% if pedido.discount_inapam > 0.0 %}
+                  <tr style="font-weight: bolder;">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>Inapam -10%: </td>
+                      <td>-${{pedido.discount_inapam}}</td>
+                      <td></td>
+                  </tr>
+                  {% endif %}
                   {% if pedido.tax > 0.0 %}
                   <tr style="font-weight: bolder;">
                       <td></td>

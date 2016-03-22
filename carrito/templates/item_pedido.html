@@ -58,6 +58,16 @@
                       <td></td>
                   </tr>
                   {% endif %}
+                  {% if pedido.discount_inapam > 0.0 %}
+                  <tr style="font-weight: bolder;">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>Inapam -10%: </td>
+                      <td>-${{pedido.discount_inapam}}</td>
+                      <td></td>
+                  </tr>
+                  {% endif %}
                   {% if pedido.tax > 0.0 %}
                   <tr style="font-weight: bolder;">
                       <td></td>
@@ -108,9 +118,11 @@
                     <li>
                         <button data-url="/backend/pedidos/{{ pedido.id }}/cancel/" class="button-action button-cancel btn btn-danger">Cancelar</button>
                     </li>
+                    {% if pedido.has_recipe %}
                     <li>
                         <button data-url="/backend/pedidos/{{ pedido.id }}/reject/" class="button-action button-reject  btn btn-warning">Rechazar receta</button>
                     </li>
+                    {% endif %}
                     {% endif %}
                     {% if pedido.status == 2 and pedido.charge_conekta|length == 0 %}
                     <li>

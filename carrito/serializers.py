@@ -22,7 +22,7 @@ class DetailSaleWithProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DetailSale
-        fields = ('id', 'sale', 'product', 'price', 'quantity', 'subtotal', 'discount', 'total',)
+        fields = ('id', 'sale', 'product', 'price', 'quantity', 'subtotal', 'discount', 'discount_inapam', 'total',)
         read_only_fields = ('price', 'subtotal', 'discount', 'total',)
 
 
