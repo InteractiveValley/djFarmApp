@@ -17,7 +17,7 @@ class CustomUserManager(BaseUserManager):
         """
         Creates and saves a User with the given email and password.
         """
-        now = timezone.now()
+        now = timezone.localtime(timezone.now())
         if not email:
             raise ValueError('The given email must be set')
         email = self.normalize_email(email)
@@ -104,8 +104,8 @@ class ConektaUser(models.Model):
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
+            self.created = timezone.localtime(timezone.now())
+        self.modified = timezone.localtime(timezone.now())
         return super(ConektaUser, self).save(*args, **kwargs)
 
 
@@ -129,8 +129,8 @@ class Direction(models.Model):
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
+            self.created = timezone.localtime(timezone.now())
+        self.modified = timezone.localtime(timezone.now())
         return super(Direction, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -174,7 +174,7 @@ class Rating(models.Model):
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
+            self.created = timezone.localtime(timezone.now())
         return super(Rating, self).save(*args, **kwargs)
 
 
@@ -192,7 +192,7 @@ class Inapam(models.Model):
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
+            self.created = timezone.localtime(timezone.now())
         return super(Inapam, self).save(*args, **kwargs)
 
 class TokenPhone(models.Model):
@@ -205,7 +205,7 @@ class TokenPhone(models.Model):
         """
         On save, update timestamps
         """
-        self.created = timezone.now()
+        self.created = timezone.localtime(timezone.now())
         return super(TokenPhone, self).save(*args, **kwargs)
 
 
@@ -229,7 +229,7 @@ class CardConekta(models.Model):
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
+            self.created = timezone.localtime(timezone.now())
         return super(CardConekta, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -305,8 +305,8 @@ class ScheduledOrder(models.Model):
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
+            self.created = timezone.localtime(timezone.now())
+        self.modified = timezone.localtime(timezone.now())
         self.calculate_date_next()
         return super(ScheduledOrder, self).save(*args, **kwargs)
 

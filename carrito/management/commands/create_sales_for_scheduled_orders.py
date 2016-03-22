@@ -54,4 +54,4 @@ class Command(BaseCommand):
             sale_cont += 1
 
         
-        return "%s %s %s Schedules: %s. Sales process: %s." % (str(now), str(scheduled_order_cont), str(sale_cont))
+        return "%s Schedules: %s. Sales process: %s." % (str(now), str(scheduled_order_cont), str(sale_cont))

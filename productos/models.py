@@ -78,7 +78,7 @@ class Discount(models.Model):
         On save, update date_begins
         """
         if not self.id and self.date_begins is None:
-            self.date_begins = timezone.now().date()
+            self.date_begins = timezone.localtime(timezone.now()).date()
         return super(Discount, self).save(*args, **kwargs)
 
     class Meta:
@@ -223,8 +223,8 @@ class Product(models.Model):
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
+            self.created = timezone.localtime(timezone.now())
+        self.modified = timezone.localtime(timezone.now())
         return super(Product, self).save(*args, **kwargs)
 
     class Meta:
