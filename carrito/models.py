@@ -66,7 +66,7 @@ class Sale(models.Model):
         for detalle in detalle_ventas:
             d_discount += float(detalle.discount)
         return d_discount
-    
+
     def discount_inapam(self):
         detalle_ventas = self.detail_sales.all()
         d_discount_inapam = 0.0
@@ -95,6 +95,15 @@ class Sale(models.Model):
             detalle.product.inventory = detalle.product.inventory - detalle.quantity
             product.save()
         return True
+
+    def has_recipe(self):
+        detalle_ventas = self.detail_sales.all()
+        b_recipe = False
+        for detalle in detalle_ventas:
+            if detalle.product.recipe == Product.STAY_RECIPE:
+                b_recipe = True
+                break
+        return b_recipe
 
     def show_status(self):
         if self.status == INCOMPLETE:
@@ -191,8 +200,7 @@ class DetailSale(models.Model):
             return 0.0
 
     def total(self):
-        return float(self.subtotal) - float(self.discount) + float(self.tax)
-
+        return float(self.subtotal) - float(self.discount) - float(self.discount_inapam) + float(self.tax)
 
     class Meta:
         verbose_name = "detalle de venta"
@@ -232,4 +240,3 @@ class Receipt(models.Model):
 
     class Meta:
         verbose_name = 'recibo'
-

@@ -5,7 +5,7 @@ from .models import Category, Product, Discount, Laboratory
 
 class CategoryAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None, {'fields': ['name']}),
+        ('General', {'fields': ['name', 'position']}),
         ('Thumbnails', {'fields': ['image_category'], 'classes': ['collapse']}),
     ]
     list_display = ('name', 'thumbnail',)

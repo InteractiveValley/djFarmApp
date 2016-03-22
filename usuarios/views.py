@@ -378,7 +378,7 @@ def inapams(request):
         elif filtro == 'activos':
             inapams_list = Inapam.objects.filter(user__inapam=True).order_by('-created')
         else:
-            inapams_list = Rating.objects.filter(user__inapam=False).order_by('-created')
+            inapams_list = Inapam.objects.filter(user__inapam=False).order_by('-created')
 
         paginator = Paginator(inapams_list, 10)
         page = request.GET.get('page')

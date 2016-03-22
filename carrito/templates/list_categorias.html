@@ -1,0 +1,23 @@
+{% for registro in registros %}
+    <tr id="registro-{{registro.id}}" data-registro="{{registro.id}}">
+      <td>{{ registro.position }}</td>
+      <td>{{ registro.name }}</td>
+      <td>
+          <img src="{{ registro.image_category.url }}" alt="{{registro.name}}" />
+      </td>
+      <td>
+          <ul class="list-inline"  data-registro="{{registro.id}}">
+              {% if registro.position > 1 %}
+              <li>
+                  <button data-url="/backend/categorias/{{ registro.id }}/up/" class="button-action-up button-send btn btn-success">Subir</button>
+              </li>
+              {% endif %}
+              {% if registro.position < cont_registros %}
+              <li>
+                  <button data-url="/backend/categorias/{{ registro.id }}/down/" class="button-action-down button-cancel btn btn-primary">Bajar</button>
+              </li>
+              {% endif %}
+          </ul>
+      </td>
+    </tr>
+{% endfor %}

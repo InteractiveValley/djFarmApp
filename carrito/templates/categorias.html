@@ -1,51 +1,61 @@
 {% extends 'base_carrito.html' %}
 
+{% block title %} Categorias {% endblock %}
+
 {% block body %}
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=todos">Todos <span class="sr-only">(current)</span></a></li>
-                <li class="{% if filter == 'enviar' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=enviar">Enviados</a></li>
-                <li class="{% if filter == 'rechazado' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=rechazado">Rechazados </a></li>
-                <li class="{% if filter == 'pagado' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=pagado">Pagados </a></li>
+                <li class="active"><a href="{% url 'categorias' %}">Categorias</a></li>
               </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <br/>
-          <h1 class="page-header">Pedidos</h1>
+          <h1 class="page-header">Categorias</h1>
           <div class="table-responsive">
-            {% for pedido in pedidos %}
-                {% include "item_pedido.html" with pedido=pedido %}
-            <br/>
-            {% endfor %}
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Categoria</th>
+                  <th>Imagen</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="lista-categorias">
+                {% include "list_categorias.html" with registros=registros cont_registros=registros|length %}
+              </tbody>
+            </table>
+            </div>
           </div>
         </div>
       </div>
       <div class="row text-center">
             <ul class="pagination">
                 <li>
-                  {% if pedidos.has_previous %}
-                      <a href="?page={{ pedidos.previous_page_number }}">
+                  {% if ratings.has_previous %}
+                      <a href="?page={{ registros.previous_page_number }}">
                         <span aria-hidden="true">&laquo;</span>
                       </a>
                   {% endif %}
                 </li>
                 <li>
                     <span class="current">
-                        Pagina {{ pedidos.number }} de {{ pedidos.paginator.num_pages }}.
+                        Pagina {{ registros.number }} de {{ registros.paginator.num_pages }}.
                     </span>
                 </li>
                 <li>
-                  {% if pedidos.has_next %}
-                      <a href="?page={{ pedidos.next_page_number }}">
+                  {% if ratings.has_next %}
+                      <a href="?page={{ registros.next_page_number }}">
                         <span aria-hidden="true">&raquo;</span>
                       </a>
                     {% endif %}
                 </li>
             </ul>
         </div>
-{% endblock %}
 
+
+{% endblock %}
 {% block  javascripts %}
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -53,26 +63,40 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="https://openpay.s3.amazonaws.com/openpay.v1.min.js"></script>
-    <script type='text/javascript' src="https://openpay.s3.amazonaws.com/openpay-data.v1.min.js"></script>
     <script>
       (function(){
-          OpenPay.setId('mpoejxraordmyeoi3naf');
-          OpenPay.setApiKey('pk_9ac5b1cf9fc24904b6fac2de97c1439f');
-          OpenPay.setSandboxMode(true);
+          (function (BootStrap, $, undefined) {
+			 	var Utils = (function () {
+					function Utils() {
+						//ctor
+					}
+					Utils.prototype.createAlert = function (title, message, alertType, targetElement) {
+						var html = '<div class="alert alert-block ' + alertType + '">' +
+										'<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+										'<h4>' + title + '</h4>' + message  +
+									'</div>'
+						$(targetElement).prepend(html);
+					}
+					return Utils;
+				})();
+				BootStrap.Utils = Utils;
+		  })(window.BootStrap || (window.BootStrap = {}),jQuery);
+
+
+
           function activarBotonesAccion(){
-            $(".button-action").on("click",function(){
+            $(".button-action-up").on("click",function(){
                 var $button = $(this);
                 var url = $button.data("url");
-                var pedido = $button.parent().parent().data("sale");
                 console.log(url);
                 $.ajax({
                   url: url,
-                  type: 'get',
+                  type: 'post',
                   success: function(data) {
                       //alert(data);
-                      console.log(data);
-                      $("#pedido-"+pedido).html(data);
+                      //console.log(data);
+                      $("#lista-categorias").html(data);
+                      //new BootStrap.Utils().createAlert("Categorias", "Subio categoria", "alert-success", "body");
                       activarBotonesAccion();
                   },
                   failure: function(data) {
@@ -80,20 +104,17 @@
                   }
               });
             });
-            $(".button-action-delivered").on("click",function(){
+
+            $(".button-action-down").on("click",function(){
                 var $button = $(this);
                 var url = $button.data("url");
-                var pedido = $button.parent().parent().data("sale");
                 console.log(url);
-                var deviceSessionId = OpenPay.deviceData.setup();
                 $.ajax({
                   url: url,
-                  type: 'get',
-                  data: {'device_session_id': deviceSessionId },
+                  type: 'post',
                   success: function(data) {
-                      //alert(data);
-                      console.log(data);
-                      $("#pedido-"+pedido).html(data);
+                      $("#lista-categorias").html(data);
+                      //new BootStrap.Utils().createAlert("Categorias", "Bajo categoria", "alert-success", "body");
                       activarBotonesAccion();
                   },
                   failure: function(data) {

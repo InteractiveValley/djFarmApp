@@ -1,8 +1,10 @@
 # -*- encoding: utf-8 -*-
-from django.http import HttpResponseRedirect
+import json
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
-from .models import Product
+from django.views.decorators.csrf import csrf_exempt
+from .models import Product, Category
 
 
 def inventario(request):
@@ -35,3 +37,88 @@ def inventario(request):
                                                    'en_warning': en_warning, 'filter': filtro})
     else:
         return HttpResponseRedirect("/login/")
+
+
+def categorias(request):
+    if request.user.is_authenticated():
+        category_list = Category.objects.all().order_by('position')
+
+        paginator = Paginator(category_list, 100)
+
+        page = request.GET.get('page')
+
+        try:
+            registros = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            registros = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            registros = paginator.page(paginator.num_pages)
+
+        return render(request, 'categorias.html', {"registros": registros})
+    else:
+        return HttpResponseRedirect("/login/")
+
+
+@csrf_exempt
+def categorias_up(request, category_id):
+    if request.method == 'POST':
+        if request.is_ajax() is True:
+            category_up = Category.objects.get(pk=category_id)
+            category_down = Category.objects.get(position=category_up.position - 1)
+            category_up.position -= 1
+            category_down.position += 1
+            category_up.save()
+            category_down.save()
+
+            category_list = Category.objects.all().order_by('position')
+            paginator = Paginator(category_list, 100)
+            page = request.GET.get('page', 1)
+
+            try:
+                registros = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                registros = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+                registros = paginator.page(paginator.num_pages)
+
+            return render(request, 'list_categorias.html', {"registros": registros, "cont_registros": len(registros)})
+        else:
+            data = {'status': 'bat', 'message': 'No esta autorizado otro metodo'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@csrf_exempt
+def categorias_down(request, category_id):
+    if request.method == 'POST':
+        if request.is_ajax() is True:
+            category_down = Category.objects.get(pk=category_id)
+            category_up = Category.objects.get(position=category_down.position + 1)
+            category_down.position += 1
+            category_up.position -= 1
+            category_up.save()
+            category_down.save()
+            category_list = Category.objects.all().order_by('position')
+            paginator = Paginator(category_list, 100)
+            page = request.GET.get('page', 1)
+
+            try:
+                registros = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                registros = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+                registros = paginator.page(paginator.num_pages)
+
+            return render(request, 'list_categorias.html', {"registros": registros, "cont_registros": len(registros)})
+        else:
+            data = {'status': 'bat', 'message': 'No esta autorizado otro metodo'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')

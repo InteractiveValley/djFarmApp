@@ -118,9 +118,11 @@
                     <li>
                         <button data-url="/backend/pedidos/{{ pedido.id }}/cancel/" class="button-action button-cancel btn btn-danger">Cancelar</button>
                     </li>
+                    {% if pedido.has_recipe %}
                     <li>
                         <button data-url="/backend/pedidos/{{ pedido.id }}/reject/" class="button-action button-reject  btn btn-warning">Rechazar receta</button>
                     </li>
+                    {% endif %}
                     {% endif %}
                     {% if pedido.status == 2 and pedido.charge_conekta|length == 0 %}
                     <li>
