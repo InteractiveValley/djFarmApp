@@ -144,16 +144,27 @@
                                                                                                 <td style="background-color: #8791A7; text-align: right; padding: 5px;">Subtotal:</td>
                                                                                                 <td style="text-align: right;">$ {{ pedido.subtotal|floatformat:2 }}</td>
                                                                                             </tr>
+                                                                                            {% if pedido.discount > 0.0 %}
                                                                                             <tr>
                                                                                                 <td></td>
                                                                                                 <td style="background-color: #8791A7; text-align: right; padding: 5px;">Descuento:</td>
                                                                                                 <td style="text-align: right;">-$ {{ pedido.discount|floatformat:2 }}</td>
                                                                                             </tr>
+                                                                                            {% endif %}
+                                                                                            {% if pedido.discount_inapam > 0.0 %}
+                                                                                            <tr>
+                                                                                                <td></td>
+                                                                                                <td style="background-color: #8791A7; text-align: right; padding: 5px;">Inapam -10%:</td>
+                                                                                                <td style="text-align: right;">-$ {{ pedido.discount_inapam|floatformat:2 }}</td>
+                                                                                            </tr>
+                                                                                            {% endif %}
+                                                                                            {% if pedido.tax > 0.0 %}
                                                                                             <tr>
                                                                                                 <td></td>
                                                                                                 <td style="background-color: #8791A7; text-align: right; padding: 5px;">IVA:</td>
                                                                                                 <td style="text-align: right;">$ {{ pedido.tax|floatformat:2 }}</td>
                                                                                             </tr>
+                                                                                            {% endif %}
 																							<tr>
                                                                                                 <td></td>
                                                                                                 <td style="background-color: #8791A7; text-align: right; padding: 5px;">Total:</td>

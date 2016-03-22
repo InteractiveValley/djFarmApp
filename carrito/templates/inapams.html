@@ -88,6 +88,23 @@
                   }
               });
             });
+            $(".button-action-reject").on("click",function(){
+                var $button = $(this);
+                var url = $button.data("url");
+                var registro = $button.parent().parent().parent().parent().data("registro");
+                console.log(url);
+                $.ajax({
+                  url: url,
+                  type: 'post',
+                  success: function() {
+                      $("#registro-"+registro).remove();
+                      activarBotonesAccion();
+                  },
+                  failure: function(data) {
+                      alert('Got an error dude');
+                  }
+              });
+            });
           }
           activarBotonesAccion();
       })();
