@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from farmApp.secret import APP_PATH_TERMINOS_PDF, APP_GCM_API_KEY, PUSH_APP_ID, PUSH_SECRET_API_KEY
 from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, \
     APP_OPENPAY_PRODUCTION
+from django.utils import timezone
 from gcm import GCM
 
 # Create your views here.
