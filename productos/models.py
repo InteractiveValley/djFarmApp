@@ -131,6 +131,8 @@ class Product(models.Model):
                                          blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
+    date_enter = models.DateTimeField("Fecha entrada", null=True, blank=True)
+    date_out = models.DateTimeField("Fecha salida", null=True, blank=True)
 
     def no_require(self):
         image = self.image_no_require
