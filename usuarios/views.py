@@ -467,12 +467,12 @@ def create_notification_ionic_push_inapam(register, title, message):
             "alert": message,
             "android": {
                 "payload": {
-                    "inapam": user.inapam
+                    "inapam": True
                 }
             },
             "ios": {
                 "payload": {
-                    "inapam": user.inapam
+                    "inapam": True
                 }
             }
         }
