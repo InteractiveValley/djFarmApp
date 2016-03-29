@@ -34,6 +34,7 @@ class Sale(models.Model):
     card_conekta = models.ForeignKey(CardConekta, verbose_name="tarjeta", null=True, blank=True)
     charge_conekta = models.CharField("Cargo Id Conekta", max_length=140, default="", null=True, blank=True)
     notes = models.TextField("Notas/Comentarios", blank=True, null=True)
+    shipping = models.DecimalField("envio", max_digits=10, decimal_places=2, default=25)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 
@@ -79,14 +80,22 @@ class Sale(models.Model):
         d_tax = 0.0
         for detalle in detalle_ventas:
             d_tax += float(detalle.tax)
-        return d_tax
+
+        if self.shipping > 0.0:
+            return d_tax + (float(self.shipping) * 0.16)
+        else:
+            return d_tax
 
     def total(self):
         detalle_ventas = self.detail_sales.all()
         d_total = 0.0
         for detalle in detalle_ventas:
             d_total += detalle.total()
-        return d_total
+
+        if self.shipping > 0.0:
+            return d_total + float(self.shipping)
+        else:
+            return d_total
 
     def discount_inventory(self):
         detalle_ventas = self.detail_sales.all()
