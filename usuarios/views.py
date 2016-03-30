@@ -337,14 +337,14 @@ def create_notification_ionic_push_reminder(reminder):
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
-        "collapse_key": "FarmaApp_reminder",
         "notification": {
             "title": reminder.title,
             "alert": reminder.message,
             "android": {
                 "payload": {
                     "reminderId": reminder.id
-                }
+                },
+                "collapse_key": "FarmaApp_reminder",
             },
             "ios": {
                 "payload": {
@@ -463,14 +463,14 @@ def create_notification_ionic_push_inapam(register, title, message):
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
-        "collapse_key": "FarmaApp_inapam",
         "notification": {
             "title": title,
             "alert": message,
             "android": {
                 "payload": {
                     "inapam": True
-                }
+                },
+                "collapse_key": "FarmaApp_inapam",
             },
             "ios": {
                 "payload": {
