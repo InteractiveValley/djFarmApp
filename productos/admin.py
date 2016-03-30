@@ -32,7 +32,8 @@ class ProductAdmin(admin.ModelAdmin):
         ('Descuento', {'fields': ['discount', ]}),
         ('Control interno', {'fields': [ 'date_enter', 'date_out']})
     ]
-    list_display = ('name', 'substances', 'category', 'price', 'with_tax', 'status_inventory', 'active', 'thumbnail',)
+    list_display = ('name', 'substances', 'category', 'price', 'with_tax', 'status_inventory',
+                    'expiration', 'active', 'thumbnail',)
     search_fields = ('name', 'category__name', 'substances',)
 
 

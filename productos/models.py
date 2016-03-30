@@ -220,6 +220,35 @@ class Product(models.Model):
     status_inventory.short_description = 'inventario'
     status_inventory.admin_order_field = 'inventory'
 
+    def expiration(self):
+        now = timezone.localtime(timezone.now())
+        if self.date_out is not None:
+            expira = self.date_out - now
+            if expira > 5:
+                return """
+                <span style="padding: 5px 20px; background-color: transparent;">%i dias</span>
+                """ % expira
+            elif expira > 1:
+                return """
+                <span style="padding: 5px 20px; background-color: yellow; color: black;">%i dias</span>
+                """ % expira
+            elif expira > 0:
+                return """
+                <span style="padding: 5px 20px; background-color: yellow; color: black;">%i dia</span>
+                """ % expira
+            else:
+                return """
+                <span style="padding: 5px 20px; background-color: red; color: white;">%i dias</span>
+                """ % 0
+        else:
+            return """
+                <span style="padding: 5px 20px; background-color: red; color: white;">%i dias</span>
+                """ % 0
+
+    expiration.allow_tags = True
+    expiration.short_description = 'caduca'
+    expiration.admin_order_field = 'date_out'
+
     def save(self, *args, **kwargs):
         """
         On save, update timestamps
