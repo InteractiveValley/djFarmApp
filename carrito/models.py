@@ -80,11 +80,7 @@ class Sale(models.Model):
         d_tax = 0.0
         for detalle in detalle_ventas:
             d_tax += float(detalle.tax)
-
-        if self.shipping > 0.0:
-            return d_tax + (float(self.shipping) * 0.16)
-        else:
-            return d_tax
+        return d_tax
 
     def total(self):
         detalle_ventas = self.detail_sales.all()
