@@ -53,5 +53,7 @@ class Command(BaseCommand):
         for reminder in reminders:
             create_notification_ionic_push_reminder(reminder)
             cont += 1
-
-        return "%s Notificaciones enviadas de recordatorios: %s" % (str(now), str(cont))
+		if cont > 0:
+        	return "%s Notificaciones enviadas de recordatorios: %s" % (str(now), str(cont))
+		else:
+			return ""
