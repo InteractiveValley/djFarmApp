@@ -228,11 +228,11 @@ class Product(models.Model):
                 return """
                 <span style="padding: 5px 20px; background-color: transparent;">%i dias</span>
                 """ % expira.days
-            elif expira > timezone.timedelta(days=5):
+            elif expira > timezone.timedelta(days=1):
                 return """
                 <span style="padding: 5px 20px; background-color: yellow; color: black;">%i dias</span>
                 """ % expira.days
-            elif expira > 0:
+            elif expira == timezone.timedelta(days=0):
                 return """
                 <span style="padding: 5px 20px; background-color: yellow; color: black;">%i dia</span>
                 """ % expira.days
