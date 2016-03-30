@@ -224,18 +224,18 @@ class Product(models.Model):
         now = timezone.localtime(timezone.now())
         if self.date_out is not None:
             expira = self.date_out - now
-            if expira > 5:
+            if expira > timezone.timedelta(days=5):
                 return """
                 <span style="padding: 5px 20px; background-color: transparent;">%i dias</span>
-                """ % expira
-            elif expira > 1:
+                """ % expira.days
+            elif expira > timezone.timedelta(days=5):
                 return """
                 <span style="padding: 5px 20px; background-color: yellow; color: black;">%i dias</span>
-                """ % expira
+                """ % expira.days
             elif expira > 0:
                 return """
                 <span style="padding: 5px 20px; background-color: yellow; color: black;">%i dia</span>
-                """ % expira
+                """ % expira.days
             else:
                 return """
                 <span style="padding: 5px 20px; background-color: red; color: white;">%i dias</span>
