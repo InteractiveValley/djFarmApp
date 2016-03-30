@@ -297,14 +297,14 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
-        "collapse_key": "FarmaApp_carrito",
         "notification": {
             "title": title,
             "alert": message,
             "android": {
                 "payload": {
                     "saleId": sale.id
-                }
+                },
+                "collapse_key": "FarmaApp_carrito"
             },
             "ios": {
                 "payload": {
