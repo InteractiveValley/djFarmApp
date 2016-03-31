@@ -133,6 +133,7 @@ class Product(models.Model):
     modified = models.DateTimeField("actualizado", null=True, blank=True)
     date_enter = models.DateTimeField("Fecha entrada", null=True, blank=True)
     date_out = models.DateTimeField("Fecha salida", null=True, blank=True)
+    date_expiration = models.DateTimeField("Caducidad", null=True, blank=True)
 
     def no_require(self):
         image = self.image_no_require
@@ -222,8 +223,8 @@ class Product(models.Model):
 
     def expiration(self):
         now = timezone.localtime(timezone.now())
-        if self.date_out is not None:
-            expira = self.date_out - now
+        if self.date_expiration is not None:
+            expira = self.date_expiration - now
             horas = expira.seconds / 3600
             minutos = expira.seconds / 60
             if horas > (24 * 5):
