@@ -331,8 +331,13 @@ def create_notification_reminder(reminder):
             token_phone.token = canonical_id
             token_phone.save()
 
+    return response
+
+
 
 def create_notification_ionic_push_reminder(reminder):
+    return create_notification_reminder(reminder)
+    
     user = reminder.user
     tokens = [user.token_phone.all()[0].token]
     post_data = {
@@ -459,7 +464,54 @@ def inapams_reject(request, inapam_id):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+def create_notification_inapam(inapam, title, message):
+    gcm = GCM(APP_GCM_API_KEY)
+    user = inapam.user
+    registration_ids = [user.token_phone.all()[0].token]
+
+    notification = {
+        'title': title,
+        'message': message,
+        'inapam': True
+    }
+
+    response = gcm.json_request(registration_ids=registration_ids,
+                                data=notification,
+                                collapse_key='notificacion_inapam',
+                                priority='normal',
+                                delay_while_idle=False)
+
+    # Successfully handled registration_ids
+    if response and 'success' in response:
+        for reg_id, success_id in response['success'].items():
+            print('Successfully sent notification for reg_id {0}'.format(reg_id))
+
+    # Handling errors
+    if 'errors' in response:
+        for error, reg_ids in response['errors'].items():
+            # Check for errors and act accordingly
+            if error in ['NotRegistered', 'InvalidRegistration']:
+                # Remove reg_ids from database
+                token_phone = user.token_phone.all()[0]
+                token_phone.delete()
+            elif error in ['Unavailable', 'InternalServerError']:
+                from usuarios.models import Notifications
+                token_phone = user.token_phone.all()[0]
+                Notifications.objects.create(token_phone=token_phone, title=reminder.title, message=reminder.message)
+
+    # Repace reg_id with canonical_id in your database
+    if 'canonical' in response:
+        for reg_id, canonical_id in response['canonical'].items():
+            print("Replacing reg_id: {0} with canonical_id: {1} in db".format(reg_id, canonical_id))
+            token_phone = user.token_phone.all()[0]
+            token_phone.token = canonical_id
+            token_phone.save()
+
+    return response
+
+
 def create_notification_ionic_push_inapam(register, title, message):
+    return create_notification_inapam(register, title, message)
     user = register.user
     tokens = [user.token_phone.all()[0].token]
     post_data = {
