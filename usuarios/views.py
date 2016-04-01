@@ -337,7 +337,7 @@ def create_notification_ionic_push_reminder(reminder):
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
-        "PROFILE_TAG": "farmaapp",
+        "profile": PUSH_APP_ID,
         "notification": {
             "title": reminder.title,
             "alert": reminder.message,
@@ -464,7 +464,7 @@ def create_notification_ionic_push_inapam(register, title, message):
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
-        "profile": "farmaapp",
+        "profile": PUSH_APP_ID,
         "notification": {
             "title": title,
             "alert": message,
