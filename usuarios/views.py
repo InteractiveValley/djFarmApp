@@ -356,7 +356,7 @@ def create_notification_ionic_push_reminder(reminder):
     }
     app_id = PUSH_APP_ID
     private_key = PUSH_SECRET_API_KEY
-    url = "https://push.ionic.io/api/v1/push"
+    url = "https://api.ionic.io/push/notifications"
     req = urllib2.Request(url, data=json.dumps(post_data))
     req.add_header("Content-Type", "application/json")
     #  req.add_header("X-Ionic-Application-Id", app_id)
@@ -483,7 +483,7 @@ def create_notification_ionic_push_inapam(register, title, message):
     }
     app_id = PUSH_APP_ID
     private_key = PUSH_SECRET_API_KEY
-    url = "https://push.ionic.io/api/v1/push"
+    url = "https://api.ionic.io/push/notifications"
     req = urllib2.Request(url, data=json.dumps(post_data))
     req.add_header("Content-Type", "application/json")
     #  req.add_header("X-Ionic-Application-Id", app_id)
