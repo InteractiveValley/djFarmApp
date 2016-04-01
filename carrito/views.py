@@ -297,7 +297,7 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
-        "PROFILE_TAG": "farmaapp",
+        "profile": PUSH_APP_ID,
         "notification": {
             "title": title,
             "alert": message,
