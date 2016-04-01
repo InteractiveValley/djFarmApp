@@ -294,6 +294,8 @@ def create_notification_carrito(sale, user, title, message):
 
 def create_notification_ionic_push_carrito(sale, user, title, message):
     # import pdb; pdb.set_trace()
+    return create_notification_carrito(sale,user, title, message)
+
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
