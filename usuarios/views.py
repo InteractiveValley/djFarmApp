@@ -296,13 +296,15 @@ def create_notification_reminder(reminder):
     notification = {
         'title': reminder.title,
         'message': reminder.message,
-        'reminderId': reminder.id
+        'payload': {
+        	'reminderId': reminder.id
+        }
     }
 
     response = gcm.json_request(registration_ids=registration_ids,
                                 data=notification,
                                 collapse_key='notificacion_reminder',
-                                priority='normal',
+                                priority='high',
                                 delay_while_idle=False)
 
     # Successfully handled registration_ids
@@ -472,13 +474,15 @@ def create_notification_inapam(inapam, title, message):
     notification = {
         'title': title,
         'message': message,
-        'inapam': True
+        'payload': {
+        	'inapam': True
+        }
     }
 
     response = gcm.json_request(registration_ids=registration_ids,
                                 data=notification,
                                 collapse_key='notificacion_inapam',
-                                priority='normal',
+                                priority='high',
                                 delay_while_idle=False)
 
     # Successfully handled registration_ids
