@@ -255,13 +255,15 @@ def create_notification_carrito(sale, user, title, message):
     notification = {
         "title": title,
         "message": message,
-        "saleId": sale.id
+        "payload": {
+        	"saleId": sale.id
+        }
     }
 
     response = gcm.json_request(registration_ids=registration_ids,
                                 data=notification,
                                 collapse_key='notificacion_carrito',
-                                priority='normal',
+                                priority='high',
                                 delay_while_idle=False)
 
     # Successfully handled registration_ids

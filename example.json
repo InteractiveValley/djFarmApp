@@ -1,0 +1,34 @@
+curl  -H "Content-Type: application/json" -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJqdGkiOiI1NjRkODQ5Mi0zYzQ3LTRkODAtODQzNS1lYWY2NDBjMmIyMTcifQ.YbfJDqSUAFLMDG1KnTU8G5l47g1Cw3V3V67xZf-NRGM" -X POST -d '{
+    "tokens": ["fTumvbX2Obw:APA91bEr2PGjY4RaLAxCQygaz0wRe-sqwmjbWqI7VfpeGMyopNnS_Qchn_yY-sqR_2qnm3YCZS7lXxcGYqJADWGYqBl5bNe2sI71BW-t7cGBC9HmQRvWpVyPjHRYDweDBA3-Www1ebFB"],
+    "profile": "farmaapp",
+    "notification": {
+        "message": "Hello World!"
+    }
+}' "https://api.ionic.io/push/notifications"
+
+{  
+   "_raw":{  
+      "message":"algun dato",
+      "additionalData":{  
+         "payload":{  
+            "reminderId":23
+         },
+         "foreground":false,
+         "coldstart":false,
+         "collapse_key":"notification_reminder"
+      },
+      "title":"algun dato"
+   },
+   "_payload":{  
+      "reminderId":23
+   },
+   "app":{  
+      "asleep":true,
+      "closed":false
+   },
+   "text":"algun dato",
+   "title":"algun dato",
+   "count":null,
+   "sound":null,
+   "image":null
+}

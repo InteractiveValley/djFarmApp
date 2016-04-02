@@ -162,7 +162,7 @@
                                                                                             <tr>
                                                                                                 <td></td>
                                                                                                 <td style="background-color: #8791A7; text-align: right; padding: 5px;">Envio:</td>
-                                                                                                <td style="text-align: right;">-$ {{ pedido.shipping|floatformat:2 }}</td>
+                                                                                                <td style="text-align: right;">$ {{ pedido.shipping|floatformat:2 }}</td>
                                                                                             </tr>
                                                                                             {% endif %}
                                                                                             {% if pedido.tax > 0.0 %}
