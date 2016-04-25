@@ -221,11 +221,28 @@ class ImageSale(models.Model):
         verbose_name_plural = "recetas"
 
 
+TYPE_RECIPE = 1
+TYPE_SALE = 2
+TYPE_OBSOLETE = 3
+TYPE_DELETE = 4
+
+
+
+TYPES_RECIPES = {
+    (TYPE_RECIPE, "Producto recibido"),
+    (TYPE_SALE, "Producto vendido"),
+    (TYPE_OBSOLETE, "Producto caducado"),
+    (TYPE_DELETE, "Producto destruido"),
+}
+
+
 class Receipt(models.Model):
     product = models.ForeignKey(Product, verbose_name="producto")
     user = models.ForeignKey(CustomUser, verbose_name="usuario")
     quantity = models.IntegerField("recibido", default=0)
+    type_recipe = models.IntegerField("Tipo de trasaccion", default=TYPE_RECIPE, choices=TYPES_RECIPES)
     status = models.BooleanField("procesado", default=False)
+    date_expiration = models.DateField("expira", null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 
@@ -236,12 +253,77 @@ class Receipt(models.Model):
         if not self.id:
             self.created = timezone.localtime(timezone.now())
         self.modified = timezone.localtime(timezone.now())
-        if not self.status:
-            product = self.product
-            product.inventory = product.inventory + self.quantity
-            product.save()
-            self.status = True
+
+        if self.type_recipe == TYPE_RECIPE:
+            if not self.status:
+                product = self.product
+                product.inventory = product.inventory + self.quantity
+                product.save()
+                self.status = True
+        elif self.type_recipe == TYPE_OBSOLETE:
+            if not self.status:
+                product = self.product
+                product.inventory = product.inventory - self.quantity
+                product.save()
+                self.status = True
+
         return super(Receipt, self).save(*args, **kwargs)
+
+    def show_type_recipe(self):
+        if self.type_recipe == TYPE_RECIPE:
+            return "Producto recibido"
+        elif self.type_recipe == TYPE_SALE:
+            return "Producto vendido"
+        elif self.type_recipe == TYPE_OBSOLETE:
+            return "Producto obsoleto"
+        elif self.type_recipe == TYPE_DELETE:
+            return "Producto destruido"
+
+    def expiration(self):
+        now = timezone.localtime(timezone.now())
+        if self.date_expiration is not None:
+            expira = self.date_expiration - now.date()
+            horas = expira.seconds / 3600
+            minutos = expira.seconds / 60
+            if horas > (24 * 30):
+                return """
+                <span style="padding: 5px 20px; background-color: transparent;">%i dias</span>
+                """ % expira.days
+            elif horas <= (24 * 30):
+                return """
+                <span style="padding: 5px 20px; background-color: orange; color: black;">%i dias</span>
+                """ % expira.days
+            elif horas < 24 and horas > 1:
+                return """
+                <span style="padding: 5px 20px; background-color: orange; color: black;">%i horas</span>
+                """ % horas
+            elif minutos < 60 and minutos > 1:
+                return """
+                <span style="padding: 5px 20px; background-color: orange; color: black;">%i minutos</span>
+                """ % minutos
+            else:
+                return """
+                <span style="padding: 5px 20px; background-color: red; color: white;">%i dias</span>
+                """ % 0
+        else:
+            return """
+                <span style="padding: 5px 20px; background-color: red; color: white;">%i dias</span>
+                """ % 0
+
+    expiration.allow_tags = True
+    expiration.short_description = 'caduca'
+    expiration.admin_order_field = 'date_expiration'
+
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
+    def __unicode__(self):
+        if self.type_recipe == TYPE_RECIPE:
+            cadena = "Producto: %s, Cant: %i, Caduca: %s" % (self.product.name, self.quantity, str(self.date_expiration))
+        elif self.type_recipe == TYPE_OBSOLETE:
+            cadena = "Producto: %s, Cant: %i, Caduco: %s" % (self.product.name, self.quantity, str(self.date_expiration))
+        return cadena
 
     class Meta:
         verbose_name = 'recibo'
+

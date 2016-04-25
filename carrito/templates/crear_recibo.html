@@ -2,6 +2,25 @@
 
 {% block title %} Crear Recibo {% endblock %}
 
+{% block sheetstyles %}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    {{ form.media }}
+{% endblock %}
+
+
+
 {% block body %}
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
@@ -14,7 +33,7 @@
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <br/>
           <h1 class="page-header">Crear recibo</h1>
-          <div class="table-responsive">
+          <div class="table-responsive" style="width: 400px;">
             <form method="POST" class="post-form">
                 {% csrf_token %}
                 {{ form.as_p }}
@@ -30,4 +49,8 @@
                 </li>
             </ul>
         </div>
+{% endblock %}
+
+{% block  javascripts %}
+
 {% endblock %}

@@ -24,6 +24,7 @@
                   <th>Cantidad</th>
                   <th>Recibido</th>
                   <th>Fecha recibo</th>
+                  <th>Caduca</th>
                 </tr>
               </thead>
               <tbody>
@@ -35,12 +36,13 @@
                   <td>{{ recibo.quantity }}</td>
                   <td>{{ recibo.user.get_full_name }}</td>
                   <td>{{ recibo.created|date:"D d M Y H:i a" }}</td>
+                  <td>{{ recibo.expiration|safe }}</td>
                 </tr>
                 {% endfor %}
               </tbody>
               <tfoot>
                 <tr>
-                  <td colspan="6">
+                  <td colspan="7">
                       <a href="{% url 'crear_recibo' %}" class="btn btn-default">
                         Crear recibo
                       </a>

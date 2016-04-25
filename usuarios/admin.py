@@ -4,6 +4,7 @@ from .models import Direction, CustomUser, ScheduledOrder, Question, ConektaUser
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 from usuarios.forms import CustomUserChangeForm, CustomUserCreationForm
+from django_summernote.admin import SummernoteModelAdmin
 
 
 class CustomUserAdmin(UserAdmin):
@@ -55,7 +56,7 @@ class ScheduledOrderAdmin(admin.ModelAdmin):
 admin.site.register(ScheduledOrder, ScheduledOrderAdmin)
 
 
-class QuestionAdmin(admin.ModelAdmin):
+class QuestionAdmin(SummernoteModelAdmin):
     list_display = ('order', 'question', 'ask',)
 
 
