@@ -52,6 +52,8 @@ INSTALLED_APPS = (
     'carrito',
     'corsheaders',
     'djoser',
+    'datetimewidget',
+    'django_summernote',
 
 )
 
@@ -60,6 +62,7 @@ MIDDLEWARE_CLASSES = (
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -126,6 +129,9 @@ USE_TZ = True
 STATIC_ROOT = APP_STATIC_ROOT
 
 STATIC_URL = '/static/'
+
+
+
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),

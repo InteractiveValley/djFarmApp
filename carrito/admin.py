@@ -34,9 +34,9 @@ admin.site.register(ImageSale, ImageSaleAdmin)
 
 class ReceiptAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('General', {'fields': ['product', 'quantity', 'status']}),
+        ('General', {'fields': ['product', 'quantity', 'status','date_expiration']}),
     ]
-    list_display = ('product', 'user', 'quantity', 'status', 'created',)
+    list_display = ('product', 'user', 'quantity', 'status', 'created','expiration')
     search_fields = ('product__name', 'product__category__name', 'user__first_name', 'user__last_name',)
 
 

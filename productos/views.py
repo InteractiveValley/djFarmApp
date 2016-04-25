@@ -122,3 +122,4 @@ def categorias_down(request, category_id):
     else:
         data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
     return HttpResponse(json.dumps(data), content_type='application/json')
+

@@ -51,6 +51,9 @@ urlpatterns = [
     url(r'^auth/', include('djoser.urls')),
     url(r'^auth/', include('djoser.urls.authtoken')),
     url(r'^admin/', include(admin.site.urls)),
+
+    url(r'^summernote/', include('django_summernote.urls')),
+
     url(r'^$', 'usuarios.views.home', name='homepage'),
     url(r'^terminos/$', 'usuarios.views.terminos', name='terminos'),
 
