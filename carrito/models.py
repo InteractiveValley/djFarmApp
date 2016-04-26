@@ -317,11 +317,11 @@ class Receipt(models.Model):
 
     def __unicode__(self):
         if self.type_recipe == TYPE_RECEIPT:
-            cadena = "Producto: %s, Cant: %i, Caduca: %s" % (
-            self.product.name, self.quantity, str(self.date_expiration))
+            cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduca: %s" % (
+            self.id, self.product.name, self.quantity, str(self.date_expiration))
         elif self.type_recipe == TYPE_OBSOLETE:
-            cadena = "Producto: %s, Cant: %i, Caduco: %s" % (
-            self.product.name, self.quantity, str(self.date_expiration))
+            cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduco: %s" % (
+            self.id, self.product.name, self.quantity, str(self.date_expiration))
         return cadena
 
     class Meta:

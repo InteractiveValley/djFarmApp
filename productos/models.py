@@ -178,7 +178,7 @@ class Product(models.Model):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        return self.name
+        return "%s, Lab: %s" % (self.name, self.laboratory.name)
 
     with_recipe.allow_tags = True
     show_recipe.allow_tags = True

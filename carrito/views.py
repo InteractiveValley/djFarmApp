@@ -336,17 +336,19 @@ def recibos(request):
     if request.user.is_authenticated():
         filter = request.GET.get('filter','todos')
 
-        product_id = request.GET.get('product','0')
+        product_id = request.GET.get('product','')
 
-        if int(product_id) > 0:
+        if len(product_id) > 0:
             request.session['product_id'] = product_id
-        else:
-            request.session['product_id'] = None
-
-        if not request.session['product_id'] is None:
-            product = Product.objects.get(pk=int(request.session['product_id']))
-        else:
-            product = None
+        
+		if 'product_id' in request.session:
+			product_id = int(request.session['product_id'])
+			if product_id > 0:
+            	product = Product.objects.get(pk=product_id)
+        	else:
+            	product = None
+		else:
+			product = None
 
         if filter == 'todos':
             if not product is None:
