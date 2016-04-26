@@ -6,8 +6,10 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li class="active"><a href="#">Recibos <span class="sr-only">(current)</span></a></li>
-                <li><a href="{% url 'crear_recibo' %}">Crear recibo</a></li>
+                <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'recibos' %}?filter=todos&product={{product.id}}">Recibos <span class="sr-only">(current)</span></a></li>
+                <li class="{% if filter == 'por_caducar' %} active {% endif %}"><a href="{% url 'recibos' %}?filter=por_caducar&product={{product.id}}">Por caducar</a></li>
+                <li class="{% if filter == 'caduco' %} active {% endif %}"><a href="{% url 'recibos' %}?filter=caduco&product={{product.id}}">Caduco</a></li>
+                <li><a href="{% url 'crear_recibo' %}?filter=todos&product={{product.id}}">Crear recibo</a></li>
               </ul>
 
         </div>
@@ -57,7 +59,7 @@
             <ul class="pagination">
                 <li>
                   {% if products.has_previous %}
-                      <a href="?page={{ products.previous_page_number }}">
+                      <a href="?page={{ products.previous_page_number }}&filter={{filter}}&product={{product.id}}">
                         <span aria-hidden="true">&laquo;</span>
                       </a>
                   {% endif %}
@@ -69,7 +71,7 @@
                 </li>
                 <li>
                   {% if products.has_next %}
-                      <a href="?page={{ products.next_page_number }}">
+                      <a href="?page={{ products.next_page_number }}&filter={{filter}}&product={{product.id}}"">
                         <span aria-hidden="true">&raquo;</span>
                       </a>
                     {% endif %}

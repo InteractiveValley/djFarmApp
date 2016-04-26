@@ -9,7 +9,9 @@ import openpay
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
-from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale
+from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale, TYPE_RECEIPT, \
+    TYPE_OBSOLETE
+from productos.models import Product
 from usuarios.models import ConektaUser, CardConekta
 from usuarios.enviarEmail import EmailSendSale
 from django.views.decorators.csrf import csrf_exempt
@@ -332,7 +334,36 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
 
 def recibos(request):
     if request.user.is_authenticated():
-        receipt_list = Receipt.objects.order_by('-created').all()
+        filter = request.GET.get('filter','todos')
+
+        product_id = request.GET.get('product','0')
+
+        if int(product_id) > 0:
+            request.session['product_id'] = product_id
+        else:
+            request.session['product_id'] = None
+
+        if not request.session['product_id'] is None:
+            product = Product.objects.get(pk=int(request.session['product_id']))
+        else:
+            product = None
+
+        if filter == 'todos':
+            if not product is None:
+                receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_RECEIPT).order_by('-created')
+            else:
+                receipt_list = Receipt.objects.order_by('-created').all()
+        elif filter == 'por_caducar':
+            if not product is None:
+                receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_RECEIPT).order_by('-date_expiration')
+            else:
+                receipt_list = Receipt.objects.order_by('-date_expiration').all()
+        elif filter == 'caduco':
+            if not product is None:
+                receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_OBSOLETE).order_by('-created')
+            else:
+                receipt_list = Receipt.objects.filter(type_receipt=TYPE_OBSOLETE).order_by('-created')
+
         paginator = Paginator(receipt_list, 10)
         page = request.GET.get('page')
         try:
@@ -343,8 +374,10 @@ def recibos(request):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             receipts = paginator.page(paginator.num_pages)
-
-        return render(request, 'recibos.html', {"receipts": receipts})
+        if not product is None:
+            return render(request, 'recibos.html', {"receipts": receipts,'product': product, 'filter': filter})
+        else:
+            return render(request, 'recibos.html', {"receipts": receipts,'product': {'id': 0}, 'filter': filter})
     else:
         return HttpResponseRedirect("/login/")
 
