@@ -10,40 +10,40 @@ from .models import Product, Category
 def inventario(request):
     if request.user.is_authenticated():
         filtro = request.GET.get('filter', 'todos')
-		
-		category_id = request.GET.get('category','')
+
+        category_id = request.GET.get('category','')
 
         if len(category_id) > 0:
             request.session['category_id'] = category_id
         
-		if 'category_id' in request.session:
-			category_id = int(request.session['category_id'])
-			if category_id > 0:
-            	category = Category.objects.get(pk=category_id)
-        	else:
-            	category = None
-		else:
-			category = None
+        if 'category_id' in request.session:
+            category_id = int(request.session['category_id'])
+            if category_id > 0:
+                category = Category.objects.get(pk=category_id)
+            else:
+                category = None
+        else:
+            category = None
 
         en_warning = Product.objects.filter(inventory__lte=5).count()
         sin_inventario = Product.objects.filter(inventory__exact=0).count()
         en_warning = en_warning - sin_inventario
 
         if filtro == 'todos':
-			if not category is None:
-            	product_list = Product.objects.filter(category=category).order_by('-inventory', 'name')
-			else:
-				product_list = Product.objects.order_by('-inventory', 'name').all()
+            if not category is None:
+                product_list = Product.objects.filter(category=category).order_by('-inventory', 'name')
+            else:
+                product_list = Product.objects.order_by('-inventory', 'name').all()
         elif filtro == 'sininventario':
-			if not category is None:
-				product_list = Product.objects.filter(inventory__exact=0,category=category).order_by('name')
-			else:
-            	product_list = Product.objects.filter(inventory__exact=0).order_by('name')
+            if not category is None:
+                product_list = Product.objects.filter(inventory__exact=0,category=category).order_by('name')
+            else:
+                product_list = Product.objects.filter(inventory__exact=0).order_by('name')
         else:
-			if not category is None:
-				product_list = Product.objects.filter(inventory__lte=5,category=category).order_by('-inventory', 'name')
-			else:
-            	product_list = Product.objects.filter(inventory__lte=5).order_by('-inventory', 'name')
+            if not category is None:
+                product_list = Product.objects.filter(inventory__lte=5,category=category).order_by('-inventory', 'name')
+            else:
+                product_list = Product.objects.filter(inventory__lte=5).order_by('-inventory', 'name')
 
         paginator = Paginator(product_list, 10)
         page = request.GET.get('page')
@@ -55,11 +55,11 @@ def inventario(request):
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
             productos = paginator.page(paginator.num_pages)
-		if not category is None:
-			return render(request, 'inventario.html', {"productos": productos, 'sin_inventario': sin_inventario,
+        if not category is None:
+            return render(request, 'inventario.html', {"productos": productos, 'sin_inventario': sin_inventario,
                                                    'en_warning': en_warning, 'filter': filtro,'category': category })
         else:
-			return render(request, 'inventario.html', {"productos": productos, 'sin_inventario': sin_inventario,
+            return render(request, 'inventario.html', {"productos": productos, 'sin_inventario': sin_inventario,
                                                    'en_warning': en_warning, 'filter': filtro,'category': {'id': 0 }})
     else:
         return HttpResponseRedirect("/login/")

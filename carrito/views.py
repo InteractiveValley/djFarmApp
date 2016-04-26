@@ -341,14 +341,14 @@ def recibos(request):
         if len(product_id) > 0:
             request.session['product_id'] = product_id
         
-		if 'product_id' in request.session:
-			product_id = int(request.session['product_id'])
-			if product_id > 0:
-            	product = Product.objects.get(pk=product_id)
-        	else:
-            	product = None
-		else:
-			product = None
+        if 'product_id' in request.session:
+            product_id = int(request.session['product_id'])
+            if product_id > 0:
+                product = Product.objects.get(pk=product_id)
+            else:
+                product = None
+        else:
+            product = None
 
         if filter == 'todos':
             if not product is None:
