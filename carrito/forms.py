@@ -13,7 +13,7 @@ class ReceiptForm(forms.ModelForm):
             'date_expiration': DateWidget(attrs={'id': "date_expiration"}, usel10n=True, bootstrap_version=3)
         }
 
-    def __init__(self, *args, **kwargs):
+    """def __init__(self, *args, **kwargs):
         super(ReceiptForm, self).__init__(*args, **kwargs)
 
         for field in self.fields:
@@ -21,4 +21,4 @@ class ReceiptForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({'class': 'form-control'})
 
         # Añadir atributos personalizados a campos sueltos.
-        self.fields['date_expiration'].widget.attrs.update({'placeholder': 'Fecha en que caduca'})
+        self.fields['date_expiration'].widget.attrs.update({'placeholder': 'Fecha en que caduca'})"""
