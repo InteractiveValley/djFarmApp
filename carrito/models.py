@@ -221,15 +221,13 @@ class ImageSale(models.Model):
         verbose_name_plural = "recetas"
 
 
-TYPE_RECIPE = 1
+TYPE_RECEIPT = 1
 TYPE_SALE = 2
 TYPE_OBSOLETE = 3
 TYPE_DELETE = 4
 
-
-
-TYPES_RECIPES = {
-    (TYPE_RECIPE, "Producto recibido"),
+TYPE_RECEIPTS = {
+    (TYPE_RECEIPT, "Producto recibido"),
     (TYPE_SALE, "Producto vendido"),
     (TYPE_OBSOLETE, "Producto caducado"),
     (TYPE_DELETE, "Producto destruido"),
@@ -240,7 +238,7 @@ class Receipt(models.Model):
     product = models.ForeignKey(Product, verbose_name="producto")
     user = models.ForeignKey(CustomUser, verbose_name="usuario")
     quantity = models.IntegerField("recibido", default=0)
-    type_recipe = models.IntegerField("Tipo de trasaccion", default=TYPE_RECIPE, choices=TYPES_RECIPES)
+    type_receipt = models.IntegerField("Tipo de trasaccion", default=TYPE_RECEIPT, choices=TYPE_RECEIPTS)
     status = models.BooleanField("procesado", default=False)
     date_expiration = models.DateField("expira", null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
@@ -254,7 +252,7 @@ class Receipt(models.Model):
             self.created = timezone.localtime(timezone.now())
         self.modified = timezone.localtime(timezone.now())
 
-        if self.type_recipe == TYPE_RECIPE:
+        if self.type_recipe == TYPE_RECEIPT:
             if not self.status:
                 product = self.product
                 product.inventory = product.inventory + self.quantity
@@ -270,7 +268,7 @@ class Receipt(models.Model):
         return super(Receipt, self).save(*args, **kwargs)
 
     def show_type_recipe(self):
-        if self.type_recipe == TYPE_RECIPE:
+        if self.type_recipe == TYPE_RECEIPT:
             return "Producto recibido"
         elif self.type_recipe == TYPE_SALE:
             return "Producto vendido"
@@ -318,12 +316,13 @@ class Receipt(models.Model):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        if self.type_recipe == TYPE_RECIPE:
-            cadena = "Producto: %s, Cant: %i, Caduca: %s" % (self.product.name, self.quantity, str(self.date_expiration))
+        if self.type_recipe == TYPE_RECEIPT:
+            cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduca: %s" % (
+            self.id, self.product.name, self.quantity, str(self.date_expiration))
         elif self.type_recipe == TYPE_OBSOLETE:
-            cadena = "Producto: %s, Cant: %i, Caduco: %s" % (self.product.name, self.quantity, str(self.date_expiration))
+            cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduco: %s" % (
+            self.id, self.product.name, self.quantity, str(self.date_expiration))
         return cadena
 
     class Meta:
         verbose_name = 'recibo'
-

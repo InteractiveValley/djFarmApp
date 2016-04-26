@@ -36,9 +36,9 @@
                   <td>{{ producto.price }}</td>
                   <td>{{ producto.inventory }}</td>
                   <td>
-                      <!--a class="btn btn-success" href="/inventario/editar/{{producto.id}}/">
-                          <i class="glyphicon glyphicon-search"></i> &nbsp; Crear recibo
-                      </a-->
+                      <a class="btn btn-success" href="{% url 'recibos' %}?filter=todos&product={{producto.id}}">
+                          <i class="glyphicon glyphicon-search"></i> &nbsp; Ver recibos
+                      </a>
                   </td>
                 </tr>
                 {% endfor %}
@@ -52,7 +52,7 @@
             <ul class="pagination">
                 <li>
                   {% if productos.has_previous %}
-                      <a href="?page={{ productos.previous_page_number }}">
+                      <a href="?page={{ productos.previous_page_number }}&filter={{filter}}">
                         <span aria-hidden="true">&laquo;</span>
                       </a>
                   {% endif %}
@@ -64,7 +64,7 @@
                 </li>
                 <li>
                   {% if productos.has_next %}
-                      <a href="?page={{ productos.next_page_number }}">
+                      <a href="?page={{ productos.next_page_number }}&filter={{filter}}">
                         <span aria-hidden="true">&raquo;</span>
                       </a>
                     {% endif %}

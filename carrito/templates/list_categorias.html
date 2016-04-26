@@ -17,6 +17,9 @@
                   <button data-url="/backend/categorias/{{ registro.id }}/down/" class="button-action-down button-cancel btn btn-primary">Bajar</button>
               </li>
               {% endif %}
+		  		<li>
+                  <a href="{% url 'inventario' %}?category={{registro.id}}" class="btn btn-primary">Ver inventario</a>
+              </li>
           </ul>
       </td>
     </tr>
