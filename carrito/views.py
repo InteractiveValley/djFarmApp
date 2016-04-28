@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
 from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale, TYPE_RECEIPT, \
-    TYPE_OBSOLETE
+    TYPE_OBSOLETE, Send
 from productos.models import Product
 from usuarios.models import ConektaUser, CardConekta
 from usuarios.enviarEmail import EmailSendSale
@@ -19,7 +19,7 @@ from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY, APP_GCM_API_KEY
 from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, \
     APP_OPENPAY_PRODUCTION
 from carrito.models import Receipt
-from carrito.forms import ReceiptForm
+from carrito.forms import ReceiptForm, SendForm
 from gcm import GCM
 
 
@@ -145,7 +145,8 @@ def detalle_entregar(request, sale_id):
         charge = None
         if len(pedido.charge_conekta) == 0:
             charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=amount,
-                                             description="Pedido de FarmaApp", order_id="pedido-farmaapp-" + str(pedido.id),
+                                             description="Pedido de FarmaApp",
+                                             order_id="pedido-farmaapp-" + str(pedido.id),
                                              device_session_id=device_session_id)
         else:
             charge = customer.charges.retrieve(pedido.charge_conekta)
@@ -189,7 +190,7 @@ def revisar_pago(request, sale_id):
 
     user_conekta = ConektaUser.objects.get(user=pedido.user)
 
-     # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
+    # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
     openpay.api_key = APP_OPENPAY_API_KEY
     openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
     openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
@@ -258,7 +259,7 @@ def create_notification_carrito(sale, user, title, message):
         "title": title,
         "message": message,
         "payload": {
-        	"saleId": sale.id
+            "saleId": sale.id
         }
     }
 
@@ -296,9 +297,10 @@ def create_notification_carrito(sale, user, title, message):
 
     return response
 
+
 def create_notification_ionic_push_carrito(sale, user, title, message):
     # import pdb; pdb.set_trace()
-    return create_notification_carrito(sale,user, title, message)
+    return create_notification_carrito(sale, user, title, message)
 
     tokens = [user.token_phone.all()[0].token]
     post_data = {
@@ -334,13 +336,13 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
 
 def recibos(request):
     if request.user.is_authenticated():
-        filter = request.GET.get('filter','todos')
+        filter = request.GET.get('filter', 'todos')
 
-        product_id = request.GET.get('product','')
+        product_id = request.GET.get('product', '')
 
         if len(product_id) > 0:
             request.session['product_id'] = product_id
-        
+
         if 'product_id' in request.session:
             product_id = int(request.session['product_id'])
             if product_id > 0:
@@ -357,7 +359,8 @@ def recibos(request):
                 receipt_list = Receipt.objects.order_by('-created').all()
         elif filter == 'por_caducar':
             if not product is None:
-                receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_RECEIPT).order_by('-date_expiration')
+                receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_RECEIPT).order_by(
+                    '-date_expiration')
             else:
                 receipt_list = Receipt.objects.order_by('-date_expiration').all()
         elif filter == 'caduco':
@@ -377,9 +380,9 @@ def recibos(request):
             # If page is out of range (e.g. 9999), deliver last page of results.
             receipts = paginator.page(paginator.num_pages)
         if not product is None:
-            return render(request, 'recibos.html', {"receipts": receipts,'product': product, 'filter': filter})
+            return render(request, 'recibos.html', {"receipts": receipts, 'product': product, 'filter': filter})
         else:
-            return render(request, 'recibos.html', {"receipts": receipts,'product': {'id': 0}, 'filter': filter})
+            return render(request, 'recibos.html', {"receipts": receipts, 'product': {'id': 0}, 'filter': filter})
     else:
         return HttpResponseRedirect("/login/")
 
@@ -394,7 +397,70 @@ def post_recibos(request):
                 recibo.save()
                 return redirect('carrito.views.recibos')
         else:
-            form = ReceiptForm()
+            product_id = request.GET.get('product', '')
+            if int(product_id) > 0:
+                product = Product.objects.get(pk=int(product_id))
+                form = ReceiptForm(initial={'product': product})
+            else:
+                form = ReceiptForm()
         return render(request, 'crear_recibo.html', {'form': form})
+    else:
+        return HttpResponseRedirect("/login/")
+
+
+def envios(request):
+    if request.user.is_authenticated():
+        send_list = Send.objects.order_by('-created').filter(status=False)
+
+        return render(request, 'envios.html', {"sends": send_list})
+
+    else:
+        return HttpResponseRedirect("/login/")
+
+
+def post_envios(request):
+    if request.user.is_authenticated():
+        if request.method == "POST":
+            form = SendForm(request.POST)
+            if form.is_valid():
+                envio = form.save(commit=False)
+                envio.vendor = request.user
+                venta = envio.sale
+                envio.save()
+                venta.with_shipping = True
+                venta.save()
+                return redirect('carrito.views.envios')
+        else:
+            form = SendForm()
+        return render(request, 'crear_envio.html', {'form': form})
+    else:
+        return HttpResponseRedirect("/login/")
+
+
+def detalle_envio(request, send_id):
+    if request.user.is_authenticated():
+        request.session['send_id'] = send_id
+        send = Send.objects.get(pk=send_id)
+        detalles = send.detail_sends.all()
+        return render(request, 'detalles_envio.html', {"send": send, "detalles": detalles})
+    else:
+        return HttpResponseRedirect("/login/")
+
+
+def post_detalle_envio(request):
+    if request.user.is_authenticated():
+        if request.method == "POST":
+            form = DetailSendForm(request.POST)
+            if form.is_valid():
+                envio = form.save(commit=False)
+                envio.vendor = request.user
+                venta = envio.sale
+                envio.save()
+                venta.with_shipping = True
+                venta.save()
+                return redirect('carrito.views.envios')
+        else:
+            form = SendForm()
+        return render(request, 'crear_envio.html', {'form': form})
     else:
         return HttpResponseRedirect("/login/")

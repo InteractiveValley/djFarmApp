@@ -1,0 +1,54 @@
+{% extends 'base_carrito.html' %}
+
+{% block title %} Pedido: {{ send.sale }} {% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li class="active"><a href="{% url 'envio_detalle' send.id %}">Detalle de envio <span class="sr-only">(current)</span></a></li>
+            </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <br/>
+
+          <h1 class="page-header">Detalle de envio</h1>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Venta</th>
+                  <th>Usuario</th>
+                  <th>Completo</th>
+                  <th>Creado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for detalle in detalles %}
+                <tr>
+                  <td>{{ detalle.id }}</td>
+                  <td>{{ 1 }}</td>
+                  <td>{{ 2 }}</td>
+                  <td>{{ 3 }}</td>
+                  <td>{{ 4 }}</td>
+                  <td><button class="btn btn-success">Accion</button></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="7">
+                      <a href="{% url 'crear_envio' %}" class="btn btn-default">
+                        Crear envio
+                      </a>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+{% endblock %}

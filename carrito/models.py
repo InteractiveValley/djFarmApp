@@ -35,6 +35,7 @@ class Sale(models.Model):
     charge_conekta = models.CharField("Cargo Id Conekta", max_length=140, default="", null=True, blank=True)
     notes = models.TextField("Notas/Comentarios", blank=True, null=True)
     shipping = models.DecimalField("envio", max_digits=10, decimal_places=2, default=25)
+    with_shipping = models.BooleanField("con envio", default=False, null=False, blank=False)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 
@@ -318,11 +319,61 @@ class Receipt(models.Model):
     def __unicode__(self):
         if self.type_recipe == TYPE_RECEIPT:
             cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduca: %s" % (
-            self.id, self.product.name, self.quantity, str(self.date_expiration))
+                self.id, self.product.name, self.quantity, str(self.date_expiration))
         elif self.type_recipe == TYPE_OBSOLETE:
             cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduco: %s" % (
-            self.id, self.product.name, self.quantity, str(self.date_expiration))
+                self.id, self.product.name, self.quantity, str(self.date_expiration))
         return cadena
 
     class Meta:
         verbose_name = 'recibo'
+
+
+class Send(models.Model):
+    sale = models.ForeignKey(Sale, verbose_name="venta")
+    vendor = models.ForeignKey(CustomUser, verbose_name="vendedor", null=True, blank=True)
+    status = models.BooleanField("Enviado", default=False)
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.localtime(timezone.now())
+        self.modified = timezone.localtime(timezone.now())
+
+        return super(Send, self).save(*args, **kwargs)
+
+    def complete(self):
+        detalles_venta = self.sale.detail_sales.all()
+        productos = 0
+        for detalle in detalles_venta:
+            productos += int(detalle.quantity)
+        detalles_envio = self.detail_sends.all()
+        envios = 0
+        for envio in detalles_envio:
+            detail = envio.detail
+            if not detail is None:
+                envios += detail.quantity
+        return float(envios / productos)
+
+
+class DetailSend(models.Model):
+    send = models.ForeignKey(Send, verbose_name="envio", related_name="detail_sends")
+    detail_sale = models.ForeignKey(DetailSale, verbose_name="linea")
+    receipt = models.ForeignKey(Receipt, verbose_name="recibo asociado", related_name="receipt")
+    detail = models.ForeignKey(Receipt, verbose_name="salida asociada", related_name="detail")
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+        if not self.id:
+            self.created = timezone.localtime(timezone.now())
+        self.modified = timezone.localtime(timezone.now())
+
+        return super(DetailSend, self).save(*args, **kwargs)
