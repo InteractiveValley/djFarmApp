@@ -1,0 +1,72 @@
+{% extends 'base_carrito.html' %}
+
+{% block title %} Crear detalle de envio {% endblock %}
+
+{% block sheetstyles %}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    {{ form.media }}
+{% endblock %}
+
+
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="{% url 'envio_detalle' send.id %}">Detalle de envios <span class="sr-only">(current)</span></a></li>
+                <li class="active"><a href="{% url 'crear_envio_detalle' detail_sale.id %}">Crear detalle de envio</a></li>
+              </ul>
+
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <br/>
+          <h1 class="page-header">Crear envio</h1>
+
+          <div class="table-responsive" style="width: 400px;">
+            {{ form.non_field_errors }}
+            {% if form.errors %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div class="alert alert-error">
+                            <strong>{{ error|escape }}</strong>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-error">
+                        <strong>{{ error|escape }}</strong>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <form method="POST" class="post-form" action="{% url 'crear_envio_detalle' detail_sale.id %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="save btn btn-default">Guardar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="row text-center">
+            <ul class="list-inline">
+                <li>
+                    <a href="{% url 'envio_detalle' send.id %}" class="btn btn-primary">Regresar</a>
+                </li>
+            </ul>
+        </div>
+{% endblock %}
+
+{% block  javascripts %}
+
+{% endblock %}

@@ -14,7 +14,7 @@
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <br/>
-          <h1 class="page-header">Productos</h1>
+          <h1 class="page-header">Productos {% if category.id > 0 %} {{category.name}} {% endif %}</h1>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -43,6 +43,15 @@
                 </tr>
                 {% endfor %}
               </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="6">
+                      <a href="{% url 'categorias' %}" class="btn btn-default">
+                        Regresar a categorias
+                      </a>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
             </div>
           </div>

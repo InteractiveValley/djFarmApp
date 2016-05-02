@@ -1,0 +1,56 @@
+{% extends 'base_carrito.html' %}
+
+{% block title %} Pedidos por surtir {% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li class="active"><a href="{% url 'envios' %}">Envios <span class="sr-only">(current)</span></a></li>
+                <li><a href="{% url 'crear_envio' %}">Crear envio</a></li>
+              </ul>
+
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <br/>
+
+          <h1 class="page-header">Envios</h1>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Venta</th>
+                  <th>Usuario</th>
+                  <th>Completo</th>
+                  <th>Creado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for send in sends %}
+                <tr>
+                  <td>{{ send.id }}</td>
+                  <td>{{ send.sale }}</td>
+                  <td>{{ send.vendor }}</td>
+                  <td>{{ send.complete }}</td>
+                  <td>{{ send.created|date:"D d M Y H:i a" }}</td>
+                  <td><a href="{% url 'envio_detalle' send.id %}" class="btn btn-success">Ver detalle</a></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="7">
+                      <a href="{% url 'crear_envio' %}" class="btn btn-default">
+                        Crear envio
+                      </a>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+{% endblock %}

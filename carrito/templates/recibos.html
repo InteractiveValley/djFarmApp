@@ -15,7 +15,8 @@
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
         <br/>
-          <h1 class="page-header">Recibos</h1>
+
+          <h1 class="page-header">Recibos {% if product.id > 0 %} {{product.name}} {% endif %}</h1>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -45,8 +46,11 @@
               <tfoot>
                 <tr>
                   <td colspan="7">
-                      <a href="{% url 'crear_recibo' %}" class="btn btn-default">
+                      <a href="{% url 'crear_recibo' %}?product={{product.id}}" class="btn btn-default">
                         Crear recibo
+                      </a>
+                      <a href="{% url 'inventario' %}" class="btn btn-default">
+                        Regresar a productos
                       </a>
                   </td>
                 </tr>
