@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
 from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale, TYPE_RECEIPT, \
-    TYPE_OBSOLETE, Send
+    TYPE_OBSOLETE, Send, DetailSend
 from productos.models import Product
 from usuarios.models import ConektaUser, CardConekta
 from usuarios.enviarEmail import EmailSendSale
@@ -19,7 +19,7 @@ from farmApp.secret import PUSH_APP_ID, PUSH_SECRET_API_KEY, APP_GCM_API_KEY
 from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, \
     APP_OPENPAY_PRODUCTION
 from carrito.models import Receipt
-from carrito.forms import ReceiptForm, SendForm
+from carrito.forms import ReceiptForm, SendForm, DetailSendForm
 from gcm import GCM
 
 
@@ -356,13 +356,13 @@ def recibos(request):
             if not product is None:
                 receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_RECEIPT).order_by('-created')
             else:
-                receipt_list = Receipt.objects.order_by('-created').all()
+                receipt_list = Receipt.objects.filter(type_receipt=TYPE_RECEIPT).order_by('-created')
         elif filter == 'por_caducar':
             if not product is None:
                 receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_RECEIPT).order_by(
                     '-date_expiration')
             else:
-                receipt_list = Receipt.objects.order_by('-date_expiration').all()
+                receipt_list = Receipt.objects.filter(type_receipt=TYPE_RECEIPT).order_by('-date_expiration')
         elif filter == 'caduco':
             if not product is None:
                 receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_OBSOLETE).order_by('-created')
@@ -437,30 +437,101 @@ def post_envios(request):
         return HttpResponseRedirect("/login/")
 
 
-def detalle_envio(request, send_id):
+def detalle_envio(request, send_id=None):
     if request.user.is_authenticated():
-        request.session['send_id'] = send_id
+        if not send_id is None:
+            request.session['send_id'] = send_id
+        send_id = int(request.session['send_id'])
         send = Send.objects.get(pk=send_id)
-        detalles = send.detail_sends.all()
+        sale = send.sale
+        detalles = sale.detail_sales.all()
         return render(request, 'detalles_envio.html', {"send": send, "detalles": detalles})
     else:
         return HttpResponseRedirect("/login/")
 
 
-def post_detalle_envio(request):
+def post_detalle_envio(request, detail_sale_id=None):
     if request.user.is_authenticated():
         if request.method == "POST":
             form = DetailSendForm(request.POST)
+            # import pdb; pdb.set_trace()
             if form.is_valid():
                 envio = form.save(commit=False)
-                envio.vendor = request.user
-                venta = envio.sale
+                recibo = envio.receipt
+                detalle_venta = envio.detail_sale
+                max_quantity = detalle_venta.quantity - detalle_venta.quantity_shipping
+
+                if envio.quantity > max_quantity:
+                    envio.quanity = max_quantity
+
+                if recibo.quantity >= envio.quantity:
+                    recibo.quantity -= envio.quantity
+                    envio.date_expiration = recibo.date_expiration
+                    recibo.save()
+                elif envio.quantity > recibo.quantity:
+                    envio.quantity = recibo.quantity
+                    envio.date_expiration = recibo.date_expiration
+                    recibo.save()
                 envio.save()
-                venta.with_shipping = True
-                venta.save()
-                return redirect('carrito.views.envios')
+
+                envios = detalle_venta.detail_sends.all()
+                cantidad_envio = 0
+
+                for envio in envios:
+                    cantidad_envio += envio.quantity
+
+                if detalle_venta.quantity == cantidad_envio:
+                    detalle_venta.quantity_shipping = cantidad_envio
+                    detalle_venta.with_shipping = True
+                else:
+                    detalle_venta.quantity_shipping = cantidad_envio
+                    detalle_venta.with_shipping = False
+
+                detalle_venta.save()
+                return redirect('carrito.views.detalle_envio', send_id=int(request.session['send_id']))
+            else:
+                send_id = int(request.session['send_id'])
+                send = Send.objects.get(pk=send_id)
+                detail_sale = DetailSale.objects.get(pk=detail_sale_id)
+                data = [{
+                    'send': send,
+                    'detail_sale': detail_sale,
+                    'product': detail_sale.product
+                }]
+                form = DetailSendForm(detalle_envio=data)
         else:
-            form = SendForm()
-        return render(request, 'crear_envio.html', {'form': form})
+
+            if not detail_sale_id is None:
+                request.session['detail_sale_id'] = detail_sale_id
+
+            send_id = int(request.session['send_id'])
+            detail_sale_id = int(request.session['detail_sale_id'])
+
+            send = Send.objects.get(pk=send_id)
+            detail_sale = DetailSale.objects.get(pk=detail_sale_id)
+
+            data = [{
+                'send': send,
+                'detail_sale': detail_sale,
+                'product': detail_sale.product
+            }]
+            form = DetailSendForm(detalle_envio=data)
+        return render(request, 'crear_detalle_envio.html', {'form': form, 'send': send, 'detail_sale': detail_sale})
+    else:
+        return HttpResponseRedirect("/login/")
+
+
+def delete_detalle_envio(request, detail_send_id=None):
+    if request.user.is_authenticated():
+        detail_send = DetailSend.objects.get(pk=detail_send_id)
+        detail_sale = detail_send.detail_sale
+        receipt = detail_send.receipt
+        receipt.quantity += detail_send.quantity
+        receipt.save()
+        detail_sale.with_shipping = False
+        detail_sale.quantity_shipping -= detail_send.quantity
+        detail_sale.save()
+        detail_send.delete()
+        return redirect('carrito.views.detalle_envio', send_id=int(request.session['send_id']))
     else:
         return HttpResponseRedirect("/login/")

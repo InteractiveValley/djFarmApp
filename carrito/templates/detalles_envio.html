@@ -13,35 +13,58 @@
         <br/>
 
           <h1 class="page-header">Detalle de envio</h1>
+          <h2>{{send.sale}}</h2>
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Venta</th>
-                  <th>Usuario</th>
+                  <th>Linea</th>
+                  <th>Detalle</th>
                   <th>Completo</th>
-                  <th>Creado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {% for detalle in detalles %}
                 <tr>
-                  <td>{{ detalle.id }}</td>
-                  <td>{{ 1 }}</td>
-                  <td>{{ 2 }}</td>
-                  <td>{{ 3 }}</td>
-                  <td>{{ 4 }}</td>
-                  <td><button class="btn btn-success">Accion</button></td>
+                  <td>{{ forloop.counter }}</td>
+                  <td>
+                      {{ detalle }}
+                      <table class="table table-striped">
+                          <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Enviar</th>
+                                <th>Fecha Caducidad</th>
+                                <th>Accion</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for detalle_envio in detalle.detail_sends.all %}
+                            <tr>
+                                <td>{{detalle_envio.receipt.id}}</td>
+                                <td>{{detalle_envio.quantity}}</td>
+                                <td>{{detalle_envio.date_expiration|date:"D d M Y" }}</td>
+                                <td><a href="{% url 'delete_envio_detalle' detalle_envio.id %}">Quitar</a></td>
+                            </tr>
+                            {% endfor %}
+                          </tbody>
+                      </table>
+                  </td>
+                  <td>{{detalle.complete_shipping}}</td>
+                  <td>
+                      {% if detalle.with_shipping == False %}
+                      <a href="{% url 'crear_envio_detalle' detalle.id %}" class="btn btn-success">Agregar envio</a>
+                      {% endif %}
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>
               <tfoot>
                 <tr>
-                  <td colspan="7">
-                      <a href="{% url 'crear_envio' %}" class="btn btn-default">
-                        Crear envio
+                  <td colspan="7 text-center">
+                      <a href="{% url 'envios' %}" class="btn btn-primary">
+                        Regresar a envios
                       </a>
                   </td>
                 </tr>

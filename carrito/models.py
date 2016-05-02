@@ -143,6 +143,8 @@ class DetailSale(models.Model):
     tax = models.DecimalField("IVA", max_digits=10, decimal_places=2, default=0)
     discount = models.DecimalField("descuento", max_digits=10, decimal_places=2, default=0)
     discount_inapam = models.DecimalField("descuento inapam", max_digits=10, decimal_places=2, default=0)
+    with_shipping = models.BooleanField("con envio", default=False, null=False, blank=False)
+    quantity_shipping = models.IntegerField("cantidad enviada", default=0, null=False, blank=False)
 
     def need_validation(self):
         return self.product.require_prescription
@@ -208,6 +210,15 @@ class DetailSale(models.Model):
     def total(self):
         return float(self.subtotal) - float(self.discount) - float(self.discount_inapam) + float(self.tax)
 
+    def complete_shipping(self):
+        productos = self.quantity
+        detalles_envio = self.detail_sends.all()
+        envios = 0
+        for envio in detalles_envio:
+            envios += envio.quantity
+        porcentaje = float(envios / productos)
+        return str(int(porcentaje * 100)) + "%"
+
     class Meta:
         verbose_name = "detalle de venta"
         verbose_name_plural = "detalles de venta"
@@ -253,13 +264,13 @@ class Receipt(models.Model):
             self.created = timezone.localtime(timezone.now())
         self.modified = timezone.localtime(timezone.now())
 
-        if self.type_recipe == TYPE_RECEIPT:
+        if self.type_receipt == TYPE_RECEIPT:
             if not self.status:
                 product = self.product
                 product.inventory = product.inventory + self.quantity
                 product.save()
                 self.status = True
-        elif self.type_recipe == TYPE_OBSOLETE:
+        elif self.type_receipt == TYPE_OBSOLETE:
             if not self.status:
                 product = self.product
                 product.inventory = product.inventory - self.quantity
@@ -317,10 +328,10 @@ class Receipt(models.Model):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        if self.type_recipe == TYPE_RECEIPT:
+        if self.type_receipt == TYPE_RECEIPT:
             cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduca: %s" % (
                 self.id, self.product.name, self.quantity, str(self.date_expiration))
-        elif self.type_recipe == TYPE_OBSOLETE:
+        elif self.type_receipt == TYPE_OBSOLETE:
             cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduco: %s" % (
                 self.id, self.product.name, self.quantity, str(self.date_expiration))
         return cadena
@@ -354,17 +365,26 @@ class Send(models.Model):
         detalles_envio = self.detail_sends.all()
         envios = 0
         for envio in detalles_envio:
-            detail = envio.detail
-            if not detail is None:
-                envios += detail.quantity
-        return float(envios / productos)
+            envios += envio.quantity
+        porcentaje = float(envios / productos)
+        return str(int(porcentaje * 100)) + "%"
+
+    def __str__(self):
+        return unicode(self).encode("utf-8")
+
+    def __unicode__(self):
+        cadena = "Envio: %i, Venta: %i" % (self.id, self.sale.id)
+        return cadena
 
 
 class DetailSend(models.Model):
     send = models.ForeignKey(Send, verbose_name="envio", related_name="detail_sends")
-    detail_sale = models.ForeignKey(DetailSale, verbose_name="linea")
-    receipt = models.ForeignKey(Receipt, verbose_name="recibo asociado", related_name="receipt")
-    detail = models.ForeignKey(Receipt, verbose_name="salida asociada", related_name="detail")
+    detail_sale = models.ForeignKey(DetailSale, verbose_name="linea", related_name="detail_sends")
+    receipt = models.ForeignKey(Receipt, verbose_name="recibo asociado", related_name="detail_sends")
+    quantity = models.IntegerField("cantidad a enviar", default=0)
+    type_receipt = models.IntegerField("Tipo de trasaccion", default=TYPE_SALE)
+    status = models.BooleanField("procesado", default=False)
+    date_expiration = models.DateField("expira", null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 

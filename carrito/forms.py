@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 from django import forms
-from .models import Receipt, Send, Sale, DetailSend
+from .models import Receipt, Send, Sale, DetailSend, TYPE_RECEIPT, DetailSale
 from datetimewidget.widgets import DateWidget
 
 
@@ -44,11 +44,22 @@ class SendForm(forms.ModelForm):
 class DetailSendForm(forms.ModelForm):
     class Meta:
         model = DetailSend
-        fields = ("sale",)
+        fields = ("send", "detail_sale", "receipt", "quantity")
 
     def __init__(self, *args, **kwargs):
+        detalle_envio = kwargs.pop('detalle_envio', None)
+
         super(DetailSendForm, self).__init__(*args, **kwargs)
 
         for field in self.fields:
             # Recorremos todos los campos del modelo para añadirle class="form-control
             self.fields[field].widget.attrs.update({'class': 'form-control'})
+
+        if detalle_envio:
+            self.fields['send'].queryset = Send.objects.filter(sale=detalle_envio[0]['send'].sale)
+            self.fields['send'].initial = detalle_envio[0]['send']
+            self.fields['detail_sale'].queryset = DetailSale.objects.filter(sale=detalle_envio[0]['send'].sale)
+            self.fields['detail_sale'].initial = detalle_envio[0]['detail_sale']
+            self.fields['receipt'].queryset = Receipt.objects.filter(product=detalle_envio[0]['product'],
+                                                                     type_receipt=TYPE_RECEIPT)
+            self.fields['receipt'].initial = detalle_envio[0]['product']
