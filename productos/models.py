@@ -227,7 +227,7 @@ class Product(models.Model):
             expira = self.date_expiration - now
             horas = expira.seconds / 3600
             minutos = expira.seconds / 60
-            if horas > (24 * 5):
+            if expira.days > 5:
                 return """
                 <span style="padding: 5px 20px; background-color: transparent;">%i dias</span>
                 """ % expira.days
