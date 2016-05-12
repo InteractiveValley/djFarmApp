@@ -295,11 +295,11 @@ class Receipt(models.Model):
             expira = self.date_expiration - now.date()
             horas = expira.seconds / 3600
             minutos = expira.seconds / 60
-            if horas > (24 * 30):
+            if expira.days > 30:
                 return """
                 <span style="padding: 5px 20px; background-color: transparent;">%i dias</span>
                 """ % expira.days
-            elif horas <= (24 * 30):
+            elif expira.days <= 30 and expira.days > 0:
                 return """
                 <span style="padding: 5px 20px; background-color: orange; color: black;">%i dias</span>
                 """ % expira.days
