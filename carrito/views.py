@@ -301,9 +301,9 @@ def create_notification_carrito(sale, user, title, message):
 
 def create_notification_ionic_push_carrito(sale, user, title, message):
     # import pdb; pdb.set_trace()
-    return create_notification_carrito(sale, user, title, message)
+    # return create_notification_carrito(sale, user, title, message)
 
-    tokens = [user.token_phone.all()[0].token]
+    tokens = [user.token_phone.all()[0].token,]
     post_data = {
         "tokens": tokens,
         "profile": PUSH_APP_ID,
@@ -331,7 +331,7 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
     req = urllib2.Request(url, data=json.dumps(post_data))
     req.add_header("Content-Type", "application/json")
     #  req.add_header("X-Ionic-Application-Id", app_id)
-    b64 = base64.encodestring('%s:' % private_key).replace('\n', '')
+    b64 = base64.encodestring('%s' % private_key).replace('\n', '')
     req.add_header("Authorization", "Bearer %s" % b64)
     resp = urllib2.urlopen(req)
     return resp
