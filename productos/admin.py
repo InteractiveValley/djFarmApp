@@ -28,12 +28,10 @@ class ProductAdmin(admin.ModelAdmin):
         ('General', {'fields': ['name', 'substances', 'category', 'laboratory', 'description', ]}),
         ('Thumbnails', {'fields': ['image_no_require', 'image_require_show', 'image_require'],
                         'classes': ['collapse']}),
-        ('Detalle', {'fields': ['price', 'inventory', 'with_tax', 'active', 'recipe', ]}),
+        ('Detalle', {'fields': ['price', 'with_tax', 'active', 'recipe', ]}),
         ('Descuento', {'fields': ['discount', ]}),
-        ('Control interno', {'fields': [ 'date_enter', 'date_out']})
     ]
-    list_display = ('name', 'substances', 'category', 'price', 'with_tax', 'status_inventory',
-                    'date_enter','date_out', 'active', 'thumbnail',)
+    list_display = ('name', 'substances', 'category', 'price', 'with_tax', 'status_inventory', 'active', 'thumbnail',)
     search_fields = ('name', 'category__name', 'substances',)
 
 
