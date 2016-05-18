@@ -61,5 +61,6 @@ class DetailSendForm(forms.ModelForm):
             self.fields['detail_sale'].queryset = DetailSale.objects.filter(sale=detalle_envio[0]['send'].sale)
             self.fields['detail_sale'].initial = detalle_envio[0]['detail_sale']
             self.fields['receipt'].queryset = Receipt.objects.filter(product=detalle_envio[0]['product'],
-                                                                     type_receipt=TYPE_RECEIPT)
+                                                                     type_receipt=TYPE_RECEIPT,
+                                                                     quantity__gt=0)
             self.fields['receipt'].initial = detalle_envio[0]['product']

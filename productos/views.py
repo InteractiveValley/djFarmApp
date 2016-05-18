@@ -45,7 +45,7 @@ def inventario(request):
             else:
                 product_list = Product.objects.filter(inventory__lte=5).order_by('-inventory', 'name')
 
-        paginator = Paginator(product_list, 10)
+        """paginator = Paginator(product_list, 10)
         page = request.GET.get('page')
         try:
             productos = paginator.page(page)
@@ -54,12 +54,12 @@ def inventario(request):
             productos = paginator.page(1)
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
-            productos = paginator.page(paginator.num_pages)
+            productos = paginator.page(paginator.num_pages)"""
         if not category is None:
-            return render(request, 'inventario.html', {"productos": productos, 'sin_inventario': sin_inventario,
+            return render(request, 'inventario.html', {"productos": product_list, 'sin_inventario': sin_inventario,
                                                    'en_warning': en_warning, 'filter': filtro,'category': category })
         else:
-            return render(request, 'inventario.html', {"productos": productos, 'sin_inventario': sin_inventario,
+            return render(request, 'inventario.html', {"productos": product_list, 'sin_inventario': sin_inventario,
                                                    'en_warning': en_warning, 'filter': filtro,'category': {'id': 0 }})
     else:
         return HttpResponseRedirect("/login/")
