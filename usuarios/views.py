@@ -515,7 +515,7 @@ def create_notification_inapam(inapam, title, message):
 
 
 def create_notification_ionic_push_inapam(register, title, message):
-    #  return create_notification_inapam(register, title, message)
+    return create_notification_inapam(register, title, message)
     user = register.user
     tokens = [user.token_phone.all()[0].token,]
     post_data = {
