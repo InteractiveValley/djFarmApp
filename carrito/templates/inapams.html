@@ -2,6 +2,22 @@
 
 {% block title %} Credenciales Inapam {% endblock %}
 
+{% block sheetstyles %}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+
+
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+
+{% endblock %}
+
 {% block body %}
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
@@ -15,7 +31,7 @@
         <br/>
           <h1 class="page-header">Credenciales de Inapam</h1>
           <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table table-striped" id="myTable">
               <thead>
                 <tr>
                   <th>#</th>
@@ -35,29 +51,6 @@
           </div>
         </div>
       </div>
-      <div class="row text-center">
-            <ul class="pagination">
-                <li>
-                  {% if ratings.has_previous %}
-                      <a href="?page={{ registros.previous_page_number }}">
-                        <span aria-hidden="true">&laquo;</span>
-                      </a>
-                  {% endif %}
-                </li>
-                <li>
-                    <span class="current">
-                        Pagina {{ registros.number }} de {{ registros.paginator.num_pages }}.
-                    </span>
-                </li>
-                <li>
-                  {% if ratings.has_next %}
-                      <a href="?page={{ registros.next_page_number }}">
-                        <span aria-hidden="true">&raquo;</span>
-                      </a>
-                    {% endif %}
-                </li>
-            </ul>
-        </div>
         <div id="modalImage" class="modal fade" tabindex="-1" role="dialog">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -153,5 +146,16 @@
           }
           activarBotonesAccion();
       })();
+    </script>
+    <!-- Datatables -->
+    <script src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#myTable').DataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"
+                }
+            } );
+        });
     </script>
 {% endblock %}

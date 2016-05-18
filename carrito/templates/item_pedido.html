@@ -122,9 +122,11 @@
                         >Visualizar</a>
                     </li>
                     {% if pedido.status == 1 %}
-                    <li>
-                        <button data-url="/backend/pedidos/{{ pedido.id }}/approved/" class="button-action button-send btn btn-primary">Enviado</button>
-                    </li>
+                        {% if pedido.with_shipping %}
+                        <li>
+                            <button data-url="/backend/pedidos/{{ pedido.id }}/approved/" class="button-action button-send btn btn-primary">Enviado</button>
+                        </li>
+                        {% endif %}
                     <li>
                         <button data-url="/backend/pedidos/{{ pedido.id }}/cancel/" class="button-action button-cancel btn btn-danger">Cancelar</button>
                     </li>

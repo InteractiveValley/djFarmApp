@@ -259,7 +259,8 @@ def create_notification_carrito(sale, user, title, message):
         "title": title,
         "message": message,
         "payload": {
-            "saleId": sale.id
+            "saleId": sale.id,
+            "status_string": sale.show_status()
         }
     }
 
@@ -311,13 +312,15 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
             "alert": message,
             "android": {
                 "payload": {
-                    "saleId": sale.id
+                    "saleId": sale.id,
+                    "status_string": sale.show_status()
                 },
                 "collapse_key": "FarmaApp_carrito"
             },
             "ios": {
                 "payload": {
-                    "saleId": sale.id
+                    "saleId": sale.id,
+                    "status_string": sale.show_status()
                 }
             }
         }
@@ -369,7 +372,7 @@ def recibos(request):
             else:
                 receipt_list = Receipt.objects.filter(type_receipt=TYPE_OBSOLETE).order_by('-created')
 
-        paginator = Paginator(receipt_list, 10)
+        """paginator = Paginator(receipt_list, 10)
         page = request.GET.get('page')
         try:
             receipts = paginator.page(page)
@@ -378,11 +381,11 @@ def recibos(request):
             receipts = paginator.page(1)
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
-            receipts = paginator.page(paginator.num_pages)
+            receipts = paginator.page(paginator.num_pages)"""
         if not product is None:
-            return render(request, 'recibos.html', {"receipts": receipts, 'product': product, 'filter': filter})
+            return render(request, 'recibos.html', {"receipts": receipt_list, 'product': product, 'filter': filter})
         else:
-            return render(request, 'recibos.html', {"receipts": receipts, 'product': {'id': 0}, 'filter': filter})
+            return render(request, 'recibos.html', {"receipts": receipt_list, 'product': {'id': 0}, 'filter': filter})
     else:
         return HttpResponseRedirect("/login/")
 

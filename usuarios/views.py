@@ -243,7 +243,7 @@ def calificaciones(request):
         else:
             rating_list = Rating.objects.filter(rating__gte=4).order_by('-created')
 
-        paginator = Paginator(rating_list, 10)
+        """paginator = Paginator(rating_list, 10)
         page = request.GET.get('page')
 
         try:
@@ -253,9 +253,9 @@ def calificaciones(request):
             ratings = paginator.page(1)
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
-            ratings = paginator.page(paginator.num_pages)
+            ratings = paginator.page(paginator.num_pages)"""
 
-        return render(request, 'ratings.html', {'ratings': ratings, 'buenos': buenos, 'malos': malos, 'filter': filtro})
+        return render(request, 'ratings.html', {'ratings': rating_list, 'buenos': buenos, 'malos': malos, 'filter': filtro})
     else:
         return HttpResponseRedirect('/login/')
 
@@ -390,7 +390,7 @@ def inapams(request):
         else:
             inapams_list = Inapam.objects.filter(user__inapam=False).order_by('-created')
 
-        paginator = Paginator(inapams_list, 10)
+        """paginator = Paginator(inapams_list, 10)
         page = request.GET.get('page')
 
         try:
@@ -400,8 +400,8 @@ def inapams(request):
             registros = paginator.page(1)
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
-            registros = paginator.page(paginator.num_pages)
-        return render(request, 'inapams.html', {'registros': registros, 'activos': activos, 'inactivos': inactivos, 'filter': filtro})
+            registros = paginator.page(paginator.num_pages)"""
+        return render(request, 'inapams.html', {'registros': inapams_list, 'activos': activos, 'inactivos': inactivos, 'filter': filtro})
     else:
         return HttpResponseRedirect("/login/")
 
