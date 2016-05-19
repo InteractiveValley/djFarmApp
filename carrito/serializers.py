@@ -35,8 +35,8 @@ class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = ('id', 'user', 'direction', 'status', 'scheduled_order', 'delivered', 'created', 'modified',
-                  'detail_sales', 'subtotal', 'discount', 'discount_inapam', 'shipping', 'tax', 'total', 'notes', 'card_conekta',
-                  'status_string')
+                  'detail_sales', 'subtotal', 'discount', 'discount_inapam', 'shipping', 'tax', 'total', 'notes',
+                  'card_conekta', 'status_string')
         read_only_fields = ('user', 'created', 'modified', 'shipping', 'total',)
 
     def get_status_string(self, obj):

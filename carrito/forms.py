@@ -7,7 +7,7 @@ from datetimewidget.widgets import DateWidget
 class ReceiptForm(forms.ModelForm):
     class Meta:
         model = Receipt
-        fields = ("product", "quantity", "date_expiration")
+        fields = ("product", "quantity", "date_expiration", "no_lote", "distribuidor", "factura")
         widgets = {
             # Use localization and bootstrap 3
             'date_expiration': DateWidget(attrs={'id': "date_expiration"}, usel10n=True, bootstrap_version=3)

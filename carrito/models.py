@@ -253,6 +253,9 @@ class Receipt(models.Model):
     type_receipt = models.IntegerField("Tipo de trasaccion", default=TYPE_RECEIPT, choices=TYPE_RECEIPTS)
     status = models.BooleanField("procesado", default=False)
     date_expiration = models.DateField("expira", null=True, blank=True)
+    no_lote = models.CharField("no. de lote", max_length=140, null=True, blank=True)
+    distribuidor = models.CharField("distribuidor", max_length=140, null=True, blank=True)
+    factura = models.CharField("factura", max_length=140, null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 
