@@ -15,7 +15,7 @@ admin.site.register(Sale, SaleAdmin)
 
 class DetailSaleAdmin(admin.ModelAdmin):
     list_display = (
-    'sale', 'quantity', 'product', 'price', 'subtotal', 'discount', 'discount_inapam', 'total', 'need_validation')
+        'sale', 'quantity', 'product', 'price', 'subtotal', 'discount', 'discount_inapam', 'total', 'need_validation')
     search_fields = ('sale__user__email', 'sale__user__first_name', 'sale__user__last_name')
     ordering = ('sale', 'id',)
 
@@ -34,9 +34,12 @@ admin.site.register(ImageSale, ImageSaleAdmin)
 
 class ReceiptAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('General', {'fields': ['product', 'quantity', 'status','date_expiration']}),
+        ('General', {'fields': ['product', 'quantity', 'status', 'date_expiration']}),
+        ('Especiales', {'fields': ['no_lote', 'distribuidor', 'factura']}),
+
     ]
-    list_display = ('product', 'user', 'quantity', 'status', 'created','expiration')
+    list_display = (
+    'product', 'user', 'quantity', 'status', 'no_lote', 'distribuidor', 'factura', 'created', 'expiration')
     search_fields = ('product__name', 'product__category__name', 'user__first_name', 'user__last_name',)
 
 
