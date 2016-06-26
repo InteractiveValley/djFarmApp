@@ -2,13 +2,46 @@
     <ul style="list-style: none;">
         {% for receta in pedido.images.all %}
             <li>
-                <figure class="text-center">
-                    <img src="{{receta.image_recipe.url}}"  />
-                    <figcaption>
-                        <button class="btn btn-danger" onclick="javascript:EsReceta(recta.image_recipe.id)">Es receta</button>
-                    </figcaption>
-                </figure>
+                <div class="row">
+                    <div class="col-md-10">
+                        <figure class="text-center">
+                            <img src="{{receta.image_recipe.url}}"  />
+                            <figcaption>
+                                {% if receta.is_antibiotico == True %}
+                                    Esta receta esta marcada como antibiotico
+                                {% endif %}
+                            </figcaption>
+                        </figure>
+                    </div>
+                    <div class="col-md-2">
+                        {% if receta.is_antibiotico == True %}
+                            <button id="receta-{{receta.id}}" class="btn-antibiotico btn btn-success" data-url="{% url 'es_antibiotico' receta.id  %}">No tiene antibiotico</button>
+                        {% else %}
+                            <button id="receta-{{receta.id}}" class="btn-antibiotico btn btn-danger" data-url="{% url 'es_antibiotico' receta.id %}">Tiene antibiotico?</button>
+                        {% endif %}
+                    </div>
+                </div>
             </li>
         {% endfor %}
     </ul>
 </div>
+<script>
+      (function(){
+            $(".btn-antibiotico").on("click",function(){
+                var $parent = $(this).parent();
+                var url = $(this).data("url");
+                $.ajax({
+                  url: url,
+                  type: 'GET',
+                  success: function(data) {
+                      alert(data);
+                  },
+                  failure: function(data) {
+                      alert('Got an error dude');
+                  }
+              });
+            });
+          }
+          activarBotonesAccion();
+      })();
+    </script>
