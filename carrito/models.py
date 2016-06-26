@@ -238,12 +238,14 @@ TYPE_RECEIPT = 1
 TYPE_SALE = 2
 TYPE_OBSOLETE = 3
 TYPE_DELETE = 4
+TYPE_INACTIVADO = 5
 
 TYPE_RECEIPTS = {
     (TYPE_RECEIPT, "Producto recibido"),
     (TYPE_SALE, "Producto vendido"),
     (TYPE_OBSOLETE, "Producto caducado"),
     (TYPE_DELETE, "Producto destruido"),
+    (TYPE_INACTIVADO, "Producto inactivado"),
 }
 
 
@@ -294,6 +296,8 @@ class Receipt(models.Model):
             return "Producto obsoleto"
         elif self.type_recipe == TYPE_DELETE:
             return "Producto destruido"
+        elif self.type_receipt == TYPE_INACTIVADO:
+            return "Producto inactivado"
 
     def expiration(self):
         now = timezone.localtime(timezone.now())
@@ -334,11 +338,7 @@ class Receipt(models.Model):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        if self.type_receipt == TYPE_RECEIPT:
-            cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduca: %s" % (
-                self.id, self.product.name, self.quantity, str(self.date_expiration))
-        elif self.type_receipt == TYPE_OBSOLETE:
-            cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduco: %s" % (
+        cadena = "Recibo: %i, Producto: %s, Cant: %i, Caduca: %s" % (
                 self.id, self.product.name, self.quantity, str(self.date_expiration))
         return cadena
 

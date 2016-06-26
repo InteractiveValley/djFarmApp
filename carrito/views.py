@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
 from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale, TYPE_RECEIPT, \
-    TYPE_OBSOLETE, Send, DetailSend
+    TYPE_OBSOLETE, Send, DetailSend, TYPE_INACTIVADO
 from productos.models import Product
 from usuarios.models import ConektaUser, CardConekta
 from usuarios.enviarEmail import EmailSendSale
@@ -371,6 +371,11 @@ def recibos(request):
                 receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_OBSOLETE).order_by('-created')
             else:
                 receipt_list = Receipt.objects.filter(type_receipt=TYPE_OBSOLETE).order_by('-created')
+        elif filter == 'inactivo':
+            if not product is None:
+                receipt_list = Receipt.objects.filter(product=product, type_receipt=TYPE_INACTIVADO).order_by('-created')
+            else:
+                receipt_list = Receipt.objects.filter(type_receipt=TYPE_INACTIVADO).order_by('-created')
 
         """paginator = Paginator(receipt_list, 10)
         page = request.GET.get('page')
@@ -383,9 +388,13 @@ def recibos(request):
             # If page is out of range (e.g. 9999), deliver last page of results.
             receipts = paginator.page(paginator.num_pages)"""
         if not product is None:
-            return render(request, 'recibos.html', {"receipts": receipt_list, 'product': product, 'filter': filter})
+            return render(request, 'recibos.html',
+                          dict(receipts=receipt_list, product=product, filter=filter, TYPE_RECEIPT=TYPE_RECEIPT,
+                               TYPE_INACTIVADO=TYPE_INACTIVADO))
         else:
-            return render(request, 'recibos.html', {"receipts": receipt_list, 'product': {'id': 0}, 'filter': filter})
+            return render(request, 'recibos.html',
+                          dict(receipts=receipt_list, product={'id': 0}, filter=filter, TYPE_RECEIPT=TYPE_RECEIPT,
+                               TYPE_INACTIVADO=TYPE_INACTIVADO))
     else:
         return HttpResponseRedirect("/login/")
 
@@ -407,6 +416,28 @@ def post_recibos(request):
             else:
                 form = ReceiptForm()
         return render(request, 'crear_recibo.html', {'form': form})
+    else:
+        return HttpResponseRedirect("/login/")
+
+
+def recibo_inactivado(request, receipt_id):
+    if request.user.is_authenticated():
+        recibo = Receipt.objects.get(pk = receipt_id)
+        recibo.type_receipt = TYPE_INACTIVADO
+        recibo.save()
+        data = {'status': 'ok', 'message': 'Se ha realizado la actualizacion solicitada'}
+        return HttpResponse(json.dumps(data), content_type='application/json')
+    else:
+        return HttpResponseRedirect("/login/")
+
+
+def recibo_activado(request, receipt_id):
+    if request.user.is_authenticated():
+        recibo = Receipt.objects.get(pk = receipt_id)
+        recibo.type_receipt = TYPE_RECEIPT
+        recibo.save()
+        data = {'status': 'ok', 'message': 'Se ha realizado la actualizacion solicitada'}
+        return HttpResponse(json.dumps(data), content_type='application/json')
     else:
         return HttpResponseRedirect("/login/")
 

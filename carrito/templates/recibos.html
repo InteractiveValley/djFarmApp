@@ -28,6 +28,7 @@
                 <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'recibos' %}?filter=todos&product={{product.id}}">Recibos <span class="sr-only">(current)</span></a></li>
                 <li class="{% if filter == 'por_caducar' %} active {% endif %}"><a href="{% url 'recibos' %}?filter=por_caducar&product={{product.id}}">Por caducar</a></li>
                 <li class="{% if filter == 'caduco' %} active {% endif %}"><a href="{% url 'recibos' %}?filter=caduco&product={{product.id}}">Caduco</a></li>
+                <li class="{% if filter == 'inactivo' %} active {% endif %}"><a href="{% url 'recibos' %}?filter=inactivo&product={{product.id}}">Inactivo</a></li>
                 <li><a href="{% url 'crear_recibo' %}?filter=todos&product={{product.id}}">Crear recibo</a></li>
               </ul>
 
@@ -42,21 +43,25 @@
                 <tr>
                   <th>#</th>
                   <th>Producto</th>
-                  <th>Categoria</th>
                   <th>Cantidad</th>
-                  <th>Recibido</th>
+                  <th>Recibio</th>
                   <th>Fecha recibo</th>
                   <th>Caduca</th>
                   <th>Original</th>
                   <th>Especiales</th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {% for recibo in receipts %}
                 <tr>
                   <td>{{ recibo.id }}</td>
-                  <td>{{ recibo.product.name }}</td>
-                  <td>{{ recibo.product.category.name }}</td>
+                  <td>
+                      <ul>
+                          <li>Producto: {{ recibo.product.name }}</li>
+                          <li>Categoria: {{ recibo.product.category.name }}</li>
+                      </ul>
+                  </td>
                   <td>{{ recibo.quantity }}</td>
                   <td>{{ recibo.user.get_full_name }}</td>
                   <td width="100px;">{{ recibo.created|date:"D d M Y H:i a" }}</td>
@@ -69,7 +74,15 @@
                           <li>Factura: {{recibo.factura}}</li>
                       </ul>
                   </td>
-                </tr>
+                  <td>
+                      {% if recibo.type_receipt == TYPE_RECEIPT %}
+                        <button class="btn-recibo-activado btn btn-danger" data-url="{% url 'recibo_inactivado' recibo.id  %}">Desactivar</button>
+                      {% endif %}
+                      {% if recibo.type_receipt == TYPE_INACTIVADO %}
+                        <button class="btn-recibo-inactivado btn btn-success" data-url="{% url 'recibo_activado' recibo.id  %}">Activar</button>
+                      {% endif %}
+                  </td>
+               </tr>
                 {% endfor %}
               </tbody>
               <tfoot>
@@ -105,7 +118,40 @@
                 "language": {
                     "url": "https://cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"
                 }
-            } );
+            });
+
+            $(".btn-recibo-inactivado").on('click',function(){
+                //esta inactivado, es por tanto que se va a reactivar
+                var $parent = $(this).parent();
+                var url = $(this).data("url");
+                $.ajax({
+                      url: url,
+                      type: 'GET',
+                      success: function(data) {
+                          alert(data.message);
+                      },
+                      failure: function(data) {
+                          alert('Got an error dude');
+                      }
+                });
+            });
+
+            $(".btn-recibo-activado").on('click',function(){
+                //esta activado, por lo tanto se puede inactivar
+                var $parent = $(this).parent();
+                var url = $(this).data("url");
+                $.ajax({
+                      url: url,
+                      type: 'GET',
+                      success: function(data) {
+                          alert(data.message);
+                      },
+                      failure: function(data) {
+                          alert('Got an error dude');
+                      }
+                });
+            });
+
         });
     </script>
 
