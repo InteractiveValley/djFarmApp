@@ -227,6 +227,7 @@ class DetailSale(models.Model):
 class ImageSale(models.Model):
     sale = models.ForeignKey(Sale, related_name="images")
     image_recipe = models.ImageField("receta", upload_to='recetas/', null=True, blank=True)
+    is_antibiotico = models.BooleanField(verbose_name="Antibiotico", default=False)  # es antibiotico
 
     class Meta:
         verbose_name = "receta"
@@ -256,6 +257,7 @@ class Receipt(models.Model):
     no_lote = models.CharField("no. de lote", max_length=140, null=True, blank=True)
     distribuidor = models.CharField("distribuidor", max_length=140, null=True, blank=True)
     factura = models.CharField("factura", max_length=140, null=True, blank=True)
+    quantity_original = models.IntegerField("recibo original", default=0)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
 
@@ -265,6 +267,7 @@ class Receipt(models.Model):
         """
         if not self.id:
             self.created = timezone.localtime(timezone.now())
+            self.quantity_original = self.quantity
         self.modified = timezone.localtime(timezone.now())
 
         if self.type_receipt == TYPE_RECEIPT:

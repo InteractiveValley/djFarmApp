@@ -117,6 +117,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="precio")
     with_tax = models.BooleanField(verbose_name="con IVA", default=True)  # esta disponible
     require_prescription = models.BooleanField(verbose_name="require receta", default=False)  # descontinuada
+    is_antibiotico = models.BooleanField(verbose_name="Antibiotico", default=False)  # es antibiotico
     recipe = models.IntegerField("receta", default=NORMAL, choices=REQUIRE_PRESCRIPTION)
     active = models.BooleanField(verbose_name="es activo")  # esta disponible
     inventory = models.IntegerField("inventario", default=0)
