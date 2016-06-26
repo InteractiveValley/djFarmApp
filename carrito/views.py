@@ -546,3 +546,55 @@ def delete_detalle_envio(request, detail_send_id=None):
         return redirect('carrito.views.detalle_envio', send_id=int(request.session['send_id']))
     else:
         return HttpResponseRedirect("/login/")
+
+
+def recetas(request):
+    if request.user.is_authenticated():
+        filter = request.GET.get('filter', 'todos')
+
+        sale_id = request.GET.get('sale', '')
+
+        if len(sale_id) > 0:
+            request.session['sale_id'] = sale_id
+
+        if 'sale_id' in request.session:
+            sale_id = int(request.session['sale_id'])
+            if sale_id > 0:
+                sale = Sale.objects.get(pk=sale_id)
+            else:
+                sale = None
+        else:
+            sale = None
+
+        if filter == 'todos':
+            if not sale is None:
+                recipe_list = ImageSale.objects.filter(sale=sale).order_by('-sale')
+            else:
+                recipe_list = ImageSale.objects.all().order_by('-sale')
+        elif filter == 'es_antibiotico':
+            if not sale is None:
+                recipe_list = ImageSale.objects.filter(is_antibiotico=True, sale=sale).order_by('-sale')
+            else:
+                recipe_list = ImageSale.objects.filter(is_antibiotico=True).order_by('-sale')
+        elif filter == 'normal':
+            if not sale is None:
+                recipe_list = ImageSale.objects.filter(is_antibiotico=False, sale=sale).order_by('-sale')
+            else:
+                recipe_list = ImageSale.objects.filter(is_antibiotico=False).order_by('-sale')
+
+        """paginator = Paginator(receipt_list, 10)
+        page = request.GET.get('page')
+        try:
+            receipts = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            receipts = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            receipts = paginator.page(paginator.num_pages)"""
+        if not sale is None:
+            return render(request, 'recetas.html', {"recetas": recipe_list, 'sale': sale, 'filter': filter})
+        else:
+            return render(request, 'recetas.html', {"recetas": recipe_list, 'sale': {'id': 0}, 'filter': filter})
+    else:
+        return HttpResponseRedirect("/login/")

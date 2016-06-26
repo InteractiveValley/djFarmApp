@@ -19,5 +19,6 @@ urlpatterns = [
     url(r'^envios/(?P<send_id>\d+)/$', views.detalle_envio, name='envio_detalle'),
     url(r'^crear/detalle/envio/(?P<detail_sale_id>\d+)/$', views.post_detalle_envio, name='crear_envio_detalle'),
     url(r'^quitar/detalle/envio/(?P<detail_send_id>\d+)/$', views.delete_detalle_envio, name='delete_envio_detalle'),
+    url(r'^recetas/$', views.recetas, name='recetas'),
     url(r'^receta/es/antibitico/(?P<image_sale_id>\d+)/$', views.recipe_is_antibitico, name='recipe_is_antibiotico'),
 ]
