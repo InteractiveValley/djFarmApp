@@ -20,6 +20,9 @@
 {% block body %}
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
+            <div class="text-center">
+                <img src="{% static 'usuarios/Logo.png' %}" alt="FarmaApp logo" style="max-height: 200px;"/>
+            </div>
             <ul class="nav nav-sidebar">
                 <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'calificaciones' %}?filter=todos">Todos <span class="sr-only">(current)</span></a></li>
                 <li class="{% if filter == 'buenos' %} active {% endif %}"><a href="{% url 'calificaciones' %}?filter=buenos">Buenas <span class="badge">{{buenos}}</span></a></li>

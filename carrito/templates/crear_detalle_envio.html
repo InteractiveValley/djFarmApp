@@ -24,6 +24,9 @@
 {% block body %}
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
+            <div class="text-center">
+                <img src="{% static 'usuarios/Logo.png' %}" alt="FarmaApp logo" style="max-height: 200px;"/>
+            </div>
             <ul class="nav nav-sidebar">
                 <li><a href="{% url 'envio_detalle' send.id %}">Detalle de envios <span class="sr-only">(current)</span></a></li>
                 <li class="active"><a href="{% url 'crear_envio_detalle' detail_sale.id %}">Crear detalle de envio</a></li>

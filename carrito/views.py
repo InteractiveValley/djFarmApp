@@ -309,7 +309,7 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
         "profile": PUSH_APP_ID,
         "notification": {
             "title": title,
-            "alert": message,
+            "message": message,
             "android": {
                 "payload": {
                     "saleId": sale.id,

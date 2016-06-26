@@ -523,7 +523,7 @@ def create_notification_ionic_push_inapam(register, title, message):
         "profile": PUSH_APP_ID,
         "notification": {
             "title": title,
-            "alert": message,
+            "message": message,
             "android": {
                 "payload": {
                     "inapam": True

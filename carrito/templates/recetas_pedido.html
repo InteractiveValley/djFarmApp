@@ -1,8 +1,14 @@
 <div class="recetas-pedido">
     <ul style="list-style: none;">
         {% for receta in pedido.images.all %}
-            <li><img src="{{receta.image_recipe.url}}" /></li>
+            <li>
+                <figure class="text-center">
+                    <img src="{{receta.image_recipe.url}}"  />
+                    <figcaption>
+                        <button class="btn btn-danger" onclick="javascript:EsReceta(recta.image_recipe.id)">Es receta</button>
+                    </figcaption>
+                </figure>
+            </li>
         {% endfor %}
     </ul>
-
 </div>
