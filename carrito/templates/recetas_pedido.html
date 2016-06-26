@@ -14,7 +14,7 @@
                         </figure>
                     </div>
                     <div class="col-md-2">
-                        {% if receta.is_antibiotico is True %}
+                        {% if receta.is_antibiotico %}
                             <button id="receta-{{receta.id}}" class="btn-antibiotico btn btn-success" data-url="{% url 'recipe_is_antibiotico' receta.id  %}">No tiene antibiotico</button>
                         {% else %}
                             <button id="receta-{{receta.id}}" class="btn-antibiotico btn btn-danger" data-url="{% url 'recipe_is_antibiotico' receta.id %}">Tiene antibiotico?</button>
