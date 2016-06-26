@@ -65,14 +65,6 @@ def pedido_ver_recetas(request, sale_id):
     return render(request, 'ver_receta.html', {"pedido": pedido, 'images': images})
 
 
-def recipe_is_antibitico(request, image_sale_id):
-    receta = ImageSale.objects.get(pk=image_sale_id)
-    receta.is_antibiotico = not receta.is_antibiotico
-    receta.save()
-    data = {'status': 'ok', 'message': 'Se ha realizado la actualizacion solicitada'}
-    return HttpResponse(json.dumps(data), content_type='application/json')
-
-
 def detalle_aprobar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     if pedido.status != APPROVED:
@@ -547,6 +539,13 @@ def delete_detalle_envio(request, detail_send_id=None):
     else:
         return HttpResponseRedirect("/login/")
 
+
+def recipe_is_antibitico(request, image_sale_id):
+    receta = ImageSale.objects.get(pk=image_sale_id)
+    receta.is_antibiotico = not receta.is_antibiotico
+    receta.save()
+    data = {'status': 'ok', 'message': 'Se ha realizado la actualizacion solicitada'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 def recetas(request):
     if request.user.is_authenticated():
