@@ -42,7 +42,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'name', 'substances', 'description', 'price', 'with_tax', 'recipe', 'active', 'category',
             'laboratory',
-            'image', 'discount', 'inventory',)
+            'image', 'discount', 'inventory','is_antibiotico')
 
 
 class ProductWithoutDiscountSerializer(serializers.ModelSerializer):
