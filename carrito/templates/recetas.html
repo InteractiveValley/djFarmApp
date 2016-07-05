@@ -25,8 +25,8 @@
                 <img src="{% static 'usuarios/Logo.png' %}" alt="FarmaApp logo" style="max-height: 200px;"/>
             </div>
             <ul class="nav nav-sidebar">
-                <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'recetas' %}?filter=todos&sale={{sale.id}}">Recetas <span class="sr-only">(current)</span></a></li>
-                <li class="{% if filter == 'es_antibiotico' %} active {% endif %}"><a href="{% url 'recetas' %}?filter=es_antibiotico&sale={{sale.id}}">Tiene antibiotico</a></li>
+                <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'recetas' %}?filter=todos&sale={{sale.id}}">Sin clasificar <span class="sr-only">(current)</span></a></li>
+                <li class="{% if filter == 'es_antibiotico' %} active {% endif %}"><a href="{% url 'recetas' %}?filter=es_antibiotico&sale={{sale.id}}">Con antibiotico</a></li>
                 <li class="{% if filter == 'normal' %} active {% endif %}"><a href="{% url 'recetas' %}?filter=normal&sale={{sale.id}}">Normal</a></li>
             </ul>
 
@@ -42,7 +42,7 @@
                   <th>#</th>
                   <th>Venta</th>
                   <th>Receta</th>
-                  <th>Es antibiotico?</th>
+                  <th>Tipo</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -57,10 +57,12 @@
                       </div>
                   </td>
                   <td>
-                      {% if receta.is_antibiotico %}
-                        Si
-                      {% else %}
-                        No
+                      {% if receta.type_recipe==1 %}
+                        Sin clasificar
+                      {% elif receta.type_recipe==2 %}
+                        Normal
+					  {% else %}
+					    Con antibiotico
                       {% endif %}
                   </td>
                   <td>
