@@ -41,8 +41,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = (
             'id', 'name', 'substances', 'description', 'price', 'with_tax', 'recipe', 'active', 'category',
-            'laboratory',
-            'image', 'discount', 'inventory','is_antibiotico')
+            'laboratory', 'image', 'discount', 'inventory')
 
 
 class ProductWithoutDiscountSerializer(serializers.ModelSerializer):

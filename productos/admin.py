@@ -31,7 +31,7 @@ class ProductAdmin(admin.ModelAdmin):
         ('Detalle', {'fields': ['price', 'with_tax', 'active', 'recipe', ]}),
         ('Descuento', {'fields': ['discount', ]}),
     ]
-    list_display = ('name', 'substances', 'category', 'price', 'with_tax', 'status_inventory', 'active', 'thumbnail','is_antibiotico')
+    list_display = ('name', 'substances', 'category', 'price', 'with_tax', 'status_inventory', 'active', 'thumbnail')
     search_fields = ('name', 'category__name', 'substances',)
 
 

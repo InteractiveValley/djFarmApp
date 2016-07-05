@@ -4,6 +4,7 @@ from productos.models import Product
 from usuarios.models import Direction, CustomUser, CardConekta
 from django.utils import timezone
 from productos.models import Discount
+from django.db.models import Max
 
 INCOMPLETE = 0
 COMPLETE = 1
@@ -224,10 +225,44 @@ class DetailSale(models.Model):
         verbose_name_plural = "detalles de venta"
 
 
+TYPE_WITHOUT_FOLIO = 1
+TYPE_RECIPE_NORMAL = 2
+TYPE_RECIPE_WITH_ANTIBIOTICO = 3
+
+TYPE_RECIPES = {
+    (TYPE_WITHOUT_FOLIO, "Receta sin folio"),
+    (TYPE_RECIPE_NORMAL, "Receta normal"),
+    (TYPE_RECIPE_WITH_ANTIBIOTICO, "Receta con antibiotico"),
+}
+
 class ImageSale(models.Model):
     sale = models.ForeignKey(Sale, related_name="images")
     image_recipe = models.ImageField("receta", upload_to='recetas/', null=True, blank=True)
-    is_antibiotico = models.BooleanField(verbose_name="Antibiotico", default=False)  # es antibiotico
+    type_recipe = models.IntegerField("Tipo de receta", default=TYPE_WITHOUT_FOLIO, choices=TYPE_RECIPES)
+    user = models.ForeignKey(CustomUser, verbose_name="Usuario valido", null=True, blank=True)
+    folio_recipe = models.IntegerField("Folio de receta", default=0)
+    created = models.DateTimeField("creado", null=True, blank=True)
+    modified = models.DateTimeField("actualizado", null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update timestamps
+        """
+    
+        if not self.id:
+            self.created = timezone.localtime(timezone.now())
+            self.type_recipe = TYPE_WITHOUT_FOLIO
+            self.folio_recipe = 0
+        self.modified = timezone.localtime(timezone.now())
+        if self.type_recipe == TYPE_RECIPE_NORMAL and self.folio_recipe == 0:
+            self.folio_recipe = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_NORMAL).aggregate(Max('folio_recipe'))[0]
+            self.folio_recipe = self.folio_recipe + 1
+            
+        elif self.type_recipe == TYPE_RECIPE_WITH_ANTIBIOTICO and self.folio_recipe == 0:
+            self.folio_recipe = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_WITH_ANTIBIOTICO).aggregate(Max('folio_recipe'))[0]
+            self.folio_recipe = self.folio_recipe + 1
+            
+        return super(ImageSale, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = "receta"
@@ -279,6 +314,12 @@ class Receipt(models.Model):
                 product.save()
                 self.status = True
         elif self.type_receipt == TYPE_OBSOLETE:
+            if not self.status:
+                product = self.product
+                product.inventory = product.inventory - self.quantity
+                product.save()
+                self.status = True
+        elif self.type_receipt == TYPE_INACTIVADO:
             if not self.status:
                 product = self.product
                 product.inventory = product.inventory - self.quantity

@@ -53,4 +53,4 @@ class ImageSaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImageSale
         list_serializer_class = ImageSaleListSerializer
-        fields = ('id', 'sale', 'image_recipe',)
+        fields = ('id', 'sale', 'image_recipe','type_recipe','user','created','modified')

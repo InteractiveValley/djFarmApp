@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
 from carrito.models import Sale, APPROVED, REJECTED, DELIVERED, PAID, NO_PAID, DetailSale, ImageSale, TYPE_RECEIPT, \
-    TYPE_OBSOLETE, Send, DetailSend, TYPE_INACTIVADO
+    TYPE_OBSOLETE, Send, DetailSend, TYPE_INACTIVADO, TYPE_WITHOUT_FOLIO, TYPE_RECIPE_NORMAL, TYPE_RECIPE_WITH_ANTIBIOTICO
 from productos.models import Product
 from usuarios.models import ConektaUser, CardConekta
 from usuarios.enviarEmail import EmailSendSale
@@ -424,6 +424,7 @@ def recibo_inactivado(request, receipt_id):
     if request.user.is_authenticated():
         recibo = Receipt.objects.get(pk = receipt_id)
         recibo.type_receipt = TYPE_INACTIVADO
+        recibo.status = False
         recibo.save()
         data = {'status': 'ok', 'message': 'Se ha realizado la actualizacion solicitada'}
         return HttpResponse(json.dumps(data), content_type='application/json')
@@ -435,6 +436,7 @@ def recibo_activado(request, receipt_id):
     if request.user.is_authenticated():
         recibo = Receipt.objects.get(pk = receipt_id)
         recibo.type_receipt = TYPE_RECEIPT
+        recibo.status = False
         recibo.save()
         data = {'status': 'ok', 'message': 'Se ha realizado la actualizacion solicitada'}
         return HttpResponse(json.dumps(data), content_type='application/json')
@@ -570,12 +572,19 @@ def delete_detalle_envio(request, detail_send_id=None):
     else:
         return HttpResponseRedirect("/login/")
 
-
-def recipe_is_antibitico(request, image_sale_id):
+def recipe_normal(request, image_sale_id):
     receta = ImageSale.objects.get(pk=image_sale_id)
-    receta.is_antibiotico = not receta.is_antibiotico
+    receta.type_recipe = TYPE_RECIPE_NORMAL
     receta.save()
-    data = {'status': 'ok', 'message': 'Se ha realizado la actualizacion solicitada'}
+    data = {'status': 'ok', 'message': 'Se ha foliado receta como tipo normal'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def recipe_with_antibiotico(request, image_sale_id):
+    receta = ImageSale.objects.get(pk=image_sale_id)
+    receta.type_recipe = TYPE_RECIPE_WITH_ANTIBIOTICO
+    receta.save()
+    data = {'status': 'ok', 'message': 'Se ha foliado receta como tipo con antibiotico'}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 def recetas(request):
@@ -598,19 +607,19 @@ def recetas(request):
 
         if filter == 'todos':
             if not sale is None:
-                recipe_list = ImageSale.objects.filter(sale=sale).order_by('-sale')
+                recipe_list = ImageSale.objects.filter(type_recipe=TYPE_WITHOUT_FOLIO, sale=sale).order_by('-sale')
             else:
-                recipe_list = ImageSale.objects.all().order_by('-sale')
+                recipe_list = ImageSale.objects.filter(type_recipe=TYPE_WITHOUT_FOLIO).order_by('-sale')
         elif filter == 'es_antibiotico':
             if not sale is None:
-                recipe_list = ImageSale.objects.filter(is_antibiotico=True, sale=sale).order_by('-sale')
+                recipe_list = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_WITH_ANTIBIOTICO, sale=sale).order_by('-sale')
             else:
-                recipe_list = ImageSale.objects.filter(is_antibiotico=True).order_by('-sale')
+                recipe_list = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_WITH_ANTIBIOTICO).order_by('-sale')
         elif filter == 'normal':
             if not sale is None:
-                recipe_list = ImageSale.objects.filter(is_antibiotico=False, sale=sale).order_by('-sale')
+                recipe_list = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_NORMAL, sale=sale).order_by('-sale')
             else:
-                recipe_list = ImageSale.objects.filter(is_antibiotico=False).order_by('-sale')
+                recipe_list = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_NORMAL).order_by('-sale')
 
         """paginator = Paginator(receipt_list, 10)
         page = request.GET.get('page')
