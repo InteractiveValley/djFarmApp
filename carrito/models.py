@@ -255,11 +255,11 @@ class ImageSale(models.Model):
             self.folio_recipe = 0
         self.modified = timezone.localtime(timezone.now())
         if self.type_recipe == TYPE_RECIPE_NORMAL and self.folio_recipe == 0:
-            self.folio_recipe = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_NORMAL).aggregate(Max('folio_recipe'))[0]
+            self.folio_recipe = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_NORMAL).aggregate(Max('folio_recipe'))
             self.folio_recipe = self.folio_recipe + 1
             
         elif self.type_recipe == TYPE_RECIPE_WITH_ANTIBIOTICO and self.folio_recipe == 0:
-            self.folio_recipe = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_WITH_ANTIBIOTICO).aggregate(Max('folio_recipe'))[0]
+            self.folio_recipe = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_WITH_ANTIBIOTICO).aggregate(Max('folio_recipe'))
             self.folio_recipe = self.folio_recipe + 1
             
         return super(ImageSale, self).save(*args, **kwargs)
