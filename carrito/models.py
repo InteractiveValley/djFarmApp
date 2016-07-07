@@ -258,7 +258,7 @@ class ImageSale(models.Model):
             folio1 = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_NORMAL).aggregate(Max('folio_recipe'))
             if folio1['folio_recipe__max'] is None:
                 folio2 = 0
-            else
+            else:
                 folio2 = folio1['folio_recipe__max']
             self.folio_recipe = folio2 + 1
             
@@ -266,7 +266,7 @@ class ImageSale(models.Model):
             folio1 = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_WITH_ANTIBIOTICO).aggregate(Max('folio_recipe'))
             if folio1['folio_recipe__max'] is None:
                 folio2 = 0
-            else
+            else:
                 folio2 = folio1['folio_recipe__max']
             self.folio_recipe = folio2 + 1
             

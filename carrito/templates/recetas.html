@@ -39,7 +39,8 @@
             <table class="table table-striped" id="myTable">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th>ID</th>
+				  <th>Folio</th>
                   <th>Venta</th>
                   <th>Receta</th>
                   <th>Tipo</th>
@@ -50,6 +51,7 @@
                 {% for receta in recetas %}
                 <tr>
                   <td>{{ receta.id }}</td>
+				  <td>{{ receta.folio_recipe }}</td>
                   <td>{{ receta.sale }}</td>
                   <td>
                       <div class="text-center">
