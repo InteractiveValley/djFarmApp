@@ -146,7 +146,7 @@ def detalle_entregar(request, sale_id):
         if len(pedido.charge_conekta) == 0:
             charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=amount,
                                              description="Pedido de FarmaApp",
-                                             order_id="pedido-farmaapp-" + str(pedido.id),
+                                             order_id="pedido-" + str(pedido.id) + "-farmaapp",
                                              device_session_id=device_session_id)
         else:
             charge = customer.charges.retrieve(pedido.charge_conekta)
