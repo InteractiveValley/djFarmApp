@@ -24,7 +24,7 @@ admin.site.register(DetailSale, DetailSaleAdmin)
 
 
 class ImageSaleAdmin(admin.ModelAdmin):
-    list_display = ('id', 'sale', 'image_recipe',)
+    list_display = ('id', 'sale', 'image_recipe','type_recipe','user','created','modified')
     search_fields = ('sale__user__email', 'sale__user__first_name', 'sale__user__last_name')
     ordering = ('sale', 'id',)
 
