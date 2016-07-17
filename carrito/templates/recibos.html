@@ -19,6 +19,7 @@
 {% endblock %}
 
 {% block body %}
+    {% load app_filters %}
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <div class="text-center">
@@ -59,14 +60,15 @@
                   <td>
                       <ul>
                           <li>Producto: {{ recibo.product.name }}</li>
+                          <li>Codigo barras: {{ recibo.product.cb }}</li>
                           <li>Categoria: {{ recibo.product.category.name }}</li>
                       </ul>
                   </td>
-                  <td>{{ recibo.quantity }}</td>
+                  <td class="text-right">{{ recibo.quantity|quantity }}</td>
                   <td>{{ recibo.user.get_full_name }}</td>
                   <td width="100px;">{{ recibo.created|date:"D d M Y H:i a" }}</td>
                   <td width="100px;">{{ recibo.expiration|safe }}</td>
-                  <td>{{recibo.quantity_original}}</td>
+                  <td class="text-right">{{recibo.quantity_original|quantity }}</td>
                   <td>
                       <ul>
                           <li>No. Lote: {{recibo.no_lote}}</li>

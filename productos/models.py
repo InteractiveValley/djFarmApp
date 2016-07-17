@@ -130,6 +130,7 @@ class Product(models.Model):
                                            blank=True)
     image_no_require = models.ImageField(upload_to='productos/norequire/', verbose_name="Sin receta", null=True,
                                          blank=True)
+    cb = models.CharField("Codigo de barras", max_length=140, null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
     date_enter = models.DateTimeField("Fecha entrada", null=True, blank=True)

@@ -20,6 +20,7 @@
 {% endblock %}
 
 {% block body %}
+    {% load app_filters %}
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <div class="text-center">
@@ -49,14 +50,20 @@
               </thead>
               <tbody>
                 {% for send in sends %}
-                <tr>
-                  <td>{{ send.id }}</td>
-                  <td>{{ send.sale }}</td>
-                  <td>{{ send.vendor }}</td>
-                  <td>{{ send.complete }}</td>
-                  <td>{{ send.created|date:"D d M Y H:i a" }}</td>
-                  <td><a href="{% url 'envio_detalle' send.id %}" class="btn btn-success">Ver detalle</a></td>
-                </tr>
+
+                    <tr>
+                      <td>{{ send.id }}</td>
+                      <td>{{ send.sale }}</td>
+                      <td>{{ send.vendor }}</td>
+                      {% with send.complete as porcentaje %}
+                      <td data-porcentaje="{{porcentaje}}" {% if porcentaje == 100 %} style="color: green;" {% else %} style="color: red;" {% endif %}>
+                          {{ porcentaje|avg_send }}
+                      </td>
+                      {% endwith %}
+                      <td>{{ send.created|date:"D d M Y H:i a" }}</td>
+                      <td><a href="{% url 'envio_detalle' send.id %}" class="btn btn-success">Ver detalle</a></td>
+                    </tr>
+
                 {% endfor %}
               </tbody>
               <tfoot>

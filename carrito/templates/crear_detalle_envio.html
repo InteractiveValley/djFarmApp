@@ -10,6 +10,12 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
     {% load staticfiles %}
     <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+
+    <style>
+    option span.resaltarTexto{
+        font-weight: bold;
+    }
+    </style>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
@@ -71,5 +77,39 @@
 {% endblock %}
 
 {% block  javascripts %}
+    <script>
+      (function(){
 
+        cambiarNombreReciboAsociado();
+
+        jQuery.fn.extend({
+            resaltar: function(busqueda, claseCSSbusqueda){
+                var regex = new RegExp("(<[^>]*>)|("+ busqueda.replace(/([-.*+?^${}()|[\]\/\\])/g,"\\$1") +')', 'ig');
+                var nuevoHtml=this.html(this.html().replace(regex, function(a, b, c){
+                    var texto =  (a.charAt(0) == "<") ? a : "<span style=\""+ claseCSSbusqueda +"\">" + c + "</span>";
+                    return texto;
+                }));
+                return nuevoHtml;
+            }
+        });
+
+        resaltarTexto();
+
+      })();
+
+
+
+      function resaltarTexto(){
+        var optionSelected = $("#id_detail_sale option:selected");
+        optionSelected.resaltar("Cant: {{ detail_sale.quantity }}", "font-weight: bold;");
+      }
+
+      function cambiarNombreReciboAsociado(){
+        var idReceipt = $("#id_receipt");
+        var label = idReceipt.parent().find("label");
+        label.text("Seleccione lote proximo a caducar:")
+      }
+
+
+    </script>
 {% endblock %}
