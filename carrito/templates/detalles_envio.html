@@ -3,6 +3,7 @@
 {% block title %} Pedido: {{ send.sale }} {% endblock %}
 
 {% block body %}
+    {% load app_filters %}
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
@@ -43,7 +44,7 @@
                             {% for detalle_envio in detalle.detail_sends.all %}
                             <tr>
                                 <td>{{detalle_envio.receipt.id}}</td>
-                                <td>{{detalle_envio.quantity}}</td>
+                                <td class="text-right">{{detalle_envio.quantity|quantity }}</td>
                                 <td>{{detalle_envio.date_expiration|date:"D d M Y" }}</td>
                                 <td><a href="{% url 'delete_envio_detalle' detalle_envio.id %}">Quitar</a></td>
                             </tr>
@@ -51,7 +52,11 @@
                           </tbody>
                       </table>
                   </td>
-                  <td>{{detalle.complete_shipping}}</td>
+                  {% with detalle.complete_shipping as porcentaje %}
+                  <td  {% if porcentaje == 100 %} style="color: green;" {% else %} style="color: red;" {% endif %}>
+                      {{ porcentaje|avg_send }}
+                  </td>
+                  {% endwith %}
                   <td>
                       {% if detalle.with_shipping == False %}
                       <a href="{% url 'crear_envio_detalle' detalle.id %}" class="btn btn-success">Agregar envio</a>

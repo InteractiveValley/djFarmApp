@@ -218,7 +218,7 @@ class DetailSale(models.Model):
         for envio in detalles_envio:
             envios += envio.quantity
         porcentaje = float(envios / productos)
-        return str(int(porcentaje * 100)) + "%"
+        return int(porcentaje * 100)
 
     class Meta:
         verbose_name = "detalle de venta"
@@ -298,7 +298,7 @@ class Receipt(models.Model):
     quantity = models.IntegerField("recibido", default=0)
     type_receipt = models.IntegerField("Tipo de trasaccion", default=TYPE_RECEIPT, choices=TYPE_RECEIPTS)
     status = models.BooleanField("procesado", default=False)
-    date_expiration = models.DateField("expira", null=True, blank=True)
+    date_expiration = models.DateField("caduca", null=True, blank=True)
     no_lote = models.CharField("no. de lote", max_length=140, null=True, blank=True)
     distribuidor = models.CharField("distribuidor", max_length=140, null=True, blank=True)
     factura = models.CharField("factura", max_length=140, null=True, blank=True)
@@ -425,7 +425,7 @@ class Send(models.Model):
             porcentaje = float(envios / productos)
         else:
             porcentaje = 0.0
-        return str(int(porcentaje * 100)) + "%"
+        return int(porcentaje * 100)
 
     def __str__(self):
         return unicode(self).encode("utf-8")

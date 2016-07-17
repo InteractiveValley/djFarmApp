@@ -25,13 +25,13 @@ admin.site.register(Laboratory, LaboratoryAdmin)
 
 class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
-        ('General', {'fields': ['name', 'substances', 'category', 'laboratory', 'description', ]}),
+        ('General', {'fields': ['name', 'substances', 'category', 'laboratory', 'description', 'cb', ]}),
         ('Thumbnails', {'fields': ['image_no_require', 'image_require_show', 'image_require'],
                         'classes': ['collapse']}),
         ('Detalle', {'fields': ['price', 'with_tax', 'active', 'recipe', ]}),
         ('Descuento', {'fields': ['discount', ]}),
     ]
-    list_display = ('name', 'substances', 'category', 'price', 'with_tax', 'status_inventory', 'active', 'thumbnail')
+    list_display = ('name', 'substances', 'category','cb', 'price', 'with_tax', 'status_inventory', 'active', 'thumbnail',)
     search_fields = ('name', 'category__name', 'substances',)
 
 
