@@ -17,6 +17,7 @@ Pedido numero #{{pedido.id}}
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>CB</th>
                   <th>Producto</th>
                   <th>Cantidad</th>
                   <th>Precio</th>
@@ -32,6 +33,7 @@ Pedido numero #{{pedido.id}}
                     <tr>
                 {% endif %}
                   <td>{{ forloop.counter }}</td>
+                  <td>{{ detalle.product.cb }}</td>
                   <td>{{ detalle.product.name }}</td>
                   <td class="text-right">{{ detalle.quantity|quantity }}</td>
                   <td class="text-right">{{ detalle.price|currency }}</td>
@@ -106,7 +108,7 @@ Pedido numero #{{pedido.id}}
                   </tr>
                   {% if pedido.notes|length > 0 %}
                     <tr>
-                        <td>
+                        <td colspan="2">
                             Nota del cliente:
                         </td>
                         <td bgcolor="gray" style="color: white;" colspan="5">

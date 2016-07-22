@@ -56,6 +56,7 @@ class Sale(models.Model):
         cadena = "Venta: %i .- Usuario: %s" % (self.id, self.user.get_full_name())
         return cadena
 
+    @property
     def subtotal(self):
         detalle_ventas = self.detail_sales.all()
         d_subtotal = 0.0
@@ -63,6 +64,7 @@ class Sale(models.Model):
             d_subtotal += float(detalle.subtotal)
         return d_subtotal
 
+    @property
     def discount(self):
         detalle_ventas = self.detail_sales.all()
         d_discount = 0.0
@@ -70,6 +72,7 @@ class Sale(models.Model):
             d_discount += float(detalle.discount)
         return d_discount
 
+    @property
     def discount_inapam(self):
         detalle_ventas = self.detail_sales.all()
         d_discount_inapam = 0.0
@@ -77,6 +80,7 @@ class Sale(models.Model):
             d_discount_inapam += float(detalle.discount_inapam)
         return d_discount_inapam
 
+    @property
     def tax(self):
         detalle_ventas = self.detail_sales.all()
         d_tax = 0.0
@@ -84,17 +88,19 @@ class Sale(models.Model):
             d_tax += float(detalle.tax)
         return d_tax
 
+    @property
     def total(self):
         detalle_ventas = self.detail_sales.all()
         d_total = 0.0
         for detalle in detalle_ventas:
-            d_total += detalle.total()
+            d_total += detalle.total
 
         if self.shipping > 0.0:
             return d_total + float(self.shipping)
         else:
             return d_total
 
+    @property
     def discount_inventory(self):
         detalle_ventas = self.detail_sales.all()
         for detalle in detalle_ventas:
@@ -103,15 +109,20 @@ class Sale(models.Model):
             product.save()
         return True
 
+    @property
     def has_recipe(self):
         detalle_ventas = self.detail_sales.all()
-        b_recipe = False
+        products = 0
+        recipes = 0
         for detalle in detalle_ventas:
             if detalle.product.recipe == Product.STAY_RECIPE:
-                b_recipe = True
-                break
-        return b_recipe
+                products += 1
+                if detalle.complete_shipping == 100:
+                    recipes += 1
 
+        return products == recipes
+
+    @property
     def show_status(self):
         if self.status == INCOMPLETE:
             return "Capturando"
