@@ -119,6 +119,7 @@
                         >Recetas</a>
                     </li>
                     {% endif %}
+					{% if pedido.has_image_recipe_aproved %}
                     <li>
                         <a  href="/backend/pedidos/{{ pedido.id }}/" target="_blank" class="btn btn-primary"
                         onclick="window.open(this.href, this.target, 'width=800,height=600'); return false;"
@@ -148,6 +149,7 @@
                         <button data-url="/backend/pedidos/{{ pedido.id }}/review/" class="button-action button-delivered  btn btn-success">Revisar pago</button>
                     </li>
                     {% endif %}
+					{% endif %}
                 </ul>
             </div>
 </div>

@@ -121,8 +121,16 @@ class Sale(models.Model):
                     recipes += 1
 
         return products == recipes
+    
+    def has_image_recipe_aproved(self):
+        images = self.images.all()
+        is_aproved = True
+        for image in images:
+            if image.type_recipe != TYPE_WITHOUT_FOLIO:
+                is_aproved = False
+                break
+        return is_aproved
 
-    @property
     def show_status(self):
         if self.status == INCOMPLETE:
             return "Capturando"
