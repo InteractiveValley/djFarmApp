@@ -93,14 +93,13 @@ class Sale(models.Model):
         detalle_ventas = self.detail_sales.all()
         d_total = 0.0
         for detalle in detalle_ventas:
-            d_total += detalle.total
+            d_total += detalle.total()
 
         if self.shipping > 0.0:
             return d_total + float(self.shipping)
         else:
-            return d_total
+            return float(d_total)
 
-    @property
     def discount_inventory(self):
         detalle_ventas = self.detail_sales.all()
         for detalle in detalle_ventas:
@@ -109,7 +108,6 @@ class Sale(models.Model):
             product.save()
         return True
 
-    @property
     def has_recipe(self):
         detalle_ventas = self.detail_sales.all()
         products = 0
