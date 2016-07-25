@@ -139,7 +139,7 @@ def detalle_entregar(request, sale_id):
 
         # import pdb; pdb.set_trace();
         card_conekta = pedido.card_conekta
-        amount = pedido.total()
+        amount = pedido.total
         detalles = pedido.detail_sales.all()
         lista = []
         charge = None
@@ -159,12 +159,12 @@ def detalle_entregar(request, sale_id):
             pedido.status = PAID
             pedido.vendor = request.user
             pedido.save()
-            pedido.discount_inventory()
+            pedido.discount_inventory
             enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
             enviar_mensaje.enviarMensaje()
             #  import pdb; pdb.set_trace()
             str_pedido = str(pedido.id).zfill(6)
-            str_total = '{:20,.2f}'.format(pedido.total())
+            str_total = '{:20,.2f}'.format(pedido.total)
             message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
             create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
             # import pdb; pdb.set_trace()
@@ -205,12 +205,12 @@ def revisar_pago(request, sale_id):
             pedido.status = PAID
             pedido.vendor = request.user
             pedido.save()
-            pedido.discount_inventory()
+            pedido.discount_inventory
             detalles = pedido.detail_sales.all()
             enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
             enviar_mensaje.enviarMensaje()
             str_pedido = str(pedido.id).zfill(6)
-            str_total = '{:20,.2f}'.format(pedido.total())
+            str_total = '{:20,.2f}'.format(pedido.total)
             message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
             create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
 
@@ -260,7 +260,7 @@ def create_notification_carrito(sale, user, title, message):
         "message": message,
         "payload": {
             "saleId": sale.id,
-            "status_string": sale.show_status()
+            "status_string": sale.show_status
         }
     }
 
@@ -313,14 +313,14 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
             "android": {
                 "payload": {
                     "saleId": sale.id,
-                    "status_string": sale.show_status()
+                    "status_string": sale.show_status
                 },
                 "collapse_key": "FarmaApp_carrito"
             },
             "ios": {
                 "payload": {
                     "saleId": sale.id,
-                    "status_string": sale.show_status()
+                    "status_string": sale.show_status
                 }
             }
         }

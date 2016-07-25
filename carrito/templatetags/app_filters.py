@@ -13,7 +13,7 @@ def currency(value):
 @register.filter(name='quantity')
 def quantity(value):
     value = round(float(value), 2)
-    return "%s%s" % (intcomma(int(value)), ("%0.2f" % value)[-3:])
+    return "%s%s" % (intcomma(int(value)), ("%0.0f" % value)[-3:])
 
 
 @register.filter(name='avg_send')
