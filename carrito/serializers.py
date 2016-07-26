@@ -40,7 +40,7 @@ class SaleSerializer(serializers.ModelSerializer):
         read_only_fields = ('user', 'created', 'modified', 'shipping', 'total',)
 
     def get_status_string(self, obj):
-        return obj.show_status
+        return obj.show_status()
 
 
 class ImageSaleListSerializer(serializers.ListSerializer):
