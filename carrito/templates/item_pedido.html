@@ -56,6 +56,7 @@
                       <td></td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       <td>Descuento: </td>
                       <td class="text-right">-{{pedido.discount|currency }}</td>
                       <td></td>
@@ -63,6 +64,7 @@
                   {% endif %}
                   {% if pedido.discount_inapam > 0.0 %}
                   <tr style="font-weight: bolder;">
+                      <td></td>
                       <td></td>
                       <td></td>
                       <td></td>
@@ -76,6 +78,7 @@
                       <td></td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       <td>Envio: </td>
                       <td class="text-right">{{pedido.shipping|currency }}</td>
                       <td></td>
@@ -86,12 +89,14 @@
                       <td></td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       <td>IVA: </td>
                       <td class="text-right">{{pedido.tax|currency }}</td>
                       <td></td>
                   </tr>
                   {% endif %}
                   <tr style="font-weight: bolder;">
+                      <td></td>
                       <td></td>
                       <td></td>
                       <td></td>

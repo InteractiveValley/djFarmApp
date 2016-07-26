@@ -2,6 +2,7 @@
 from django import forms
 from .models import Receipt, Send, Sale, DetailSend, TYPE_RECEIPT, DetailSale
 from datetimewidget.widgets import DateWidget
+from django.utils import timezone
 
 
 class ReceiptForm(forms.ModelForm):
@@ -23,6 +24,46 @@ class ReceiptForm(forms.ModelForm):
         # Añadir atributos personalizados a campos sueltos.
         self.fields['date_expiration'].widget.attrs.update({'placeholder': 'Fecha en que caduca'})
 
+    def clean_product(self):
+        product = self.cleaned_data.get('product', None)
+        if product is None:
+            raise forms.ValidationError("Se debe de seleccionar un producto para recibir")
+        return product
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity', 0)
+        if quantity == 0:
+            raise forms.ValidationError("El valor de cantidad debe de ser mayor a 0")
+        return quantity
+
+    def clean_date_expiration(self):
+        date_expiration = self.cleaned_data.get("date_expiration", None)
+        now = timezone.localtime(timezone.now())
+        if date_expiration is None:
+            raise forms.ValidationError("Se debe de ingresar una fecha de caducidad")
+            return date_expiration
+        if date_expiration <= now.date():
+            raise forms.ValidationError("La fecha de caducidad debe der mayor al dia de hoy")
+        return date_expiration
+
+    def clean_no_lote(self):
+        no_lote = self.cleaned_data.get('no_lote', '')
+        if len(no_lote) == 0:
+            raise forms.ValidationError("Falta el numero de lote")
+        return no_lote
+
+    def clean_distribuidor(self):
+        distribuidor = self.cleaned_data.get('distribuidor', '')
+        if len(distribuidor) <= 3:
+            raise forms.ValidationError("Falta el distribuidor")
+        return distribuidor
+
+    def clean_factura(self):
+        factura = self.cleaned_data.get('factura', '')
+        if len(factura) <= 3:
+            raise forms.ValidationError("Falta la factura")
+        return factura
+
 
 class SendForm(forms.ModelForm):
     class Meta:
@@ -39,6 +80,12 @@ class SendForm(forms.ModelForm):
         sale_list = Sale.objects.filter(with_shipping=False)
 
         self.fields['sale'].queryset = sale_list
+
+    def clean_sale(self):
+        sale = self.cleaned_data.get('sale', None)
+        if sale is None:
+            raise forms.ValidationError("Se debe de seleccionar una venta para el envio")
+        return sale
 
 
 class DetailSendForm(forms.ModelForm):
@@ -64,3 +111,30 @@ class DetailSendForm(forms.ModelForm):
                                                                      type_receipt=TYPE_RECEIPT,
                                                                      quantity__gt=0)
             self.fields['receipt'].initial = detalle_envio[0]['product']
+
+    def clean_send(self):
+        send = self.cleaned_data.get('send', None)
+        if send is None:
+            raise forms.ValidationError("Se debe de seleccionar una venta para el envio")
+        return send
+
+    def clean_detail_sale(self):
+        detail_sale = self.cleaned_data.get('detail_sale', None)
+        if detail_sale is None:
+            raise forms.ValidationError("Se debe de seleccionar una linea del pedido")
+        return detail_sale
+
+    def clean_receipt(self):
+        receipt = self.cleaned_data.get('receipt', None)
+        if receipt is None:
+            raise forms.ValidationError("Se debe de seleccionar un recibo para asociar")
+            return receipt
+        if receipt.quantity <= 0:
+            raise forms.ValidationError("Solo se puede seleccionar recibos con inventario activo")
+        return receipt
+
+    def clean_quantity(self):
+        quantity = self.cleaned_data.get('quantity', 0)
+        if quantity == 0:
+            raise forms.ValidationError("El valor de cantidad debe de ser mayor a 0")
+        return quantity
