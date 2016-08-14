@@ -237,6 +237,16 @@ class DetailSale(models.Model):
         porcentaje = float(envios / productos)
         return int(porcentaje * 100)
 
+    def product_cb(self):
+        return self.product.cb
+
+    product_cb.short_description = 'cb'
+
+    def sale_date(self):
+        return self.sale.created
+
+    sale_date.short_description = 'fecha venta'
+
     class Meta:
         verbose_name = "detalle de venta"
         verbose_name_plural = "detalles de venta"
