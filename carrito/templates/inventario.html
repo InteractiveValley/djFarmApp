@@ -33,7 +33,7 @@
                 <li class="{% if filter == 'enwarning' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=enwarning">Por acabarse<span class="badge">{{en_warning}}</span></a></li>
               </ul>
         </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
         <br/>
           <h1 class="page-header">Productos {% if category.id > 0 %} {{category.name}} {% endif %}</h1>
           <div class="table-responsive">
