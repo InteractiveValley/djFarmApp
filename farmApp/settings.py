@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     'djoser',
     'datetimewidget',
     'django_summernote',
+    'push_notifications'
 
 )
 
@@ -169,3 +170,9 @@ EMAIL_HOST_USER = APP_EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = APP_EMAIL_HOST_PASSWORD
 EMAIL_PORT = APP_EMAIL_PORT
 EMAIL_USE_TLS = APP_EMAIL_USE_TLS
+
+# configuraciones de push notifications
+PUSH_NOTIFICATIONS_SETTINGS = {
+    'GCM_API_KEY': APP_GCM_API_KEY,
+    'APNS_CERTIFICATE': APP_APNS_CERT_PEM_PATH,
+}

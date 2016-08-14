@@ -54,8 +54,8 @@
                   <td>{{ producto.id }}</td>
                   <td>{{ producto.name }}</td>
                   <td>{{ producto.category.name }}</td>
-                  <td class="text-right">{{ producto.price|currency }}</td>
-                  <td class="text-right">{{ producto.inventory|quantity }}</td>
+                  <td class="text-center">{{ producto.price|currency }}</td>
+                  <td class="text-center">{{ producto.inventory|quantity }}</td>
                   <td>
                       <a class="btn btn-success" href="{% url 'recibos' %}?filter=todos&product={{producto.id}}">
                           <i class="glyphicon glyphicon-search"></i> &nbsp; Ver recibos

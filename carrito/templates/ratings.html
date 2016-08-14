@@ -55,7 +55,7 @@
                   <td>{{ rating.id }}</td>
                   <td>{{ rating.user.get_full_name }}</td>
                   <td>{{ rating.comment }}</td>
-                  <td class="text-right">{{ rating.rating|quantity }}</td>
+                  <td class="text-center">{{ rating.rating|quantity }}</td>
                   <td>{{ rating.created }}</td>
                 </tr>
                 {% endfor %}

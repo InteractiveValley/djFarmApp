@@ -44,7 +44,7 @@
                             {% for detalle_envio in detalle.detail_sends.all %}
                             <tr>
                                 <td>{{detalle_envio.receipt.id}}</td>
-                                <td class="text-right">{{detalle_envio.quantity|quantity }}</td>
+                                <td class="text-left">{{detalle_envio.quantity|quantity }}</td>
                                 <td>{{detalle_envio.date_expiration|date:"D d M Y" }}</td>
                                 <td><a href="{% url 'delete_envio_detalle' detalle_envio.id %}">Quitar</a></td>
                             </tr>
