@@ -41,6 +41,7 @@
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>Cb</th>
                   <th>Producto</th>
                   <th>Categoria</th>
                   <th>Precio</th>
@@ -52,6 +53,7 @@
                 {% for producto in productos %}
                 <tr>
                   <td>{{ producto.id }}</td>
+                  <td>{{ producto.cb }}</td>
                   <td>{{ producto.name }}</td>
                   <td>{{ producto.category.name }}</td>
                   <td class="text-center">{{ producto.price|currency }}</td>
