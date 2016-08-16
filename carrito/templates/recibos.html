@@ -34,7 +34,7 @@
               </ul>
 
         </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
         <br/>
 
           <h1 class="page-header">Recibos {% if product.id > 0 %} {{product.name}} {% endif %}</h1>
@@ -49,7 +49,9 @@
                   <th>Fecha recibo</th>
                   <th>Caduca</th>
                   <th>Original</th>
-                  <th>Especiales</th>
+                  <th>No. Lote</th>
+                  <th>Distribuidor</th>
+                  <th>Factura</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -69,13 +71,9 @@
                   <td width="100px;">{{ recibo.created|date:"D d M Y H:i a" }}</td>
                   <td width="100px;">{{ recibo.expiration|safe }}</td>
                   <td class="text-right">{{recibo.quantity_original|quantity }}</td>
-                  <td>
-                      <ul>
-                          <li>No. Lote: {{recibo.no_lote}}</li>
-                          <li>Distribuidor: {{recibo.distribuidor}}</li>
-                          <li>Factura: {{recibo.factura}}</li>
-                      </ul>
-                  </td>
+                  <td>No. Lote: {{recibo.no_lote}}</td>
+                  <td>Distribuidor: {{recibo.distribuidor}}</td>
+                  <td>Factura: {{recibo.factura}}</td>
                   <td>
                       {% if recibo.type_receipt == TYPE_RECEIPT %}
                         <button class="btn-recibo-activado btn btn-danger" data-url="{% url 'recibo_inactivado' recibo.id  %}">Desactivar</button>

@@ -109,15 +109,14 @@ class Sale(models.Model):
         return True
 
     def has_recipe(self):
+        #import pdb; pdb.set_trace()
         detalle_ventas = self.detail_sales.all()
         products = 0
         recipes = 0
         for detalle in detalle_ventas:
-            if detalle.product.recipe == Product.STAY_RECIPE:
-                products += 1
-                if detalle.complete_shipping == 100:
-                    recipes += 1
-
+            products += 1
+            if detalle.complete_shipping == 100:
+                recipes += 1
         return products == recipes
     
     def has_image_recipe_aproved(self):
@@ -236,6 +235,16 @@ class DetailSale(models.Model):
             envios += envio.quantity
         porcentaje = float(envios / productos)
         return int(porcentaje * 100)
+
+    def product_cb(self):
+        return self.product.cb
+
+    product_cb.short_description = 'cb'
+
+    def sale_date(self):
+        return self.sale.created
+
+    sale_date.short_description = 'fecha venta'
 
     class Meta:
         verbose_name = "detalle de venta"

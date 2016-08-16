@@ -35,9 +35,9 @@ Pedido numero #{{pedido.id}}
                   <td>{{ forloop.counter }}</td>
                   <td>{{ detalle.product.cb }}</td>
                   <td>{{ detalle.product.name }}</td>
-                  <td class="text-right">{{ detalle.quantity|quantity }}</td>
-                  <td class="text-right">{{ detalle.price|currency }}</td>
-                  <td class="text-right">{{ detalle.subtotal|currency }}</td>
+                  <td class="text-left">{{ detalle.quantity|quantity }}</td>
+                  <td class="text-left">{{ detalle.price|currency }}</td>
+                  <td class="text-left">{{ detalle.subtotal|currency }}</td>
                   <td>
                       {% if pedido.status = 0 %}
                         <span class="label label-default">Capturando</span>
@@ -65,7 +65,7 @@ Pedido numero #{{pedido.id}}
                       <td></td>
                       <td></td>
                       <td>Descuento: </td>
-                      <td class="text-right">-{{pedido.discount|currency }}</td>
+                      <td class="text-left">-{{pedido.discount|currency }}</td>
                       <td></td>
                   </tr>
                   {% endif %}
@@ -76,7 +76,7 @@ Pedido numero #{{pedido.id}}
                       <td></td>
                       <td></td>
                       <td>Inapam -10%: </td>
-                      <td class="text-right">-{{pedido.discount_inapam|currency }}</td>
+                      <td class="text-left">-{{pedido.discount_inapam|currency }}</td>
                       <td></td>
                   </tr>
                   {% endif %}
@@ -87,7 +87,7 @@ Pedido numero #{{pedido.id}}
                       <td></td>
                       <td></td>
                       <td>Envio: </td>
-                      <td class="text-right">-{{pedido.shipping|currency }}</td>
+                      <td class="text-left">-{{pedido.shipping|currency }}</td>
                       <td></td>
                   </tr>
                   {% endif %}
@@ -98,7 +98,7 @@ Pedido numero #{{pedido.id}}
                       <td></td>
                       <td></td>
                       <td>IVA: </td>
-                      <td class="text-right">{{pedido.tax|currency }}</td>
+                      <td class="text-left">{{pedido.tax|currency }}</td>
                       <td></td>
                   </tr>
                   {% endif %}
@@ -108,7 +108,7 @@ Pedido numero #{{pedido.id}}
                       <td></td>
                       <td></td>
                       <td>Total: </td>
-                      <td class="text-right">{{pedido.total|currency }}</td>
+                      <td class="text-left">{{pedido.total|currency }}</td>
                       <td></td>
                   </tr>
                   {% if pedido.notes|length > 0 %}
