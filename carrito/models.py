@@ -448,7 +448,7 @@ class Send(models.Model):
         for envio in detalles_envio:
             envios += envio.quantity
         if productos > 0:
-            porcentaje = float(envios / productos)
+            porcentaje = float(envios) / float(productos)
         else:
             porcentaje = 0.0
         return int(porcentaje * 100)
