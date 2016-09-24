@@ -115,7 +115,7 @@ class Sale(models.Model):
         recipes = 0
         for detalle in detalle_ventas:
             products += 1
-            if detalle.complete_shipping == 100:
+            if detalle.complete_shipping() == 100:
                 recipes += 1
         return products == recipes
     
