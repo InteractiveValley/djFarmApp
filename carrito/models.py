@@ -233,7 +233,7 @@ class DetailSale(models.Model):
         envios = 0
         for envio in detalles_envio:
             envios += envio.quantity
-        porcentaje = float(envios / productos)
+        porcentaje = float(envios) / float(productos)
         return int(porcentaje * 100)
 
     def product_cb(self):
