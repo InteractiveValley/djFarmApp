@@ -313,7 +313,7 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
             "android": {
                 "payload": {
                     "saleId": sale.id,
-                    "status_string": sale.show_status
+                    "status_string": sale.show_status()
                 },
                 "collapse_key": "FarmaApp_carrito"
             },
