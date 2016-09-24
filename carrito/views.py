@@ -260,7 +260,7 @@ def create_notification_carrito(sale, user, title, message):
         "message": message,
         "payload": {
             "saleId": sale.id,
-            "status_string": sale.show_status
+            "status_string": sale.show_status()
         }
     }
 
