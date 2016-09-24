@@ -71,7 +71,7 @@ def detalle_aprobar(request, sale_id):
         pedido.status = APPROVED
         pedido.vendor = request.user
         pedido.save()
-        detalles = DetailSale.objects.filter(sale=pedido.id)
+        detalles = DetailSale.objects.filter(sale=pedido)
         message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
         create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
 
@@ -89,7 +89,7 @@ def detalle_cancelar(request, sale_id):
         pedido.status = REJECTED
         pedido.vendor = request.user
         pedido.save()
-        detalles = DetailSale.objects.filter(sale=pedido.id)
+        detalles = DetailSale.objects.filter(sale=pedido)
         message = "Tu orden #" + str(pedido.id).zfill(6) + " ha sido cancelada."
         create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
 
@@ -107,7 +107,7 @@ def detalle_rechazar_receta(request, sale_id):
         pedido.status = REJECTED
         pedido.vendor = request.user
         pedido.save()
-        detalles = DetailSale.objects.filter(sale=pedido.id)
+        detalles = DetailSale.objects.filter(sale=pedido)
         message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. " + \
                   "Si lo deseas puedes volver a generar la orden."
         create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
