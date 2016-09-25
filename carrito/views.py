@@ -516,6 +516,10 @@ def post_detalle_envio(request, detail_sale_id=None):
                 for envio in envios:
                     cantidad_envio += envio.quantity
 
+                # Descontar del inventario de producto
+                product = Product.objects.get(pk=detalle_venta.product_id)
+                product.inventory -= cantidad_envio
+                product.save()
                 if detalle_venta.quantity == cantidad_envio:
                     detalle_venta.quantity_shipping = cantidad_envio
                     detalle_venta.with_shipping = True
@@ -561,8 +565,11 @@ def delete_detalle_envio(request, detail_send_id=None):
     if request.user.is_authenticated():
         detail_send = DetailSend.objects.get(pk=detail_send_id)
         detail_sale = detail_send.detail_sale
+        product = Product.objects.get(pk=detail_sale.product_id)
         receipt = detail_send.receipt
         receipt.quantity += detail_send.quantity
+        product.inventory += detail_send.quantity
+        product.save()
         receipt.save()
         detail_sale.with_shipping = False
         detail_sale.quantity_shipping -= detail_send.quantity
