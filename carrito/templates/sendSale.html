@@ -144,16 +144,34 @@
                                                                                                 <td style="background-color: #8791A7; text-align: right; padding: 5px;">Subtotal:</td>
                                                                                                 <td style="text-align: right;">$ {{ pedido.subtotal|floatformat:2 }}</td>
                                                                                             </tr>
+                                                                                            {% if pedido.discount > 0.0 %}
                                                                                             <tr>
                                                                                                 <td></td>
                                                                                                 <td style="background-color: #8791A7; text-align: right; padding: 5px;">Descuento:</td>
                                                                                                 <td style="text-align: right;">-$ {{ pedido.discount|floatformat:2 }}</td>
                                                                                             </tr>
+                                                                                            {% endif %}
+                                                                                            {% if pedido.discount_inapam > 0.0 %}
+                                                                                            <tr>
+                                                                                                <td></td>
+                                                                                                <td style="background-color: #8791A7; text-align: right; padding: 5px;">Inapam -10%:</td>
+                                                                                                <td style="text-align: right;">-$ {{ pedido.discount_inapam|floatformat:2 }}</td>
+                                                                                            </tr>
+                                                                                            {% endif %}
+                                                                                            {% if pedido.shipping > 0.0 %}
+                                                                                            <tr>
+                                                                                                <td></td>
+                                                                                                <td style="background-color: #8791A7; text-align: right; padding: 5px;">Envio:</td>
+                                                                                                <td style="text-align: right;">$ {{ pedido.shipping|floatformat:2 }}</td>
+                                                                                            </tr>
+                                                                                            {% endif %}
+                                                                                            {% if pedido.tax > 0.0 %}
                                                                                             <tr>
                                                                                                 <td></td>
                                                                                                 <td style="background-color: #8791A7; text-align: right; padding: 5px;">IVA:</td>
                                                                                                 <td style="text-align: right;">$ {{ pedido.tax|floatformat:2 }}</td>
                                                                                             </tr>
+                                                                                            {% endif %}
 																							<tr>
                                                                                                 <td></td>
                                                                                                 <td style="background-color: #8791A7; text-align: right; padding: 5px;">Total:</td>
@@ -221,15 +239,23 @@
                                                                 <td valign="top">
 
                                                                     <table align="left" border="0" cellpadding="0" cellspacing="0" width="600">
-                                                                        <tbody><tr>
+                                                                        <tbody>
+                                                                        <tr>
+                                                                            <td valign="top" style="padding-top:9px;padding-right:18px;padding-bottom:9px;padding-left:18px">
 
-                                                                                <td valign="top" style="padding-top:9px;padding-right:18px;padding-bottom:9px;padding-left:18px">
+                                                                                    <div style="text-align:center">En caso de sospecha de reacciones adversa repórtelo en <a href="http://www.cofepris.gob.mx" target="_blank">www.cofepris.gob.mx</a><br>
+                                                                                    <span style="text-align:center">Si persisten las molestias consulte a su médico.</span></div>
+
+                                                                                </td>
+                                                                        </tr>
+                                                                        <tr>
+
+                                                                          <td valign="top" style="padding-top:9px;padding-right:18px;padding-bottom:9px;padding-left:18px">
 
                                                                                     <div style="text-align:center"><a href="{% url 'homepage' %}" target="_blank">www.farmaapp.mx</a><br>
                                                                                     <span style="color:#a9a9a9">Por favor no responda a este correo.</span></div>
-
-                                                                                </td>
-                                                                            </tr>
+                                                                          </td>
+                                                                        </tr>
                                                                         </tbody>
 																	</table>
                                                                 </td>

@@ -1,5 +1,6 @@
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 
 
 # Class MUST be named 'Command'
@@ -20,12 +21,12 @@ class Command(BaseCommand):
         app_labels - app labels (eg. myapp in "manage.py reset myapp")
         options - configurable command line options
         """
-        import datetime
+        from datetime import datetime, timedelta
         from usuarios.models import ScheduledOrder
         from carrito.models import Sale, DetailSale, INCOMPLETE, COMPLETE
 
-        now = datetime.datetime.now().date()
-        scheduled_orders = ScheduledOrder.objects.filter(date_next__lte=now)
+        now = timezone.localtime(timezone.now())
+        scheduled_orders = ScheduledOrder.objects.filter(date_next__lte=now.date())
 
         scheduled_order_cont = 0
         for scheduled_order in scheduled_orders:
@@ -35,7 +36,7 @@ class Command(BaseCommand):
             product = scheduled_order.product
             quantity = scheduled_order.quantity
             sale = Sale.objects.filter(user=user, direction=direction, scheduled_order=True, status=INCOMPLETE,
-                                           card_conekta=card_conekta ).first()
+                                       card_conekta=card_conekta).first()
             if sale is None:
                 sale = Sale.objects.create(user=user, direction=direction, scheduled_order=True, status=INCOMPLETE,
                                            card_conekta=card_conekta, notes="pedido programado")
@@ -52,4 +53,5 @@ class Command(BaseCommand):
             sale.save()
             sale_cont += 1
 
-        return "Schedules: %s. Sales process: %s." % (str(scheduled_order_cont), str(sale_cont))
+        
+        return "%s Schedules: %s. Sales process: %s." % (str(now), str(scheduled_order_cont), str(sale_cont))

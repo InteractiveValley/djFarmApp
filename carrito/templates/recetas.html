@@ -1,0 +1,111 @@
+{% extends 'base_carrito.html' %}
+
+{% block title %} Recibos {% endblock %}
+
+{% block sheetstyles %}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+
+
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <div class="text-center">
+                <img src="{% static 'usuarios/Logo.png' %}" alt="FarmaApp logo" style="max-height: 200px;"/>
+            </div>
+            <ul class="nav nav-sidebar">
+                <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'recetas' %}?filter=todos&sale={{sale.id}}">Sin clasificar <span class="sr-only">(current)</span></a></li>
+                <li class="{% if filter == 'es_antibiotico' %} active {% endif %}"><a href="{% url 'recetas' %}?filter=es_antibiotico&sale={{sale.id}}">Con antibiotico</a></li>
+                <li class="{% if filter == 'normal' %} active {% endif %}"><a href="{% url 'recetas' %}?filter=normal&sale={{sale.id}}">Normal</a></li>
+            </ul>
+
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+        <br/>
+
+          <h1 class="page-header">Recetas {% if sale.id > 0 %} de venta: #{{sale.id}} {% endif %}</h1>
+          <div class="table-responsive">
+            <table class="table table-striped" id="myTable">
+              <thead>
+                <tr>
+                  <th>ID</th>
+				  <th>Folio</th>
+                  <th>Venta</th>
+                  <th>Receta</th>
+                  <th>Tipo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for receta in recetas %}
+                <tr>
+                  <td>{{ receta.id }}</td>
+				  <td>{{ receta.folio_recipe }}</td>
+                  <td>{{ receta.sale }}</td>
+                  <td>
+                      <div class="text-center">
+                        <img src="{{ receta.image_recipe.url }}" style="max-width: 500px;" alt="receta {{receta.id}}"/>
+                      </div>
+                  </td>
+                  <td>
+                      {% if receta.type_recipe == 1 %}
+                        Sin clasificar
+                      {% elif receta.type_recipe == 2 %}
+                        Normal
+					  {% else %}
+					    Con antibiotico
+                      {% endif %}
+                  </td>
+                  <td>
+
+                  </td>
+
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="7">
+                      <a href="{% url 'pedidos' %}" class="btn btn-default">
+                        Regresar a pedidos
+                      </a>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+{% endblock %}
+
+{% block  javascripts %}
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <!-- Datatables -->
+    <script src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#myTable').DataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"
+                }
+            } );
+        });
+    </script>
+
+{% endblock %}

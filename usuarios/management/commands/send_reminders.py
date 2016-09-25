@@ -1,5 +1,9 @@
+import datetime
 from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
+from usuarios.views import create_notification_ionic_push_reminder
+from usuarios.models import Reminder
 
 
 # Class MUST be named 'Command'
@@ -20,16 +24,13 @@ class Command(BaseCommand):
         app_labels - app labels (eg. myapp in "manage.py reset myapp")
         options - configurable command line options
         """
-        import datetime
-        from usuarios.views import create_notification_ionic_push_reminder
-        from usuarios.models import Reminder
 
-        now = datetime.datetime.now()
+        now = timezone.localtime(timezone.now())
+
         weekday = now.weekday()
+
         hour = now.hour
         minute = now.minute
-
-
 
         if weekday == 0:
             reminders = Reminder.objects.filter(monday=True, time=datetime.time(hour, minute))
@@ -53,4 +54,7 @@ class Command(BaseCommand):
             create_notification_ionic_push_reminder(reminder)
             cont += 1
 
-        return "Notificaciones enviadas de recordatorios: " + str(cont)
+        if cont > 0:
+            return "%s Notificaciones enviadas de recordatorios: %s" % (str(now), str(cont))
+        else:
+            return ""

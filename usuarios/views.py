@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from farmApp.secret import APP_PATH_TERMINOS_PDF, APP_GCM_API_KEY, PUSH_APP_ID, PUSH_SECRET_API_KEY
 from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPENPAY_VERIFY_SSL_CERTS, \
     APP_OPENPAY_PRODUCTION
+from django.utils import timezone
 from gcm import GCM
 
 # Create your views here.
@@ -209,7 +210,7 @@ def upload_images_inapam(request):
             image = request.FILES['inapam']
             user = CustomUser.objects.get(pk=iduser)
             #  import pdb; pdb.set_trace()
-            inapam = Inapam(active=active, user=user, inapam=image)
+            inapam = Inapam(active=active, user=user, image=image)
             inapam.save()
             data = {'status': 'ok', 'message': 'Carga exitosa'}
         else:
@@ -221,7 +222,7 @@ def upload_images_inapam(request):
 
 def calificaciones(request):
     if request.user.is_authenticated():
-        ahora = datetime.datetime.now()
+        ahora =  timezone.localtime(timezone.now())
         filtro = request.GET.get('filter', 'todos')
         #  print filtro
         year = request.GET.get('year', ahora.year)
@@ -242,7 +243,7 @@ def calificaciones(request):
         else:
             rating_list = Rating.objects.filter(rating__gte=4).order_by('-created')
 
-        paginator = Paginator(rating_list, 10)
+        """paginator = Paginator(rating_list, 10)
         page = request.GET.get('page')
 
         try:
@@ -252,15 +253,15 @@ def calificaciones(request):
             ratings = paginator.page(1)
         except EmptyPage:
             # If page is out of range (e.g. 9999), deliver last page of results.
-            ratings = paginator.page(paginator.num_pages)
+            ratings = paginator.page(paginator.num_pages)"""
 
-        return render(request, 'ratings.html', {"ratings": ratings, 'buenos': buenos, 'malos': malos, 'filter': filtro})
+        return render(request, 'ratings.html', {'ratings': rating_list, 'buenos': buenos, 'malos': malos, 'filter': filtro})
     else:
-        return HttpResponseRedirect("/login/")
+        return HttpResponseRedirect('/login/')
 
 
 def reminders(request):
-    now = datetime.datetime.now()
+    now = timezone.localtime(timezone.now())
     weekday = now.weekday()
     hour = request.GET.get('hour', now.hour)
     minute = request.GET.get('minute', now.minute)
@@ -293,15 +294,17 @@ def create_notification_reminder(reminder):
     registration_ids = [user.token_phone.all()[0].token]
 
     notification = {
-        "title": reminder.title,
-        "message": reminder.message,
-        "reminderId": reminder.id
+        'title': reminder.title,
+        'message': reminder.message,
+        'payload': {
+        	'reminderId': reminder.id
+        }
     }
 
     response = gcm.json_request(registration_ids=registration_ids,
                                 data=notification,
                                 collapse_key='notificacion_reminder',
-                                priority='normal',
+                                priority='high',
                                 delay_while_idle=False)
 
     # Successfully handled registration_ids
@@ -330,19 +333,26 @@ def create_notification_reminder(reminder):
             token_phone.token = canonical_id
             token_phone.save()
 
+    return response
+
+
 
 def create_notification_ionic_push_reminder(reminder):
+    return create_notification_reminder(reminder)
+    
     user = reminder.user
     tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
+        "profile": PUSH_APP_ID,
         "notification": {
             "title": reminder.title,
             "alert": reminder.message,
             "android": {
                 "payload": {
                     "reminderId": reminder.id
-                }
+                },
+                "collapse_key": "FarmaApp_reminder"
             },
             "ios": {
                 "payload": {
@@ -353,11 +363,187 @@ def create_notification_ionic_push_reminder(reminder):
     }
     app_id = PUSH_APP_ID
     private_key = PUSH_SECRET_API_KEY
-    url = "https://push.ionic.io/api/v1/push"
+    url = "https://api.ionic.io/push/notifications"
     req = urllib2.Request(url, data=json.dumps(post_data))
     req.add_header("Content-Type", "application/json")
-    req.add_header("X-Ionic-Application-Id", app_id)
+    #  req.add_header("X-Ionic-Application-Id", app_id)
     b64 = base64.encodestring('%s:' % private_key).replace('\n', '')
-    req.add_header("Authorization", "Basic %s" % b64)
+    req.add_header("Authorization", "Bearer %s" % b64)
+    resp = urllib2.urlopen(req)
+    return resp
+
+
+def inapams(request):
+    if request.user.is_authenticated():
+
+        filtro = request.GET.get('filter', 'todos')
+
+        activos = Inapam.objects.filter(user__inapam=True).count()
+        inactivos = Inapam.objects.filter(user__inapam=False).count()
+
+        #  import pdb; pdb.set_trace()
+
+        if filtro == 'todos':
+            inapams_list = Inapam.objects.all().order_by('-created')
+        elif filtro == 'activos':
+            inapams_list = Inapam.objects.filter(user__inapam=True).order_by('-created')
+        else:
+            inapams_list = Inapam.objects.filter(user__inapam=False).order_by('-created')
+
+        """paginator = Paginator(inapams_list, 10)
+        page = request.GET.get('page')
+
+        try:
+            registros = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            registros = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            registros = paginator.page(paginator.num_pages)"""
+        return render(request, 'inapams.html', {'registros': inapams_list, 'activos': activos, 'inactivos': inactivos, 'filter': filtro})
+    else:
+        return HttpResponseRedirect("/login/")
+
+@csrf_exempt
+def inapams_approve(request, inapam_id):
+    if request.method == 'POST':
+        if request.is_ajax() is True:
+            inapam = Inapam.objects.get(pk=inapam_id)
+            user = inapam.user
+            user.inapam = True
+            inapam.active = True
+            inapam.vendor = request.user
+            user.save()
+            inapam.save()
+            create_notification_ionic_push_inapam(inapam, "Inapam", "Tu registro fue autorizado")
+            return render(request, 'item_inapam.html', {"registro": inapam})
+        else:
+            data = {'status': 'bat', 'message': 'No esta autorizado otro metodo'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@csrf_exempt
+def inapams_update(request, inapam_id):
+    if request.method == 'POST':
+        if request.is_ajax() is True:
+            inapam = Inapam.objects.get(pk=inapam_id)
+            user = inapam.user
+            user.inapam = False
+            inapam.active = False
+            inapam.vendor = request.user
+            user.save()
+            inapam.save()
+            create_notification_ionic_push_inapam(inapam, "Inapam", "Tu credencial necesita ser actualizada, favor de subir nuevamente la imagen")
+            return render(request, 'item_inapam.html', {"registro": inapam})
+        else:
+            data = {'status': 'bat', 'message': 'No esta autorizado otro metodo'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@csrf_exempt
+def inapams_reject(request, inapam_id):
+    if request.method == 'POST':
+        if request.is_ajax() is True:
+            inapam = Inapam.objects.get(pk=inapam_id)
+            user = inapam.user
+            user.inapam = False
+            inapam.active = False
+            inapam.vendor = request.user
+            user.save()
+            inapam.save()
+            create_notification_ionic_push_inapam(inapam, "Inapam", "Tu registro no fue autorizado")
+            inapam.remove()
+            data = {'status': 'ok', 'message': 'El registro se ha eliminado'}
+        else:
+            data = {'status': 'bat', 'message': 'No esta autorizado otro metodo'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def create_notification_inapam(inapam, title, message):
+    gcm = GCM(APP_GCM_API_KEY)
+    user = inapam.user
+    registration_ids = [user.token_phone.all()[0].token]
+
+    notification = {
+        'title': title,
+        'message': message,
+        'payload': {
+        	'inapam': True
+        }
+    }
+
+    response = gcm.json_request(registration_ids=registration_ids,
+                                data=notification,
+                                collapse_key='notificacion_inapam',
+                                priority='high',
+                                delay_while_idle=False)
+
+    # Successfully handled registration_ids
+    if response and 'success' in response:
+        for reg_id, success_id in response['success'].items():
+            print('Successfully sent notification for reg_id {0}'.format(reg_id))
+
+    # Handling errors
+    if 'errors' in response:
+        for error, reg_ids in response['errors'].items():
+            # Check for errors and act accordingly
+            if error in ['NotRegistered', 'InvalidRegistration']:
+                # Remove reg_ids from database
+                token_phone = user.token_phone.all()[0]
+                token_phone.delete()
+            elif error in ['Unavailable', 'InternalServerError']:
+                from usuarios.models import Notifications
+                token_phone = user.token_phone.all()[0]
+                Notifications.objects.create(token_phone=token_phone, title=reminder.title, message=reminder.message)
+
+    # Repace reg_id with canonical_id in your database
+    if 'canonical' in response:
+        for reg_id, canonical_id in response['canonical'].items():
+            print("Replacing reg_id: {0} with canonical_id: {1} in db".format(reg_id, canonical_id))
+            token_phone = user.token_phone.all()[0]
+            token_phone.token = canonical_id
+            token_phone.save()
+
+    return response
+
+
+def create_notification_ionic_push_inapam(register, title, message):
+    return create_notification_inapam(register, title, message)
+    user = register.user
+    tokens = [user.token_phone.all()[0].token,]
+    post_data = {
+        "tokens": tokens,
+        "profile": PUSH_APP_ID,
+        "notification": {
+            "title": title,
+            "message": message,
+            "android": {
+                "payload": {
+                    "inapam": True
+                },
+                "collapse_key": "FarmaApp_inapam"
+            },
+            "ios": {
+                "payload": {
+                    "inapam": True
+                }
+            }
+        }
+    }
+    app_id = PUSH_APP_ID
+    private_key = PUSH_SECRET_API_KEY
+    url = "https://api.ionic.io/push/notifications"
+    req = urllib2.Request(url, data=json.dumps(post_data))
+    req.add_header("Content-Type", "application/json")
+    #  req.add_header("X-Ionic-Application-Id", app_id)
+    b64 = base64.encodestring('%s' % private_key).replace('\n', '')
+    req.add_header("Authorization", "Bearer %s" % b64)
     resp = urllib2.urlopen(req)
     return resp

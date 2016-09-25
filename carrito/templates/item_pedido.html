@@ -1,3 +1,4 @@
+{% load app_filters %}
 <div class="pedido" id="pedido-{{pedido.id}}">
              {% if pedido.vendor.id != None %}
                 <p>Usuario actualizo: {{ pedido.vendor.get_full_name }}</p>
@@ -9,6 +10,7 @@
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>CB</th>
                   <th>Producto</th>
                   <th>Cantidad</th>
                   <th>Precio</th>
@@ -24,10 +26,11 @@
                     <tr>
                 {% endif %}
                   <td>{{ forloop.counter }}</td>
+                  <td>{{ detalle.product.cb }}</td>
                   <td>{{ detalle.product.name }}</td>
-                  <td>{{ detalle.quantity }}</td>
-                  <td>{{ detalle.price }}</td>
-                  <td>{{ detalle.subtotal }}</td>
+                  <td class="text-left">{{ detalle.quantity|quantity }}</td>
+                  <td class="text-left">{{ detalle.price|currency }}</td>
+                  <td class="text-left">{{ detalle.subtotal|currency  }}</td>
                   <td>
                       {% if pedido.status = 0 %}
                         <span class="label label-default">Capturando</span>
@@ -53,8 +56,31 @@
                       <td></td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       <td>Descuento: </td>
-                      <td>-${{pedido.discount}}</td>
+                      <td class="text-left">-{{pedido.discount|currency }}</td>
+                      <td></td>
+                  </tr>
+                  {% endif %}
+                  {% if pedido.discount_inapam > 0.0 %}
+                  <tr style="font-weight: bolder;">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>Inapam -10%: </td>
+                      <td class="text-left">-{{pedido.discount_inapam|currency }}</td>
+                      <td></td>
+                  </tr>
+                  {% endif %}
+                  {% if pedido.shipping > 0.0 %}
+                  <tr style="font-weight: bolder;">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>Envio: </td>
+                      <td class="text-left">{{pedido.shipping|currency }}</td>
                       <td></td>
                   </tr>
                   {% endif %}
@@ -63,8 +89,9 @@
                       <td></td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       <td>IVA: </td>
-                      <td>${{pedido.tax}}</td>
+                      <td class="text-left">{{pedido.tax|currency }}</td>
                       <td></td>
                   </tr>
                   {% endif %}
@@ -72,13 +99,14 @@
                       <td></td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       <td>Total: </td>
-                      <td>${{pedido.total}}</td>
+                      <td class="text-left">{{pedido.total|currency }}</td>
                       <td></td>
                   </tr>
                   {% if pedido.notes|length > 0 %}
                     <tr>
-                        <td>
+                        <td colspan="2">
                             Nota del cliente:
                         </td>
                         <td bgcolor="gray" style="color: white;" colspan="5">
@@ -90,37 +118,43 @@
             <div class="row text-center">
                 <ul class="list-inline"  data-sale="{{pedido.id}}">
                     {% if pedido.images.all|length  > 0 %}
-                    <li>
-                        <a href="/backend/pedidos/{{ pedido.id }}/recetas/" target="_blank" class="btn btn-primary"
-                        onclick="window.open(this.href, this.target, 'width=800,height=600'); return false;"
-                        >Recetas</a>
-                    </li>
+                        <li>
+                            <a href="/backend/pedidos/{{ pedido.id }}/recetas/" target="_blank" class="btn btn-primary"
+                            onclick="window.open(this.href, this.target, 'width=800,height=600'); return false;"
+                            >Recetas</a>
+                        </li>
                     {% endif %}
-                    <li>
-                        <a  href="/backend/pedidos/{{ pedido.id }}/" target="_blank" class="btn btn-primary"
-                        onclick="window.open(this.href, this.target, 'width=800,height=600'); return false;"
-                        >Visualizar</a>
-                    </li>
-                    {% if pedido.status == 1 %}
-                    <li>
-                        <button data-url="/backend/pedidos/{{ pedido.id }}/approved/" class="button-action button-send btn btn-primary">Enviado</button>
-                    </li>
-                    <li>
-                        <button data-url="/backend/pedidos/{{ pedido.id }}/cancel/" class="button-action button-cancel btn btn-danger">Cancelar</button>
-                    </li>
-                    <li>
-                        <button data-url="/backend/pedidos/{{ pedido.id }}/reject/" class="button-action button-reject  btn btn-warning">Rechazar receta</button>
-                    </li>
-                    {% endif %}
-                    {% if pedido.status == 2 and pedido.charge_conekta|length == 0 %}
-                    <li>
-                        <button data-url="/backend/pedidos/{{ pedido.id }}/delivered/" class="button-action-delivered button-delivered  btn btn-success">Entregado</button>
-                    </li>
-                    {% elif  pedido.status == 2 and pedido.charge_conekta|length > 0 %}
-                    <li>
-                        <button data-url="/backend/pedidos/{{ pedido.id }}/review/" class="button-action button-delivered  btn btn-success">Revisar pago</button>
-                    </li>
-                    {% endif %}
+					{% if pedido.has_image_recipe_aproved %}
+                        <li>
+                            <a  href="/backend/pedidos/{{ pedido.id }}/" target="_blank" class="btn btn-primary"
+                            onclick="window.open(this.href, this.target, 'width=800,height=600'); return false;"
+                            >Visualizar</a>
+                        </li>
+                        {% if pedido.status == 1 %}
+                            {% if pedido.has_recipe %}
+                            <li>
+                                <button data-url="/backend/pedidos/{{ pedido.id }}/approved/" class="button-action button-send btn btn-primary">Enviado</button>
+                            </li>
+                            {% endif %}
+                            <li>
+                                <button data-url="/backend/pedidos/{{ pedido.id }}/cancel/" class="button-action button-cancel btn btn-danger">Cancelar</button>
+                            </li>
+                            {% if pedido.images.all|length  > 0 %}
+                            <li>
+                                <button data-url="/backend/pedidos/{{ pedido.id }}/reject/" class="button-action button-reject  btn btn-warning">Rechazar receta</button>
+                            </li>
+                            {% endif %}
+                        {% endif %}
+                        {% if pedido.status == 2 and pedido.charge_conekta|length == 0 %}
+                            <li>
+                                <button data-url="/backend/pedidos/{{ pedido.id }}/delivered/" class="button-action-delivered button-delivered  btn btn-success">Entregado</button>
+                            </li>
+                        {% elif  pedido.status == 2 and pedido.charge_conekta|length > 0 %}
+                            <li>
+                                <button data-url="/backend/pedidos/{{ pedido.id }}/review/" class="button-action button-delivered  btn btn-success">Revisar pago</button>
+                            </li>
+                        {% endif %}
+					{% endif %}
                 </ul>
             </div>
 </div>

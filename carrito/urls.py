@@ -13,5 +13,15 @@ urlpatterns = [
     url(r'^pedidos/(?P<sale_id>\d+)/review/$', views.revisar_pago, name='pedido_revisar_pago'),
     url(r'^enviar/pedidos/(?P<sale_id>\d+)/$', views.send_sale_for_email, name='enviar_pedido'),
     url(r'^recibos/$', views.recibos, name='recibos'),
-    url(r'^crear/recibo/$', views.post_recibos, name='crear_recibo')
+    url(r'^crear/recibo/$', views.post_recibos, name='crear_recibo'),
+    url(r'^recibo/inactivado/(?P<receipt_id>\d+)/$', views.recibo_inactivado, name='recibo_inactivado'),
+    url(r'^recibo/activado/(?P<receipt_id>\d+)/$', views.recibo_activado, name='recibo_activado'),
+    url(r'^envios/$', views.envios, name='envios'),
+    url(r'^crear/envio/$', views.post_envios, name='crear_envio'),
+    url(r'^envios/(?P<send_id>\d+)/$', views.detalle_envio, name='envio_detalle'),
+    url(r'^crear/detalle/envio/(?P<detail_sale_id>\d+)/$', views.post_detalle_envio, name='crear_envio_detalle'),
+    url(r'^quitar/detalle/envio/(?P<detail_send_id>\d+)/$', views.delete_detalle_envio, name='delete_envio_detalle'),
+    url(r'^recetas/$', views.recetas, name='recetas'),
+    url(r'^receta/tipo/normal/(?P<image_sale_id>\d+)/$', views.recipe_normal, name='recipe_normal'),
+	url(r'^receta/tipo/antibitico/(?P<image_sale_id>\d+)/$', views.recipe_with_antibiotico, name='recipe_with_antibiotico'),
 ]

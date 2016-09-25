@@ -1,0 +1,164 @@
+{% extends 'base_carrito.html' %}
+
+{% block title %} Credenciales Inapam {% endblock %}
+
+{% block sheetstyles %}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+
+
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <div class="text-center">
+                <img src="{% static 'usuarios/Logo.png' %}" alt="FarmaApp logo" style="max-height: 200px;"/>
+            </div>
+            <ul class="nav nav-sidebar">
+                <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'inapams' %}?filter=todos">Todos <span class="sr-only">(current)</span></a></li>
+                <li class="{% if filter == 'activos' %} active {% endif %}"><a href="{% url 'inapams' %}?filter=activos">Activos <span class="badge">{{activos}}</span></a></li>
+                <li class="{% if filter == 'inactivos' %} active {% endif %}"><a href="{% url 'inapams' %}?filter=inactivos">Inactivos <span class="badge">{{inactivos}}</span></a></li>
+              </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+        <br/>
+          <h1 class="page-header">Credenciales de Inapam</h1>
+          <div class="table-responsive">
+            <table class="table table-striped" id="myTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Usuario</th>
+                  <th>Credencial</th>
+                  <th>Estatus</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for registro in registros %}
+                    {% include "item_inapam.html" with registro=registro %}
+                {% endfor %}
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </div>
+        <div id="modalImage" class="modal fade" tabindex="-1" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Modal title</h4>
+              </div>
+              <div class="modal-body text-center">
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+{% endblock %}
+{% block  javascripts %}
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script>
+      function mostrarImagen(usuario, imagen){
+                var $modal = $("#modalImage")
+                $modal.find(".modal-title").text(usuario);
+                var $img = $("<img>").attr({'src': imagen});
+                $img.css({'width': '100%'});
+                $modal.find(".modal-body").html($img);
+                $modal.modal('show');
+      }
+      (function(){
+          (function (BootStrap, $, undefined) {
+			 	var Utils = (function () {
+					function Utils() {
+						//ctor
+					}
+					Utils.prototype.createAlert = function (title, message, alertType, targetElement) {
+						var html = '<div class="alert alert-block ' + alertType + '">' +
+										'<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+										'<h4>' + title + '</h4>' + message  +
+									'</div>'
+						$(targetElement).prepend(html);
+					}
+					return Utils;
+				})();
+				BootStrap.Utils = Utils;
+		  })(window.BootStrap || (window.BootStrap = {}),jQuery);
+
+
+
+          function activarBotonesAccion(){
+            $(".button-action").on("click",function(){
+                var $button = $(this);
+                var url = $button.data("url");
+                var registro = $button.parent().parent().parent().parent().data("registro");
+                console.log(url);
+                $.ajax({
+                  url: url,
+                  type: 'post',
+                  success: function(data) {
+                      //alert(data);
+                      console.log(data);
+                      $("#registro-"+registro).html($(data).html());
+                      activarBotonesAccion();
+                  },
+                  failure: function(data) {
+                      alert('Got an error dude');
+                  }
+              });
+            });
+            $(".button-action-reject").on("click",function(){
+                var $button = $(this);
+                var url = $button.data("url");
+                var registro = $button.parent().parent().parent().parent().data("registro");
+                console.log(url);
+                $.ajax({
+                  url: url,
+                  type: 'post',
+                  success: function() {
+                      $("#registro-"+registro).remove();
+                      new BootStrap.Utils().createAlert("Inapam", "Se ha eliminado el registro", "alert-danger", "body");
+                      activarBotonesAccion();
+                  },
+                  failure: function(data) {
+                      alert('Got an error dude');
+                  }
+              });
+            });
+          }
+          activarBotonesAccion();
+      })();
+    </script>
+    <!-- Datatables -->
+    <script src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#myTable').DataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"
+                }
+            } );
+        });
+    </script>
+{% endblock %}

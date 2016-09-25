@@ -9,7 +9,8 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>Pedidos</title>
+    <title>{% block title %} Pedidos {% endblock %}</title>
+
     {% block sheetstyles %}
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -47,12 +48,18 @@
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Menu <span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                  <li><a href="{% url 'recibos' %}">Recibos</a></li>
-                  <li><a href="{% url 'inventario' %}">Inventario</a></li>
+                  <li><a href="{% url 'categorias' %}">Categorias</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="{% url 'inventario' %}">Productos</a></li>
+                  <li><a href="{% url 'recibos' %}?filter=todos&product=0">Recibos</a></li>
+                  <li><a href="{% url 'envios' %}">Envios</a></li>
                   <li role="separator" class="divider"></li>
                   <li class="dropdown-header">Ventas</li>
                   <li><a href="{% url 'pedidos' %}">Pedidos</a></li>
+                  <li><a href="{% url 'recetas' %}">Recetas</a></li>
                   <li><a href="{% url 'calificaciones' %}">Calificaciones</a></li>
+                  <li role="separator" class="divider"></li>
+                  <li><a href="{% url 'inapams' %}">Credenciales inapam</a></li>
                 </ul>
               </li>
             <li><a href="#">{{ user.get_full_name }}</a></li>

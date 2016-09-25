@@ -5,6 +5,7 @@ Pedido numero #{{pedido.id}}
 {% endblock %}
 
 {% block body %}
+    {% load app_filters %}
     <div class="padding">
         {% if pedido.vendor.id != None %}
                 <p>Usuario actualizo: {{ pedido.vendor.get_full_name }}</p>
@@ -16,6 +17,7 @@ Pedido numero #{{pedido.id}}
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>CB</th>
                   <th>Producto</th>
                   <th>Cantidad</th>
                   <th>Precio</th>
@@ -31,10 +33,11 @@ Pedido numero #{{pedido.id}}
                     <tr>
                 {% endif %}
                   <td>{{ forloop.counter }}</td>
+                  <td>{{ detalle.product.cb }}</td>
                   <td>{{ detalle.product.name }}</td>
-                  <td>{{ detalle.quantity }}</td>
-                  <td>{{ detalle.price }}</td>
-                  <td>{{ detalle.subtotal }}</td>
+                  <td class="text-left">{{ detalle.quantity|quantity }}</td>
+                  <td class="text-left">{{ detalle.price|currency }}</td>
+                  <td class="text-left">{{ detalle.subtotal|currency }}</td>
                   <td>
                       {% if pedido.status = 0 %}
                         <span class="label label-default">Capturando</span>
@@ -60,8 +63,31 @@ Pedido numero #{{pedido.id}}
                       <td></td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       <td>Descuento: </td>
-                      <td>-${{pedido.discount}}</td>
+                      <td class="text-left">-{{pedido.discount|currency }}</td>
+                      <td></td>
+                  </tr>
+                  {% endif %}
+                  {% if pedido.discount_inapam > 0.0 %}
+                  <tr style="font-weight: bolder;">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>Inapam -10%: </td>
+                      <td class="text-left">-{{pedido.discount_inapam|currency }}</td>
+                      <td></td>
+                  </tr>
+                  {% endif %}
+                  {% if pedido.shipping > 0.0 %}
+                  <tr style="font-weight: bolder;">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>Envio: </td>
+                      <td class="text-left">-{{pedido.shipping|currency }}</td>
                       <td></td>
                   </tr>
                   {% endif %}
@@ -70,8 +96,9 @@ Pedido numero #{{pedido.id}}
                       <td></td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       <td>IVA: </td>
-                      <td>${{pedido.tax}}</td>
+                      <td class="text-left">{{pedido.tax|currency }}</td>
                       <td></td>
                   </tr>
                   {% endif %}
@@ -79,13 +106,14 @@ Pedido numero #{{pedido.id}}
                       <td></td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       <td>Total: </td>
-                      <td>${{pedido.total}}</td>
+                      <td class="text-left">{{pedido.total|currency }}</td>
                       <td></td>
                   </tr>
                   {% if pedido.notes|length > 0 %}
                     <tr>
-                        <td>
+                        <td colspan="2">
                             Nota del cliente:
                         </td>
                         <td bgcolor="gray" style="color: white;" colspan="5">

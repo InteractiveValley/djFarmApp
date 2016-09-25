@@ -1,0 +1,104 @@
+{% extends 'base_carrito.html' %}
+
+{% block title %} Pedidos por surtir {% endblock %}
+
+
+{% block sheetstyles %}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+
+
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+
+{% endblock %}
+
+{% block body %}
+    {% load app_filters %}
+    <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+            <div class="text-center">
+                <img src="{% static 'usuarios/Logo.png' %}" alt="FarmaApp logo" style="max-height: 200px;"/>
+            </div>
+            <ul class="nav nav-sidebar">
+                <li class="active"><a href="{% url 'envios' %}">Envios <span class="sr-only">(current)</span></a></li>
+                <li><a href="{% url 'crear_envio' %}">Crear envio</a></li>
+              </ul>
+
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
+        <br/>
+
+          <h1 class="page-header">Envios</h1>
+          <div class="table-responsive">
+            <table class="table table-striped" id="myTable">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Venta</th>
+                  <th>Usuario</th>
+                  <th>Completo</th>
+                  <th>Creado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for send in sends %}
+
+                    <tr>
+                      <td>{{ send.id }}</td>
+                      <td>{{ send.sale }}</td>
+                      <td>{{ send.vendor }}</td>
+                      {% with send.complete as porcentaje %}
+                      <td data-porcentaje="{{porcentaje}}" {% if porcentaje == 100 %} style="color: green;" {% else %} style="color: red;" {% endif %}>
+                          {{ porcentaje|avg_send }}
+                      </td>
+                      {% endwith %}
+                      <td>{{ send.created|date:"D d M Y H:i a" }}</td>
+                      <td><a href="{% url 'envio_detalle' send.id %}" class="btn btn-success">Ver detalle</a></td>
+                    </tr>
+
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="7">
+                      <a href="{% url 'crear_envio' %}" class="btn btn-default">
+                        Crear envio
+                      </a>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+{% endblock %}
+
+{% block  javascripts %}
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <!-- Datatables -->
+    <script src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#myTable').DataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"
+                }
+            } );
+        });
+    </script>
+
+{% endblock %}

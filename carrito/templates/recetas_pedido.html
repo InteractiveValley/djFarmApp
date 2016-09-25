@@ -1,8 +1,31 @@
 <div class="recetas-pedido">
-    <ul>
+    <ul style="list-style: none;">
         {% for receta in pedido.images.all %}
-            <li><img src="{{receta.image_recipe.url}}" style="max-width: 350px;" /></li>
+            <li>
+                <div class="row">
+                    <div class="col-md-10">
+                        <figure class="text-center">
+                            <img src="{{receta.image_recipe.url}}" style="max-width: 100%;" />
+                            <figcaption>
+                                {% if receta.type_recipe == 3  %}
+                                    Esta receta esta marcada como antibiotico
+                                {% endif %}
+                            </figcaption>
+                        </figure>
+                    </div>
+                    <div class="col-md-2">
+						{% if receta.type_recipe == 1 %}
+						<button id="receta-normal-{{receta.id}}" class="btn-recipe-normal btn btn-success" data-url="{% url 'recipe_normal' receta.id  %}">Receta normal?</button>
+                        <button id="receta-antibiotico-{{receta.id}}" class="btn-recipe-antibiotico btn btn-danger" data-url="{% url 'recipe_with_antibiotico' receta.id %}">Receta con antibiotico?</button>
+						{% elif receta.type_recipe == 2 %}
+						<button id="receta-antibiotico-{{receta.id}}" class="btn-recipe-antibiotico btn btn-danger" data-url="{% url 'recipe_with_antibiotico' receta.id %}">Receta con antibiotico?</button>
+						{% else %}
+						<button id="receta-normal-{{receta.id}}" class="btn-recipe-normal btn btn-success" data-url="{% url 'recipe_normal' receta.id  %}">Receta normal?</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
         {% endfor %}
     </ul>
-
 </div>
+

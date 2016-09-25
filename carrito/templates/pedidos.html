@@ -1,16 +1,21 @@
 {% extends 'base_carrito.html' %}
 
 {% block body %}
+
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
+            <div class="text-center">
+                {% load staticfiles %}
+                <img src="{% static 'usuarios/Logo.png' %}" alt="FarmaApp logo" style="max-height: 200px;"/>
+            </div>
             <ul class="nav nav-sidebar">
                 <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=todos">Todos <span class="sr-only">(current)</span></a></li>
-                <li class="{% if filter == 'enviar' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=enviar">Por Enviar </a></li>
-                <li class="{% if filter == 'rechazado' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=rechazado">Rechazado </a></li>
-                <li class="{% if filter == 'pagado' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=pagado">Pagado </a></li>
+                <li class="{% if filter == 'enviar' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=enviar">Enviados</a></li>
+                <li class="{% if filter == 'rechazado' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=rechazado">Rechazados </a></li>
+                <li class="{% if filter == 'pagado' %} active {% endif %}"><a href="{% url 'pedidos' %}?filter=pagado">Pagados </a></li>
               </ul>
         </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
         <br/>
           <h1 class="page-header">Pedidos</h1>
           <div class="table-responsive">

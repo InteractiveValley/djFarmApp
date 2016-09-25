@@ -52,6 +52,9 @@ INSTALLED_APPS = (
     'carrito',
     'corsheaders',
     'djoser',
+    'datetimewidget',
+    'django_summernote',
+    'push_notifications'
 
 )
 
@@ -60,6 +63,7 @@ MIDDLEWARE_CLASSES = (
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -127,6 +131,9 @@ STATIC_ROOT = APP_STATIC_ROOT
 
 STATIC_URL = '/static/'
 
+
+
+
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
@@ -163,3 +170,9 @@ EMAIL_HOST_USER = APP_EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD = APP_EMAIL_HOST_PASSWORD
 EMAIL_PORT = APP_EMAIL_PORT
 EMAIL_USE_TLS = APP_EMAIL_USE_TLS
+
+# configuraciones de push notifications
+PUSH_NOTIFICATIONS_SETTINGS = {
+    'GCM_API_KEY': APP_GCM_API_KEY,
+    'APNS_CERTIFICATE': APP_APNS_CERT_PEM_PATH,
+}

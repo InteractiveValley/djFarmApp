@@ -13,8 +13,9 @@ class DetailSaleListSerializer(serializers.ListSerializer):
 class DetailSaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetailSale
-        fields = ('id', 'sale', 'product', 'price', 'quantity', 'subtotal', 'discount', 'total',)
-        read_only_fields = ('price', 'subtotal', 'discount', 'total',)
+        fields = ('id', 'sale', 'product', 'price', 'quantity', 'subtotal', 'discount', 'discount_inapam', 'tax',
+                  'total')
+        read_only_fields = ('price', 'subtotal', 'discount', 'discount_inapam', 'tax', 'total',)
 
 
 class DetailSaleWithProductSerializer(serializers.ModelSerializer):
@@ -22,8 +23,9 @@ class DetailSaleWithProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DetailSale
-        fields = ('id', 'sale', 'product', 'price', 'quantity', 'subtotal', 'discount', 'total',)
-        read_only_fields = ('price', 'subtotal', 'discount', 'total',)
+        fields = ('id', 'sale', 'product', 'price', 'quantity', 'subtotal', 'discount', 'discount_inapam', 'tax',
+                  'total')
+        read_only_fields = ('price', 'subtotal', 'discount', 'discount_inapam', 'tax', 'total',)
 
 
 class SaleSerializer(serializers.ModelSerializer):
@@ -33,8 +35,9 @@ class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = ('id', 'user', 'direction', 'status', 'scheduled_order', 'delivered', 'created', 'modified',
-                  'detail_sales', 'subtotal', 'discount', 'tax', 'total', 'notes','card_conekta','status_string')
-        read_only_fields = ('user', 'created', 'modified', 'total',)
+                  'detail_sales', 'subtotal', 'discount', 'discount_inapam', 'shipping', 'tax', 'total', 'notes',
+                  'card_conekta', 'status_string')
+        read_only_fields = ('user', 'created', 'modified', 'shipping', 'total',)
 
     def get_status_string(self, obj):
         return obj.show_status()
@@ -50,4 +53,4 @@ class ImageSaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImageSale
         list_serializer_class = ImageSaleListSerializer
-        fields = ('id', 'sale', 'image_recipe',)
+        fields = ('id', 'sale', 'image_recipe','type_recipe','user','created','modified')

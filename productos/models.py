@@ -12,8 +12,17 @@ def image_default():
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=140, verbose_name="categoria")
+    position = models.PositiveSmallIntegerField('posicion', default=0)
     image_category = models.ImageField(upload_to='categorias/', verbose_name="Imagen", null=True,
                                        blank=True)
+
+    def save(self, *args, **kwargs):
+        """
+        On save, update date_begins
+        """
+        if self.position == 0:
+            self.position = Category.objects.count() + 1
+        return super(Category, self).save(*args, **kwargs)
 
     def thumbnail(self):
         if self.image_category is not None:
@@ -69,7 +78,7 @@ class Discount(models.Model):
         On save, update date_begins
         """
         if not self.id and self.date_begins is None:
-            self.date_begins = timezone.now().date()
+            self.date_begins = timezone.localtime(timezone.now()).date()
         return super(Discount, self).save(*args, **kwargs)
 
     class Meta:
@@ -120,8 +129,12 @@ class Product(models.Model):
                                            blank=True)
     image_no_require = models.ImageField(upload_to='productos/norequire/', verbose_name="Sin receta", null=True,
                                          blank=True)
+    cb = models.CharField("Codigo de barras", max_length=140, null=True, blank=True)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
+    date_enter = models.DateTimeField("Fecha entrada", null=True, blank=True)
+    date_out = models.DateTimeField("Fecha salida", null=True, blank=True)
+    date_expiration = models.DateTimeField("Caducidad", null=True, blank=True)
 
     def no_require(self):
         image = self.image_no_require
@@ -166,7 +179,7 @@ class Product(models.Model):
         return unicode(self).encode("utf-8")
 
     def __unicode__(self):
-        return self.name
+        return "%s, Lab: %s" % (self.name, self.laboratory.name)
 
     with_recipe.allow_tags = True
     show_recipe.allow_tags = True
@@ -209,15 +222,49 @@ class Product(models.Model):
     status_inventory.short_description = 'inventario'
     status_inventory.admin_order_field = 'inventory'
 
+    def expiration(self):
+        now = timezone.localtime(timezone.now())
+        if self.date_expiration is not None:
+            expira = self.date_expiration - now
+            horas = expira.seconds / 3600
+            minutos = expira.seconds / 60
+            if expira.days > 5:
+                return """
+                <span style="padding: 5px 20px; background-color: transparent;">%i dias</span>
+                """ % expira.days
+            elif horas > 24:
+                return """
+                <span style="padding: 5px 20px; background-color: yellow; color: black;">%i dias</span>
+                """ % expira.days
+            elif horas < 24 and horas > 1:
+                return """
+                <span style="padding: 5px 20px; background-color: yellow; color: black;">%i horas</span>
+                """ % horas
+            elif minutos < 60 and minutos > 1:
+                return """
+                <span style="padding: 5px 20px; background-color: yellow; color: black;">%i minutos</span>
+                """ % minutos
+            else:
+                return """
+                <span style="padding: 5px 20px; background-color: red; color: white;">%i dias</span>
+                """ % 0
+        else:
+            return """
+                <span style="padding: 5px 20px; background-color: red; color: white;">%i dias</span>
+                """ % 0
+
+    expiration.allow_tags = True
+    expiration.short_description = 'caduca'
+    expiration.admin_order_field = 'date_out'
+
     def save(self, *args, **kwargs):
         """
         On save, update timestamps
         """
         if not self.id:
-            self.created = timezone.now()
-        self.modified = timezone.now()
+            self.created = timezone.localtime(timezone.now())
+        self.modified = timezone.localtime(timezone.now())
         return super(Product, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'producto'
-

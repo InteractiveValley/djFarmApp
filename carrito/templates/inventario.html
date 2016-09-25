@@ -1,22 +1,47 @@
 {% extends 'base_carrito.html' %}
 
+{% block title %} Inventario {% endblock %}
+
+{% block sheetstyles %}
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css">
+
+
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard.css' %}">
+
+
+
+{% endblock %}
+
 {% block body %}
+    {% load app_filters %}
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
+            <div class="text-center">
+                <img src="{% static 'usuarios/Logo.png' %}" alt="FarmaApp logo" style="max-height: 200px;"/>
+            </div>
             <ul class="nav nav-sidebar">
                 <li class="{% if filter == 'todos' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=todos">Todos <span class="sr-only">(current)</span></a></li>
                 <li class="{% if filter == 'sininventario' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=sininventario">Sin inventario <span class="badge">{{sin_inventario}}</span></a></li>
-                <li class="{% if filter == 'enwarning' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=enwarning">En warning <span class="badge">{{en_warning}}</span></a></li>
+                <li class="{% if filter == 'enwarning' %} active {% endif %}"><a href="{% url 'inventario' %}?filter=enwarning">Por acabarse<span class="badge">{{en_warning}}</span></a></li>
               </ul>
         </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2">
         <br/>
-          <h1 class="page-header">Productos</h1>
+          <h1 class="page-header">Productos {% if category.id > 0 %} {{category.name}} {% endif %}</h1>
           <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table table-striped" id="myTable">
               <thead>
                 <tr>
                   <th>#</th>
+                  <th>Cb</th>
                   <th>Producto</th>
                   <th>Categoria</th>
                   <th>Precio</th>
@@ -28,44 +53,53 @@
                 {% for producto in productos %}
                 <tr>
                   <td>{{ producto.id }}</td>
+                  <td>{{ producto.cb }}</td>
                   <td>{{ producto.name }}</td>
                   <td>{{ producto.category.name }}</td>
-                  <td>{{ producto.price }}</td>
-                  <td>{{ producto.inventory }}</td>
+                  <td class="text-center">{{ producto.price|currency }}</td>
+                  <td class="text-center">{{ producto.inventory|quantity }}</td>
                   <td>
-                      <!--a class="btn btn-success" href="/inventario/editar/{{producto.id}}/">
-                          <i class="glyphicon glyphicon-search"></i> &nbsp; Crear recibo
-                      </a-->
+                      <a class="btn btn-success" href="{% url 'recibos' %}?filter=todos&product={{producto.id}}">
+                          <i class="glyphicon glyphicon-search"></i> &nbsp; Ver recibos
+                      </a>
                   </td>
                 </tr>
                 {% endfor %}
               </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="6">
+                      <a href="{% url 'categorias' %}" class="btn btn-default">
+                        Regresar a categorias
+                      </a>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
             </div>
           </div>
         </div>
       </div>
-      <div class="row text-center">
-            <ul class="pagination">
-                <li>
-                  {% if productos.has_previous %}
-                      <a href="?page={{ productos.previous_page_number }}">
-                        <span aria-hidden="true">&laquo;</span>
-                      </a>
-                  {% endif %}
-                </li>
-                <li>
-                    <span class="current">
-                        Pagina {{ productos.number }} de {{ productos.paginator.num_pages }}.
-                    </span>
-                </li>
-                <li>
-                  {% if productos.has_next %}
-                      <a href="?page={{ productos.next_page_number }}">
-                        <span aria-hidden="true">&raquo;</span>
-                      </a>
-                    {% endif %}
-                </li>
-            </ul>
-        </div>
+
+{% endblock %}
+
+{% block  javascripts %}
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <!-- Datatables -->
+    <script src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('#myTable').DataTable({
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json"
+                }
+            } );
+        });
+    </script>
+
 {% endblock %}

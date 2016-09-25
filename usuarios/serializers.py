@@ -34,7 +34,7 @@ class ScheduledOrderFullSerializer(serializers.ModelSerializer):
 class InapamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Inapam
-        fields = ('id', 'user', 'inapam', 'active')
+        fields = ('id', 'user', 'image', 'active')
         read_only_fields = ('user',)
 
 
