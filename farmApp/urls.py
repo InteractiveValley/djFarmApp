@@ -63,6 +63,7 @@ urlpatterns = [
 
     url(r'^images/inapam/$', 'usuarios.views.upload_images_inapam', name='upload_images_inapam'),
     url(r'^images/ventas/$', 'carrito.views.upload_images_ventas', name='upload_images_ventas'),
+    url(r'^images/ventas/base64/$', 'carrito.views.upload_images_base64_ventas', name='upload_images_base64_ventas'),
 
     url(r'^reminders/$', 'usuarios.views.reminders', name='reminders'),
     url(r'^contacto/$', 'usuarios.views.contacto', name='contacto'),
