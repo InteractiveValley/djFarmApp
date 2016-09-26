@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 
+import os
 import base64
 import json
 import urllib2
@@ -249,6 +250,28 @@ def upload_images_ventas(request):
     else:
         data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+@csrf_exempt
+def upload_images_base64_ventas(request):
+    if request.method == 'POST':
+        if request.is_ajax() is False:
+            sale_id = request.POST['venta']
+            receta = request.POST['receta']
+            imgdata = base64.b64decode(receta)
+            image = open("imageToSave"+ sale_id +".png", "wb")
+            image.write(imgdata.decode('base64'))
+            image.close()
+            #  import pdb; pdb.set_trace()
+            sale = Sale.objects.get(pk=sale_id)
+            image_sale = ImageSale(sale=sale, image_recipe=image)
+            image_sale.save()
+            os.remove("imageToSave"+ sale_id +".png")
+            data = {'status': 'ok', 'message': 'Carga exitosa'}
+        else:
+            data = {'status': 'bat', 'message': 'No esta permitido este metodo por post normal'}
+    else:
+        data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
+    return HttpResponse(json.dumps(data), content_type='application/json')    
 
 
 def create_notification_carrito(sale, user, title, message):
