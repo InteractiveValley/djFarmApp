@@ -4,7 +4,7 @@ import os
 import base64
 import json
 import urllib2
-# import conekta
+import os
 import openpay
 
 from django.http import HttpResponseRedirect, HttpResponse
@@ -22,6 +22,7 @@ from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPE
 from carrito.models import Receipt
 from carrito.forms import ReceiptForm, SendForm, DetailSendForm
 from gcm import GCM
+from apns import APNs, Payload
 
 
 def pedidos(request):
@@ -322,11 +323,38 @@ def create_notification_carrito(sale, user, title, message):
     return response
 
 
+def noti_ios(token, message, customPayload):
+    apns = APNs(
+        use_sandbox=True,
+        cert_file=os.getcwd()+'/carrito/PushCert.pem',
+        key_file=os.getcwd()+'/carrito/PushKeyWithoutKey.pem'
+    )
+    print token
+    payload = Payload(
+        alert=message,
+        sound="default",
+        badge=1,
+        custom=customPayload
+    )
+    print payload
+    apns.gateway_server.send_notification(token, payload)
+
+
 def create_notification_ionic_push_carrito(sale, user, title, message):
     # import pdb; pdb.set_trace()
-    return create_notification_carrito(sale, user, title, message)
+    if len(user.token_phone.all()[0].token) == 64:
+        customPush = {
+            "saleId": sale.id
+        }
+        return noti_ios(
+            user.token_phone.all()[0].token,
+            message,
+            customPush
+        )
+    else:
+        return create_notification_carrito(sale, user, title, message)
 
-    tokens = [user.token_phone.all()[0].token,]
+    tokens = [user.token_phone.all()[0].token]
     post_data = {
         "tokens": tokens,
         "profile": PUSH_APP_ID,

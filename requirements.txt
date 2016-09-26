@@ -10,7 +10,6 @@ django-filter==0.11.0
 django-grappelli==2.7.1
 django-push-notifications==1.4.1
 django-summernote==0.8.5
-django-toolbelt==0.0.1
 djangorestframework==3.2.3
 future==0.10.1
 gnureadline==6.3.3
@@ -26,7 +25,6 @@ path.py==8.1.1
 pexpect==3.3
 pickleshare==0.5
 Pillow==2.9.0
-psycopg2==2.6.1
 python-gcm==0.4
 python-openid==2.2.5
 pytz==2015.7
