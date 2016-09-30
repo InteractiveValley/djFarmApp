@@ -129,6 +129,7 @@ class Sale(models.Model):
                 recipes += 1
         return products == recipes
     
+    @property
     def has_image_recipe_aproved(self):
         images = self.images.all()
         is_aproved = True
