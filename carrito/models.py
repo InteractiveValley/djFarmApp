@@ -24,6 +24,16 @@ STATUS_SALE = {
     (NO_PAID, "No pagado"),
 }
 
+TYPE_WITHOUT_FOLIO = 1
+TYPE_RECIPE_NORMAL = 2
+TYPE_RECIPE_WITH_ANTIBIOTICO = 3
+
+TYPE_RECIPES = {
+    (TYPE_WITHOUT_FOLIO, "Receta sin folio"),
+    (TYPE_RECIPE_NORMAL, "Receta normal"),
+    (TYPE_RECIPE_WITH_ANTIBIOTICO, "Receta con antibiotico"),
+}
+
 
 class Sale(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name="cliente", related_name="user")
@@ -119,6 +129,7 @@ class Sale(models.Model):
                 recipes += 1
         return products == recipes
     
+    @property
     def has_image_recipe_aproved(self):
         images = self.images.all()
         is_aproved = True
@@ -250,16 +261,6 @@ class DetailSale(models.Model):
         verbose_name = "detalle de venta"
         verbose_name_plural = "detalles de venta"
 
-
-TYPE_WITHOUT_FOLIO = 1
-TYPE_RECIPE_NORMAL = 2
-TYPE_RECIPE_WITH_ANTIBIOTICO = 3
-
-TYPE_RECIPES = {
-    (TYPE_WITHOUT_FOLIO, "Receta sin folio"),
-    (TYPE_RECIPE_NORMAL, "Receta normal"),
-    (TYPE_RECIPE_WITH_ANTIBIOTICO, "Receta con antibiotico"),
-}
 
 class ImageSale(models.Model):
     sale = models.ForeignKey(Sale, related_name="images")

@@ -236,11 +236,11 @@ def send_sale_for_email(request, sale_id):
 
 @csrf_exempt
 def upload_images_ventas(request):
+    # import pdb; pdb.set_trace()
     if request.method == 'POST':
         if request.is_ajax() is False:
             sale_id = request.POST['venta']
             image = request.FILES['receta']
-            #  import pdb; pdb.set_trace()
             sale = Sale.objects.get(pk=sale_id)
             image_sale = ImageSale(sale=sale, image_recipe=image)
             image_sale.save()
@@ -255,17 +255,21 @@ def upload_images_ventas(request):
 def upload_images_base64_ventas(request):
     if request.method == 'POST':
         if request.is_ajax() is False:
-            sale_id = request.POST['venta']
-            receta = request.POST['receta']
+
+            from django.core.files.base import ContentFile
+
+            datos = json.loads(request.body)
+            sale_id = int(datos['venta'])
+            receta = datos['receta']
             imgdata = base64.b64decode(receta)
-            image = open("imageToSave"+ sale_id +".png", "wb")
-            image.write(imgdata.decode('base64'))
-            image.close()
-            #  import pdb; pdb.set_trace()
+
+
             sale = Sale.objects.get(pk=sale_id)
-            image_sale = ImageSale(sale=sale, image_recipe=image)
+            image_sale = ImageSale(sale=sale)
+            image_sale.image_recipe = ContentFile(imgdata, "imageToSave" + str(sale_id) + ".png")
             image_sale.save()
-            os.remove("imageToSave"+ sale_id +".png")
+
+            # os.remove("imageToSave" + str(sale_id) + ".png")
             data = {'status': 'ok', 'message': 'Carga exitosa'}
         else:
             data = {'status': 'bat', 'message': 'No esta permitido este metodo por post normal'}
