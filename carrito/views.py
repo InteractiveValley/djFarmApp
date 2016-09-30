@@ -251,6 +251,7 @@ def upload_images_ventas(request):
         data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
     return HttpResponse(json.dumps(data), content_type='application/json')
 
+
 @csrf_exempt
 def upload_images_base64_ventas(request):
     if request.method == 'POST':
@@ -263,19 +264,23 @@ def upload_images_base64_ventas(request):
             receta = datos['receta']
             imgdata = base64.b64decode(receta)
 
-
             sale = Sale.objects.get(pk=sale_id)
             image_sale = ImageSale(sale=sale)
-            image_sale.image_recipe = ContentFile(imgdata, "imageToSave" + str(sale_id) + ".png")
+            image_sale.image_recipe = ContentFile(
+                imgdata, "imageToSave" + str(sale_id) + ".png"
+            )
             image_sale.save()
 
             # os.remove("imageToSave" + str(sale_id) + ".png")
             data = {'status': 'ok', 'message': 'Carga exitosa'}
         else:
-            data = {'status': 'bat', 'message': 'No esta permitido este metodo por post normal'}
+            data = {
+                'status': 'bat',
+                'message': 'No esta permitido este metodo por post normal'
+            }
     else:
         data = {'status': 'bat', 'message': 'No esta permitido este metodo'}
-    return HttpResponse(json.dumps(data), content_type='application/json')    
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 def create_notification_carrito(sale, user, title, message):

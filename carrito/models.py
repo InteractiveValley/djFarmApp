@@ -128,13 +128,13 @@ class Sale(models.Model):
             if detalle.complete_shipping() == 100:
                 recipes += 1
         return products == recipes
-    
+
     @property
     def has_image_recipe_aproved(self):
         images = self.images.all()
         is_aproved = True
         for image in images:
-            if image.type_recipe != TYPE_WITHOUT_FOLIO:
+            if image.type_recipe == TYPE_WITHOUT_FOLIO:
                 is_aproved = False
                 break
         return is_aproved
@@ -275,7 +275,7 @@ class ImageSale(models.Model):
         """
         On save, update timestamps
         """
-    
+
         if not self.id:
             self.created = timezone.localtime(timezone.now())
             self.type_recipe = TYPE_WITHOUT_FOLIO
@@ -288,7 +288,7 @@ class ImageSale(models.Model):
             else:
                 folio2 = folio1['folio_recipe__max']
             self.folio_recipe = folio2 + 1
-            
+
         elif self.type_recipe == TYPE_RECIPE_WITH_ANTIBIOTICO and self.folio_recipe == 0:
             folio1 = ImageSale.objects.filter(type_recipe=TYPE_RECIPE_WITH_ANTIBIOTICO).aggregate(Max('folio_recipe'))
             if folio1['folio_recipe__max'] is None:
@@ -296,7 +296,7 @@ class ImageSale(models.Model):
             else:
                 folio2 = folio1['folio_recipe__max']
             self.folio_recipe = folio2 + 1
-            
+
         return super(ImageSale, self).save(*args, **kwargs)
 
     class Meta:
