@@ -45,7 +45,7 @@ class Sale(models.Model):
     card_conekta = models.ForeignKey(CardConekta, verbose_name="tarjeta", null=True, blank=True)
     charge_conekta = models.CharField("Cargo Id Conekta", max_length=140, default="", null=True, blank=True)
     notes = models.TextField("Notas/Comentarios", blank=True, null=True)
-    shipping = models.DecimalField("envio", max_digits=10, decimal_places=2, default=25)
+    shipping = models.DecimalField("envio", max_digits=10, decimal_places=2, default=0)
     with_shipping = models.BooleanField("con envio", default=False, null=False, blank=False)
     created = models.DateTimeField("creado", null=True, blank=True)
     modified = models.DateTimeField("actualizado", null=True, blank=True)
