@@ -528,7 +528,7 @@ def post_envios(request):
                 return redirect('carrito.views.envios')
         else:
             form = SendForm()
-        return render(request, 'crear_envio.html', {'dataForm': form})
+        return render(request, 'crear_envio2.html', {'dataForm': form})
     else:
         return HttpResponseRedirect("/login/")
 
