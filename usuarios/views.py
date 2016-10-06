@@ -105,7 +105,8 @@ def user_conekta_create(request):
             name=user.first_name,
             last_name=user.last_name,
             email=user.email,
-            phone_number=user.cell
+            phone_number=user.cell,
+            requires_account=False
         )
 
         if "id" in customer:
