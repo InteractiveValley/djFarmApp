@@ -39,7 +39,7 @@
           <div class="table-responsive" style="width: 400px;">
             <form method="POST" class="post-form">
                 {% csrf_token %}
-                {{ form }}
+                {{ dataForm.as_p }}
                 <button type="submit" class="save btn btn-default">Guardar</button>
             </form>
           </div>
