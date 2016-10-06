@@ -21,6 +21,7 @@ from farmApp.secret import APP_OPENPAY_API_KEY, APP_OPENPAY_MERCHANT_ID, APP_OPE
 from django.utils import timezone
 from gcm import GCM
 
+
 # Create your views here.
 def home(request):
     return render(request, 'homepage.html')
@@ -39,7 +40,8 @@ def user_conekta_create(request):
     openpay.api_key = APP_OPENPAY_API_KEY
     openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
     openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
-    openpay.production = APP_OPENPAY_PRODUCTION  # By default this works in sandbox mode, production = True
+    openpay.production = APP_OPENPAY_PRODUCTION
+    # By default this works in sandbox mode, production = True
 
     #  conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
 
@@ -56,15 +58,34 @@ def user_conekta_create(request):
         # try:
         # customer = conekta.Customer.find(user_conekta.conekta_user)
         customer = openpay.Customer.retrieve(user_conekta.conekta_user)
-
         # card = customer.createCard({"token_id": data['conektaTokenId']})
-        card = customer.cards.create(token_id=data['token_id'], device_session_id=data['device_session_id'])
+        try:
+            card = customer.cards.create(
+                token_id=data['token_id'],
+                device_session_id=data['device_session_id']
+            )
+        except Exception as e:
+            return Response({
+                "message": "La tarjeta fue rechazada, \
+                    intente con otra tarjeta",
+                "card": {},
+                "error": True
+            })
 
         if "id" in card:
-            card_conekta = CardConekta(card=card.id, name=card.holder_name, brand=card.brand, last4=card.card_number[:4],
-                                   exp_year=card.expiration_year, active=True, exp_month=card.expiration_month,
-                                   type=card.type, bank_name=card.bank_name, allows_payouts=card.allows_payouts,
-                                   allows_charges=card.allows_charges)
+            card_conekta = CardConekta(
+                card=card.id,
+                name=card.holder_name,
+                brand=card.brand,
+                last4=card.card_number[:4],
+                exp_year=card.expiration_year,
+                active=True,
+                exp_month=card.expiration_month,
+                type=card.type,
+                bank_name=card.bank_name,
+                allows_payouts=card.allows_payouts,
+                allows_charges=card.allows_charges
+            )
             card_conekta.user = user
             card_conekta.save()
             message = 'Usuario actualizado'
@@ -74,12 +95,36 @@ def user_conekta_create(request):
             message = card.description
             card_conekta = None
     else:
-        customer = openpay.Customer.create(name=user.first_name, last_name=user.last_name, email=user.email,
-                                           phone_number=user.cell)
+        print "ayuda"
+        print user.email
+        print user.cell
+        print user.last_name
+        print CustomUser.objects.get(email=user.email)
+
+        customer = openpay.Customer.create(
+            name=user.first_name,
+            last_name=user.last_name,
+            email=user.email,
+            phone_number=user.cell
+        )
+
         if "id" in customer:
             ConektaUser.objects.create(user=user, conekta_user=customer.id)
             message = 'Usuario creado'
-            card = customer.cards.create(token_id=data['token_id'], device_session_id=data['device_session_id'])
+
+            try:
+                card = customer.cards.create(
+                    token_id=data['token_id'],
+                    device_session_id=data['device_session_id']
+                )
+            except Exception as e:
+                return Response({
+                    "message": "La tarjeta fue rechazada, \
+                        intente con otra tarjeta",
+                    "card": {},
+                    "error": True
+                })
+
             if "id" in card:
                 card_conekta = CardConekta(card=card.id, name=card.holder_name, brand=card.brand, last4=card.card_number[:4],
                                            exp_year=card.expiration_year, active=True, exp_month=card.expiration_month,
@@ -339,7 +384,7 @@ def create_notification_reminder(reminder):
 
 def create_notification_ionic_push_reminder(reminder):
     return create_notification_reminder(reminder)
-    
+
     user = reminder.user
     tokens = [user.token_phone.all()[0].token]
     post_data = {
