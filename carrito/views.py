@@ -336,7 +336,7 @@ def noti_ios(token, message, customPayload):
     apns = APNs(
         use_sandbox=True,
         cert_file=os.getcwd()+'/carrito/PushCert.pem',
-        key_file=os.getcwd()+'/carrito/PushKeyWithoutKey.pem'
+        key_file=os.getcwd()+'/carrito/PushKey.pem'
     )
     print token
     payload = Payload(
