@@ -335,8 +335,8 @@ def noti_ios(token, message, customPayload):
     print "Entro a la push de ios"
     apns = APNs(
         use_sandbox=True,
-        cert_file=os.getcwd()+'/carrito/PushCert.pem',
-        key_file=os.getcwd()+'/carrito/PushKey.pem'
+        cert_file='./PushCert.pem',
+        key_file='./PushKey.pem'
     )
     print token
     payload = Payload(
