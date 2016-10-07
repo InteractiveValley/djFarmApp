@@ -55,9 +55,13 @@ def user_conekta_create(request):
     data = json.loads(request.body)
     # import pdb; pdb.set_trace()
     if user_conekta is not None:
+        print "1"
         # try:
         # customer = conekta.Customer.find(user_conekta.conekta_user)
-        customer = openpay.Customer.retrieve(user_conekta.conekta_user)
+        try:
+            customer = openpay.Customer.retrieve(user_conekta.conekta_user)
+        except Exception as e:
+            print e
         # card = customer.createCard({"token_id": data['conektaTokenId']})
         try:
             card = customer.cards.create(

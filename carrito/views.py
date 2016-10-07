@@ -135,8 +135,7 @@ def detalle_entregar(request, sale_id):
         openpay.api_key = APP_OPENPAY_API_KEY
         openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
         openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
-        openpay.production = APP_OPENPAY_PRODUCTION  # By default this works in sandbox mode, production = True
-
+        openpay.production = APP_OPENPAY_PRODUCTION
         customer = openpay.Customer.retrieve(user_conekta.conekta_user)
 
         # import pdb; pdb.set_trace();
@@ -333,6 +332,7 @@ def create_notification_carrito(sale, user, title, message):
 
 
 def noti_ios(token, message, customPayload):
+    print "Entro a la push de ios"
     apns = APNs(
         use_sandbox=True,
         cert_file=os.getcwd()+'/carrito/PushCert.pem',
