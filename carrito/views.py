@@ -284,7 +284,6 @@ def upload_images_base64_ventas(request):
 
 def create_notification_carrito(sale, user, title, message):
     gcm = GCM(APP_GCM_API_KEY)
-
     registration_ids = [user.token_phone.all()[0].token]
 
     notification = {
@@ -355,6 +354,7 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
         customPush = {
             "saleId": sale.id
         }
+        return customPush
         # return noti_ios(
         #     user.token_phone.all()[0].token,
         #     message,
@@ -380,7 +380,7 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
             "ios": {
                 "payload": {
                     "saleId": sale.id,
-                    "status_string": sale.show_status
+                    "status_string": sale.show_status()
                 }
             }
         }
