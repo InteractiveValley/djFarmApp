@@ -355,11 +355,11 @@ def create_notification_ionic_push_carrito(sale, user, title, message):
         customPush = {
             "saleId": sale.id
         }
-        return noti_ios(
-            user.token_phone.all()[0].token,
-            message,
-            customPush
-        )
+        # return noti_ios(
+        #     user.token_phone.all()[0].token,
+        #     message,
+        #     customPush
+        # )
     else:
         return create_notification_carrito(sale, user, title, message)
 
