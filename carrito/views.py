@@ -75,7 +75,7 @@ def detalle_aprobar(request, sale_id):
         pedido.save()
         detalles = DetailSale.objects.filter(sale=pedido)
         message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
-        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+        # create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
 
     if request.is_ajax():
         template = "item_pedido.html"
