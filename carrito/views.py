@@ -1,12 +1,15 @@
-# -*- encoding: utf-8 -*-
-
+# -*- coding: utf-8 -*- 
 import os
 import base64
 import json
 import urllib2
+import urllib
 import os
 import openpay
+import requests
+from collections import OrderedDict
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render, redirect
@@ -24,6 +27,7 @@ from carrito.forms import ReceiptForm, SendForm, DetailSendForm
 from gcm import GCM
 from apns import APNs, Payload
 
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def pedidos(request):
     if request.user.is_authenticated():
@@ -75,7 +79,7 @@ def detalle_aprobar(request, sale_id):
         pedido.save()
         detalles = DetailSale.objects.filter(sale=pedido)
         message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
-        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message, 1)
 
     if request.is_ajax():
         template = "item_pedido.html"
@@ -93,7 +97,7 @@ def detalle_cancelar(request, sale_id):
         pedido.save()
         detalles = DetailSale.objects.filter(sale=pedido)
         message = "Tu orden #" + str(pedido.id).zfill(6) + " ha sido cancelada."
-        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message, 1)
 
     if request.is_ajax():
         template = "item_pedido.html"
@@ -112,7 +116,7 @@ def detalle_rechazar_receta(request, sale_id):
         detalles = DetailSale.objects.filter(sale=pedido)
         message = "La receta de tu pedido #" + str(pedido.id).zfill(6) + " ha sido rechazada. " + \
                   "Si lo deseas puedes volver a generar la orden."
-        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message, 1)
 
     if request.is_ajax():
         template = "item_pedido.html"
@@ -131,26 +135,36 @@ def detalle_entregar(request, sale_id):
 
         device_session_id = request.GET.get('device_session_id')
 
-        # conekta.api_key = "key_wHTbNqNviFswU6kY8Grr7w"
         openpay.api_key = APP_OPENPAY_API_KEY
         openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
         openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
         openpay.production = APP_OPENPAY_PRODUCTION
         customer = openpay.Customer.retrieve(user_conekta.conekta_user)
 
-        # import pdb; pdb.set_trace();
         card_conekta = pedido.card_conekta
-        amount = pedido.total
+        amount = "{0:.2f}".format(pedido.total)
         detalles = pedido.detail_sales.all()
         lista = []
         charge = None
-        if len(pedido.charge_conekta) == 0:
-            charge = customer.charges.create(source_id=card_conekta.card, method="card", amount=amount,
-                                             description="Pedido de FarmaApp",
-                                             order_id="pedido-" + str(pedido.id) + "-farmaapp",
-                                             device_session_id=device_session_id)
-        else:
-            charge = customer.charges.retrieve(pedido.charge_conekta)
+        alertas = []
+        try:
+            if len(pedido.charge_conekta) == 0:
+                charge = customer.charges.create(
+                    source_id=card_conekta.card,
+                    method="card",
+                    currency="MXN",
+                    amount=pedido.total,
+                    description="Pedido de FarmaApp",
+                    order_id="ppasppedido-" + str(pedido.id) + "-farmaapp",
+                    device_session_id=device_session_id
+                )
+            else:
+                charge = customer.charges.retrieve(pedido.charge_conekta)
+        except Exception, e:
+            print e
+            alertas.append(
+                "Ocurrio un error al realizar la transacción, detalle: {0}".format(str(e))
+            )
 
         if charge is None:
             pedido.status = NO_PAID
@@ -161,14 +175,20 @@ def detalle_entregar(request, sale_id):
             pedido.vendor = request.user
             pedido.save()
             pedido.discount_inventory
-            enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
-            enviar_mensaje.enviarMensaje()
-            #  import pdb; pdb.set_trace()
+            try:
+                enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
+                enviar_mensaje.enviarMensaje()
+            except Exception, e:
+                print e
+                alertas.append("Ocurrio un error al enviar el correo electronico")
             str_pedido = str(pedido.id).zfill(6)
             str_total = '{:20,.2f}'.format(pedido.total)
             message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
-            create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
-            # import pdb; pdb.set_trace()
+            try:
+                create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message, amount)
+            except Exception, e:
+                alertas.append("Ocurrio un error al enviar la push notification")
+
         elif charge.status == "in_progress":
             pedido.charge_conekta = charge.id
             pedido.status = NO_PAID
@@ -183,7 +203,7 @@ def detalle_entregar(request, sale_id):
     else:
         template = "detalle_pedido.html"
 
-    return render(request, template, {"pedido": pedido, 'detalles': detalles})
+    return render(request, template, {"pedido": pedido, 'detalles': detalles, 'alertas': alertas})
 
 
 def revisar_pago(request, sale_id):
@@ -213,7 +233,7 @@ def revisar_pago(request, sale_id):
             str_pedido = str(pedido.id).zfill(6)
             str_total = '{:20,.2f}'.format(pedido.total)
             message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
-            create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message)
+            create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message, 1)
 
     if request.is_ajax():
         template = "item_pedido.html"
@@ -333,9 +353,9 @@ def create_notification_carrito(sale, user, title, message):
 def noti_ios(token, message, customPayload):
     print "Entro a la push de ios"
     apns = APNs(
-        use_sandbox=True,
-        cert_file='./PushCert.pem',
-        key_file='./PushKey.pem'
+        use_sandbox=False,
+        cert_file='./certiAyuda.pem',
+        key_file='./push-pro-key-out.pem'
     )
     print token
     payload = Payload(
@@ -348,18 +368,28 @@ def noti_ios(token, message, customPayload):
     apns.gateway_server.send_notification(token, payload)
 
 
-def create_notification_ionic_push_carrito(sale, user, title, message):
-    # import pdb; pdb.set_trace()
+def push_ios(token, message, valuePayload, typePayload):
+    params = OrderedDict([
+        ('token_device', token),
+        ('message', message),
+        ('type', typePayload),
+        ('value', valuePayload)
+    ])
+    r_push = requests.get(
+        "http://push-farmapp.159.203.202.11.nip.io",
+        params=urllib.urlencode(params)
+    )
+    print r_push.json
+
+
+def create_notification_ionic_push_carrito(sale, user, title, message, typePush=0):
     if len(user.token_phone.all()[0].token) == 64:
-        customPush = {
-            "saleId": sale.id
-        }
-        return customPush
-        # return noti_ios(
-        #     user.token_phone.all()[0].token,
-        #     message,
-        #     customPush
-        # )
+        return push_ios(
+            user.token_phone.all()[0].token,
+            message,
+            sale.id,
+            typePush
+        )
     else:
         return create_notification_carrito(sale, user, title, message)
 

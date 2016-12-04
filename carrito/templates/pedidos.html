@@ -62,6 +62,10 @@
     <script type='text/javascript' src="//openpay.s3.amazonaws.com/openpay-data.v1.min.js"></script>
     <script>
       (function(){
+          $('.button-delivered').on('click', function(){
+              var $this = $(this);
+              $this.button('loading');
+          })
           OpenPay.setId('m8b154uw3de2m8aqln4u');
           OpenPay.setApiKey('pk_7015e8ae0f8044fd8d82c9b5de1c9f10');
           OpenPay.setSandboxMode(false);
