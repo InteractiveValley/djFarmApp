@@ -66,6 +66,10 @@
               var $this = $(this);
               $this.button('loading');
           })
+          $('.button-send').on('click', function(){
+              var $this = $(this);
+              $this.button('loading');
+          })
           OpenPay.setId('m8b154uw3de2m8aqln4u');
           OpenPay.setApiKey('pk_7015e8ae0f8044fd8d82c9b5de1c9f10');
           OpenPay.setSandboxMode(false);
@@ -95,10 +99,11 @@
                 var pedido = $button.parent().parent().data("sale");
                 console.log(url);
                 var deviceSessionId = OpenPay.deviceData.setup();
+                console.log(deviceSessionId)
                 $.ajax({
                   url: url,
                   type: 'get',
-                  data: {'device_session_id': deviceSessionId },
+                  data: {'device_session': deviceSessionId },
                   success: function(data) {
                       //alert(data);
                       console.log(data);

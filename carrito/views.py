@@ -48,10 +48,8 @@ def pedidos(request):
         try:
             sales = paginator.page(page)
         except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
             sales = paginator.page(1)
         except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
             sales = paginator.page(paginator.num_pages)
 
         return render(request, 'pedidos.html', {"pedidos": sales, "filter": filtro})
@@ -74,19 +72,81 @@ def pedido_ver_recetas(request, sale_id):
 def detalle_aprobar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     if pedido.status != APPROVED:
-        pedido.status = APPROVED
+        # pedido.status = APPROVED
         pedido.vendor = request.user
-        pedido.save()
-        detalles = DetailSale.objects.filter(sale=pedido)
-        message = "Tu orden #" + str(pedido.id).zfill(6) + " esta en camino"
-        create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message, 1)
+        user_conekta = ConektaUser.objects.get(user=pedido.user)
+
+        device_session_id = request.GET.get('device_session')
+
+        openpay.api_key = APP_OPENPAY_API_KEY
+        openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
+        openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
+        openpay.production = APP_OPENPAY_PRODUCTION
+        customer = openpay.Customer.retrieve(user_conekta.conekta_user)
+
+        card_conekta = pedido.card_conekta
+        amount = "{0:.2f}".format(pedido.total)
+        detalles = pedido.detail_sales.all()
+        lista = []
+        charge = None
+        alertas = []
+        try:
+            if len(pedido.charge_conekta) == 0:
+                charge = customer.charges.create(
+                    source_id=card_conekta.card,
+                    method="card",
+                    currency="MXN",
+                    amount=amount,
+                    description="Pedido de FarmaApp",
+                    order_id="nhubv6t7ybunjgvby8ubhubgygyg",
+                    device_session_id=device_session_id
+                )
+            else:
+                charge = customer.charges.retrieve(pedido.charge_conekta)
+        except Exception, e:
+            print e
+            alertas.append(
+                "Ocurrio un error al realizar la transacción, detalle: {0}".format(str(e))
+            )
+
+        if charge is None:
+            pedido.status = NO_PAID
+            pedido.save()
+        elif charge.status == "completed":
+            pedido.charge_conekta = charge.id
+            pedido.status = PAID
+            pedido.vendor = request.user
+            pedido.save()
+            pedido.discount_inventory
+            try:
+                enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
+                enviar_mensaje.enviarMensaje()
+            except Exception, e:
+                print e
+                alertas.append("Ocurrio un error al enviar el correo electronico")
+            str_pedido = str(pedido.id).zfill(6)
+            str_total = '{:20,.2f}'.format(pedido.total)
+            message = "Tu orden #{0} con un monto de ${1} se ha cobrado y esta en camino a ser entregada.".format(str_pedido, str_total)
+            try:
+                create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message, amount)
+            except Exception, e:
+                alertas.append("Ocurrio un error al enviar la push notification")
+
+        elif charge.status == "in_progress":
+            pedido.charge_conekta = charge.id
+            pedido.status = NO_PAID
+            pedido.vendor = request.user
+            pedido.save()
+        elif charge.status == "failed":
+            pedido.status = NO_PAID
+            pedido.save()
 
     if request.is_ajax():
         template = "item_pedido.html"
     else:
         template = "detalle_pedido.html"
 
-    return render(request, template, {"pedido": pedido, 'detalles': detalles})
+    return render(request, template, {"pedido": pedido, 'detalles': detalles, 'alertas': alertas})
 
 
 def detalle_cancelar(request, sale_id):
@@ -129,74 +189,18 @@ def detalle_rechazar_receta(request, sale_id):
 def detalle_entregar(request, sale_id):
     pedido = Sale.objects.get(pk=sale_id)
     if pedido.status != DELIVERED:
-        pedido.status = DELIVERED
+        pedido.status = PAID
         pedido.vendor = request.user
-        user_conekta = ConektaUser.objects.get(user=pedido.user)
+        pedido.save()
 
-        device_session_id = request.GET.get('device_session_id')
-
-        openpay.api_key = APP_OPENPAY_API_KEY
-        openpay.verify_ssl_certs = APP_OPENPAY_VERIFY_SSL_CERTS
-        openpay.merchant_id = APP_OPENPAY_MERCHANT_ID
-        openpay.production = APP_OPENPAY_PRODUCTION
-        customer = openpay.Customer.retrieve(user_conekta.conekta_user)
-
-        card_conekta = pedido.card_conekta
         amount = "{0:.2f}".format(pedido.total)
-        detalles = pedido.detail_sales.all()
-        lista = []
-        charge = None
-        alertas = []
+        str_pedido = str(pedido.id).zfill(6)
+        str_total = '{:20,.2f}'.format(pedido.total)
+        message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
         try:
-            if len(pedido.charge_conekta) == 0:
-                charge = customer.charges.create(
-                    source_id=card_conekta.card,
-                    method="card",
-                    currency="MXN",
-                    amount=pedido.total,
-                    description="Pedido de FarmaApp",
-                    order_id="ppasppedido-" + str(pedido.id) + "-farmaapp",
-                    device_session_id=device_session_id
-                )
-            else:
-                charge = customer.charges.retrieve(pedido.charge_conekta)
+            create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message, amount)
         except Exception, e:
-            print e
-            alertas.append(
-                "Ocurrio un error al realizar la transacción, detalle: {0}".format(str(e))
-            )
-
-        if charge is None:
-            pedido.status = NO_PAID
-            pedido.save()
-        elif charge.status == "completed":
-            pedido.charge_conekta = charge.id
-            pedido.status = PAID
-            pedido.vendor = request.user
-            pedido.save()
-            pedido.discount_inventory
-            try:
-                enviar_mensaje = EmailSendSale(pedido, detalles, pedido.user)
-                enviar_mensaje.enviarMensaje()
-            except Exception, e:
-                print e
-                alertas.append("Ocurrio un error al enviar el correo electronico")
-            str_pedido = str(pedido.id).zfill(6)
-            str_total = '{:20,.2f}'.format(pedido.total)
-            message = "Tu orden #{0} con un monto de ${1} ha sido entregada.".format(str_pedido, str_total)
-            try:
-                create_notification_ionic_push_carrito(pedido, pedido.user, "FarmaApp", message, amount)
-            except Exception, e:
-                alertas.append("Ocurrio un error al enviar la push notification")
-
-        elif charge.status == "in_progress":
-            pedido.charge_conekta = charge.id
-            pedido.status = NO_PAID
-            pedido.vendor = request.user
-            pedido.save()
-        elif charge.status == "failed":
-            pedido.status = NO_PAID
-            pedido.save()
+            alertas.append("Ocurrio un error al enviar la push notification")
 
     if request.is_ajax():
         template = "item_pedido.html"
