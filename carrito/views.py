@@ -98,7 +98,7 @@ def detalle_aprobar(request, sale_id):
                     currency="MXN",
                     amount=amount,
                     description="Pedido de FarmaApp",
-                    order_id="nhubv6t7ybunjgvby8ubhubgygyg",
+                    order_id="pedido-" + str(pedido.id) + "-farmaapp",
                     device_session_id=device_session_id
                 )
             else:
